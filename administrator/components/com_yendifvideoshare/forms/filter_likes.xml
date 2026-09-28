@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+    <fields name="filter">
+        <field 
+            name="search" 
+            type="text" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_SEARCH"
+            hint="JSEARCH_FILTER"
+            class="js-stools-search-string" 
+        />
+
+        <field 
+            name="likes"             
+            type="list" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_LIKES" 
+            onchange="this.form.submit();" 
+            >
+            <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_LIKES_NONE</option>
+            <option value="1">COM_YENDIFVIDEOSHARE_FORM_OPTION_LIKES</option>
+            <option value="0">COM_YENDIFVIDEOSHARE_FORM_OPTION_DISLIKES</option>
+        </field>
+
+        <field 
+            name="userid"             
+            type="sql" 
+            query="SELECT id,name FROM #__users ORDER BY name ASC" 
+            key_field="id" 
+            value_field="name" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_USERID" 
+            translate="true"             
+            onchange="this.form.submit();"
+            >
+            <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_USER_NONE</option>
+        </field>
+    </fields>
+
+    <fields name="list">
+        <field 
+            name="fullordering"
+            type="list"
+            default="a.id DESC"
+            label="JGLOBAL_SORT_BY"
+            onchange="this.form.submit();"            
+            >
+            <option value="">JGLOBAL_SORT_BY</option>   
+            <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>          
+            <option value="a.title ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_VIDEOS_ASC</option>
+            <option value="a.title DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_VIDEOS_DESC</option>
+            <option value="a.userid ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_ASC</option>
+            <option value="a.userid DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_DESC</option>
+            <option value="a.likes ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_LIKES_ASC</option>
+            <option value="a.likes DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_LIKES_DESC</option>
+            <option value="a.dislikes ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_DISLIKES_ASC</option>
+            <option value="a.dislikes DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_DISLIKES_DESC</option>            
+        </field>
+
+       <field 
+            name="limit"
+            type="limitbox"
+            default="25"
+            label="JGLOBAL_LIST_LIMIT"
+            class="input-mini"            
+            onchange="this.form.submit();"
+        />
+    </fields>
+</form>

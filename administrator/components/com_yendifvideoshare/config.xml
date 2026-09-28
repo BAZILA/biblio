@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <fieldset name="general" label="COM_YENDIFVIDEOSHARE_FIELDSET_GENERAL" addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">    
+    <fieldset name="general_basic" label="COM_YENDIFVIDEOSHARE_FIELDSET_GENERAL">
+      <field 
+        name="schedule_video_publishing" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SCHEDULE_VIDEO_PUBLISHING" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SCHEDULE_VIDEO_PUBLISHING"
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+    </fieldset>
+
+    <fieldset name="general_gallery" label="COM_YENDIFVIDEOSHARE_FIELDSET_GALLERY">
+      <field 
+        name="no_of_rows"      
+        type="text" 
+        filter="int" 
+        default="3" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_ROWS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_ROWS" 
+      />
+
+      <field 
+        name="no_of_cols" 
+        type="text" 
+        filter="int"       
+        default="3" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_COLS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_COLS" 
+      />
+
+      <field 
+        name="image_ratio"       
+        type="text" 
+        filter="float" 
+        default="56.25" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMAGE_RATIO" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMAGE_RATIO" 
+      />
+
+      <field 
+        name="default_image" 
+        type="media" 
+        directory=""       
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DEFAULT_IMAGE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DEFAULT_IMAGE" 
+      /> 
+
+      <field 
+        name="title_length"                    
+        type="text" 
+        filter="int" 
+        default="" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_TITLE_LENGTH" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_TITLE_LENGTH" 
+      />
+
+      <field 
+        name="show_excerpt" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_EXCERPT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_EXCERPT" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field> 
+
+      <field 
+        name="excerpt_length"      
+        type="text" 
+        filter="int" 
+        default="100" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_EXCERPT_LENGTH" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_EXCERPT_LENGTH" 
+      />
+
+      <field 
+        name="show_category" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_CATEGORY" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_CATEGORY" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="show_user" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_USER" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_USER" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="show_date" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_DATE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_DATE" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="date_format"        
+        type="text" 
+        filter="string"        
+        default="F j, Y" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DATE_FORMAT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DATE_FORMAT" 
+      />
+
+      <field 
+        name="show_videos_count" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_VIDEOS_COUNT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_VIDEOS_COUNT" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field> 
+
+      <field 
+        name="show_views" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_VIEWS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_VIEWS" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>          
+
+      <field 
+        name="enable_popup" 
+        type="customradio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ENABLE_POPUP" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ENABLE_POPUP" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="autoplaylist" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_AUTOPLAYLIST" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_AUTOPLAYLIST" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+    </fieldset>
+
+    <fieldset name="general_ratings" label="COM_YENDIFVIDEOSHARE_FIELDSET_RATINGS">
+      <field 
+        type="customnote"
+        name="customnote_ratings"
+      />
+
+      <field 
+        name="show_rating" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_RATING" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_RATING" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="allow_guest_rating" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_GUEST_RATING" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_GUEST_RATING" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+    </fieldset>
+
+    <fieldset name="general_likes_dislikes" label="COM_YENDIFVIDEOSHARE_FIELDSET_LIKES_DISLIKES">
+      <field 
+        type="customnote"
+        name="customnote_likes_dislikes"
+      />
+
+      <field 
+        name="show_likes" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_LIKES" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_LIKES" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="allow_guest_like" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_GUEST_LIKE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_GUEST_LIKE" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+    </fieldset>
+
+    <fieldset name="general_rss_fed" label="COM_YENDIFVIDEOSHARE_FIELDSET_RSS_FEED">
+      <field 
+        name="show_feed" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_FEED" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_FEED" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="feed_icon" 
+        type="media" 
+        directory="" 
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FEED_ICON" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FEED_ICON" 
+      />
+
+      <field 
+        name="feed_limit"         
+        type="text" 
+        filter="int" 
+        default="20" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FEED_LIMIT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FEED_LIMIT" 
+      />   
+    </fieldset>    
+  </fieldset> 
+
+  <fieldset name="player" label="COM_YENDIFVIDEOSHARE_FIELDSET_PLAYER">
+    <fieldset name="player_general" label="COM_YENDIFVIDEOSHARE_FIELDSET_GENERAL">
+      <field 
+        name="width"        
+        type="text" 
+        filter="string"        
+        default="" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_WIDTH" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_WIDTH" 
+      />
+
+      <field 
+        name="ratio"       
+        type="text" 
+        filter="float" 
+        default="56.25" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_RATIO" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_RATIO" 
+      />
+
+      <field 
+        name="autoplay" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_AUTOPLAY" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_AUTOPLAY" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="loop" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOOP" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOOP" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="volume" 
+        first="-1" 
+        last="100" 
+        step="1" 
+        type="integer" 
+        default="-1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VOLUME" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VOLUME" 
+        >
+        <option value="-1">--/--</option>
+      </field>
+
+      <field 
+        name="hotkeys" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_HOTKEYS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_HOTKEYS" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="show_consent" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_GDPR_CONSENT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_GDPR_CONSENT" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="analytics"        
+        type="text" 
+        filter="string"
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ANALYTICS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ANALYTICS" 
+      />
+    </fieldset>
+
+    <fieldset name="player_controls" label="COM_YENDIFVIDEOSHARE_FIELDSET_PLAYER_CONTROLS">
+      <field 
+        name="controlbar" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CONTROLBAR" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CONTROLBAR" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="playbtn" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYBTN" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYBTN" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="playpause" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYPAUSE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYPAUSE" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="currenttime" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CURRENTTIME" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CURRENTTIME" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="progress" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PROGRESS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PROGRESS" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="duration" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DURATION" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DURATION" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="volumebtn" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VOLUMEBTN" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VOLUMEBTN" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="fullscreen" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FULLSCREEN" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FULLSCREEN" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="embed" 
+        type="customradio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_EMBED" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_EMBED" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="share" 
+        type="customradio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHARE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHARE" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="download" 
+        type="customradio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DOWNLOAD" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DOWNLOAD" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+    </fieldset>
+
+    <fieldset name="player_playlist" label="COM_YENDIFVIDEOSHARE_FIELDSET_PLAYLIST">
+      <field 
+        name="playlist_position"       
+        type="list" 
+        default="right" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYLIST_POSITION" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYLIST_POSITION" 
+        >
+        <option value="bottom">COM_YENDIFVIDEOSHARE_FORM_OPTION_PLAYLIST_POSITION_BOTTOM</option>
+        <option value="right">COM_YENDIFVIDEOSHARE_FORM_OPTION_PLAYLIST_POSITION_RIGHT</option>
+      </field>
+
+      <field 
+        name="playlist_width"      
+        type="text" 
+        filter="int" 
+        default="250" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYLIST_WIDTH" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYLIST_WIDTH" 
+      />
+
+      <field 
+        name="playlist_height"      
+        type="text" 
+        filter="int" 
+        default="150" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYLIST_HEIGHT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYLIST_HEIGHT" 
+      />
+    </fieldset>
+
+    <fieldset name="player_adverts" label="COM_YENDIFVIDEOSHARE_FIELDSET_ADVERTS">
+      <field 
+        type="customnote"
+        name="customnote_adverts"
+      />
+
+      <field 
+        name="ad_engine"       
+        type="list" 
+        default="vast" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_AD_ENGINE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_AD_ENGINE" 
+        >
+        <option value="custom">COM_YENDIFVIDEOSHARE_FORM_OPTION_AD_ENGINE_CUSTOM</option>
+        <option value="vast">COM_YENDIFVIDEOSHARE_FORM_OPTION_AD_ENGINE_VAST</option>
+      </field>
+
+      <field 
+        name="enable_adverts"       
+        type="list" 
+        default="preroll_only" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ENABLE_ADVERTS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ENABLE_ADVERTS" 
+        showon="ad_engine:custom"
+        >
+        <option value="none">COM_YENDIFVIDEOSHARE_FORM_OPTION_ENABLE_ADVERTS_NONE</option>
+        <option value="preroll_only">COM_YENDIFVIDEOSHARE_FORM_OPTION_ENABLE_ADVERTS_PREROLL_ONLY</option>
+        <option value="postroll_only">COM_YENDIFVIDEOSHARE_FORM_OPTION_ENABLE_ADVERTS_POSTROLL_ONLY</option>
+        <option value="both">COM_YENDIFVIDEOSHARE_FORM_OPTION_ENABLE_ADVERTS_BOTH</option>
+      </field>
+
+      <field 
+        name="show_adverts_timeframe" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_ADVERTS_TIMEFRAME" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_ADVERTS_TIMEFRAME" 
+        showon="ad_engine:custom"
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="can_skip_adverts" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CAN_SKIP_ADVERTS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CAN_SKIP_ADVERTS" 
+        showon="ad_engine:custom"
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="show_skip_adverts_on"        
+        type="text" 
+        filter="int"
+        default="3" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_SKIP_ADVERTS_ON" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_SKIP_ADVERTS_ON" 
+        showon="ad_engine:custom"
+      />
+
+      <field 
+        name="vasturl"       
+        type="url" 
+        validate="url" 
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VASTURL" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VASTURL" 
+        showon="ad_engine:vast"
+      />
+    </fieldset>
+  </fieldset> 
+
+  <fieldset name="single_video_page" label="COM_YENDIFVIDEOSHARE_FIELDSET_SINGLE_VIDEO_PAGE">
+    <fieldset name="single_video_page_general" label="COM_YENDIFVIDEOSHARE_FIELDSET_SINGLE_VIDEO_PAGE">
+      <field 
+        name="show_title" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_TITLE" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_TITLE" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="show_description" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_DESCRIPTION" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_DESCRIPTION" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>         
+
+      <field 
+        name="show_search" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_SEARCH" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_SEARCH" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>       
+    </fieldset> 
+
+    <fieldset name="single_video_page_related" label="COM_YENDIFVIDEOSHARE_FIELDSET_RELATED">
+      <field 
+        name="show_related" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="1" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_RELATED" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_RELATED" 
+        >
+        <option value="0">JHIDE</option>
+        <option value="1">JSHOW</option>
+      </field>
+
+      <field 
+        name="related_no_of_rows"      
+        type="text" 
+        filter="int" 
+        default="" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_ROWS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_ROWS" 
+      />
+
+      <field 
+        name="related_no_of_cols" 
+        type="text" 
+        filter="int"       
+        default="" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_COLS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_COLS" 
+      />
+
+      <field 
+        name="related_orderby"
+        type="list"
+        default="latest"
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ORDERBY"                                
+        >
+        <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_NONE</option>
+        <option value="latest">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_LATEST</option>
+        <option value="date_added">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_DATE_ADDED</option>
+        <option value="most_viewed">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_MOST_VIEWED</option>
+        <option value="most_rated">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_MOST_RATED</option>
+        <option value="a_z">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_A_Z</option>
+        <option value="z_a">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_Z_A</option>
+        <option value="random">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_RANDOM</option>   
+        <option value="ordering">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_ORDERING</option>       
+      </field>
+    </fieldset> 
+
+    <fieldset name="single_video_page_comments" label="COM_YENDIFVIDEOSHARE_FIELDSET_COMMENTS">
+      <field 
+        name="comments" 
+        type="list" 
+        default="none"       
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_COMMENTS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_COMMENTS" 
+        >
+        <option value="none">COM_YENDIFVIDEOSHARE_FORM_OPTION_COMMENTS_NONE</option>
+        <option value="facebook">COM_YENDIFVIDEOSHARE_FORM_OPTION_COMMENTS_FACEBOOK</option>
+        <option value="komento">COM_YENDIFVIDEOSHARE_FORM_OPTION_COMMENTS_KOMENTO</option>
+        <option value="jlex">COM_YENDIFVIDEOSHARE_FORM_OPTION_COMMENTS_JLEX</option>
+      </field>
+
+      <field 
+        name="fb_app_id"       
+        type="text" 
+        filter="string" 
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FB_APP_ID" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FB_APP_ID" 
+        showon="comments:facebook"
+      />
+
+      <field 
+        name="fb_post_count"        
+        type="text" 
+        filter="float"
+        default="5" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FB_POST_COUNT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FB_POST_COUNT" 
+        showon="comments:facebook"
+      />
+
+      <field 
+        name="fb_color_scheme"        
+        type="list" 
+        default="light"
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FB_COLOR_SCHEME" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FB_COLOR_SCHEME" 
+        showon="comments:facebook"
+        >
+        <option value="light">COM_YENDIFVIDEOSHARE_FORM_OPTION_FB_COLOR_SCHEME_LIGHT</option>
+        <option value="dark">COM_YENDIFVIDEOSHARE_FORM_OPTION_FB_COLOR_SCHEME_DARK</option>
+      </field>
+    </fieldset> 
+  </fieldset> 
+
+  <fieldset name="front_end_video_form" label="COM_YENDIFVIDEOSHARE_FIELDSET_FRONT_END_VIDEO_FORM">
+    <field 
+      name="allow_upload" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="1" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_UPLOAD"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_UPLOAD"  
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+      name="max_upload_size"      
+      type="text" 
+      filter="int" 
+      default="" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_MAX_UPLOAD_SIZE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_MAX_UPLOAD_SIZE" 
+      showon="allow_upload:1"
+    />
+
+    <field 
+      name="allow_youtube" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="1" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_YOUTUBE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_YOUTUBE"
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+      name="allow_vimeo" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="1" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_VIMEO" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_VIMEO"
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+      name="allow_hls_dash" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="1" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_HLS_DASH" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_HLS_DASH"
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+      name="allow_subtitle" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="0" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_ALLOW_SUBTITLE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_ALLOW_SUBTITLE"
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+  </fieldset>   
+
+  <fieldset name="licensing" label="COM_YENDIFVIDEOSHARE_FIELDSET_LICENSING">
+    <field 
+      type="customnote"
+      name="customnote_licensing"
+    />
+
+    <field 
+      name="license"       
+      type="text" 
+      filter="raw" 
+      default=""
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_LICENSE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_LICENSE" 
+    />
+
+    <field 
+      name="logo"       
+      type="media" 
+      directory="" 
+      default=""
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOGO" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOGO" 
+    />
+
+    <field 
+      name="logoposition"       
+      type="list" 
+      default="bottomleft" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOGOPOSITION" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOGOPOSITION" 
+      >
+      <option value="topleft">COM_YENDIFVIDEOSHARE_FORM_OPTION_LOGOPOSITION_TOPLEFT</option>
+      <option value="topright">COM_YENDIFVIDEOSHARE_FORM_OPTION_LOGOPOSITION_TOPRIGHT</option>
+      <option value="bottomleft">COM_YENDIFVIDEOSHARE_FORM_OPTION_LOGOPOSITION_BOTTOMLEFT</option>
+      <option value="bottomright">COM_YENDIFVIDEOSHARE_FORM_OPTION_LOGOPOSITION_BOTTOMRIGHT</option>
+    </field>
+
+    <field 
+      name="logoalpha" 
+      first="0" 
+      last="100" 
+      step="1" 
+      type="integer" 
+      default="50" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOGOALPHA" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOGOALPHA" 
+    />
+
+    <field 
+      name="logotarget"       
+      type="url" 
+      validate="url" 
+      default=""
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOGOTARGET" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOGOTARGET" 
+    />
+
+    <field 
+      name="displaylogo" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="1" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_DISPLAYLOGO" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_DISPLAYLOGO" 
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+        name="copyright_text"        
+        type="text" 
+        filter="string"        
+        default="" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_COPYRIGHT_TEXT" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_COPYRIGHT_TEXT" 
+      />
+  </fieldset>
+
+  <fieldset name="advanced" label="COM_YENDIFVIDEOSHARE_FIELDSET_ADVANCED">
+    <fieldset name="advanced_seo" label="COM_YENDIFVIDEOSHARE_FIELDSET_SEO">
+      <field
+        name="itemid_category"
+        type="menuitem"
+        filter="integer"
+        default="-1"
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ITEMID_CATEGORY"
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ITEMID_CATEGORY"					
+        >
+        <option value="0">COM_YENDIFVIDEOSHARE_FORM_OPTION_ITEMID_NONE</option>
+        <option value="-1">COM_YENDIFVIDEOSHARE_FORM_OPTION_ITEMID_AUTO</option>   
+      </field>
+
+      <field
+        name="itemid_video"
+        type="menuitem"
+        filter="integer"
+        default="-1"
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ITEMID_VIDEO"
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ITEMID_VIDEO"					
+        >
+        <option value="0">COM_YENDIFVIDEOSHARE_FORM_OPTION_ITEMID_NONE</option>
+        <option value="-1">COM_YENDIFVIDEOSHARE_FORM_OPTION_ITEMID_AUTO</option>   
+      </field>
+    </fieldset>
+
+    <fieldset name="advanced_api_keys" label="COM_YENDIFVIDEOSHARE_FIELDSET_API_KEYS">
+      <field 
+        name="youtube_api_key"         
+        type="text"
+        filter="string"  
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_YOUTUBE_API_KEY" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_YOUTUBE_API_KEY" 
+      />
+
+      <field 
+        name="vimeo_access_token"         
+        type="text" 
+        filter="string" 
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIMEO_ACCESS_TOKEN" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VIMEO_ACCESS_TOKEN" 
+      />
+    </fieldset> 
+
+    <fieldset name="advanced_custom_css" label="COM_YENDIFVIDEOSHARE_FIELDSET_CUSTOM_CSS">
+      <field 
+        name="load_bootstrap" 
+        type="radio" 
+        buttons="true" 
+        layout="joomla.form.field.radio.switcher" 
+        default="0" 
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOAD_BOOTSTRAP" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOAD_BOOTSTRAP" 
+        >
+        <option value="0">JNO</option>
+        <option value="1">JYES</option>
+      </field>
+
+      <field 
+        name="custom_css" 
+        type="textarea" 
+        filter="safehtml" 
+        default=""
+        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CUSTOM_CSS" 
+        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CUSTOM_CSS" 
+        rows="10"
+      />
+    </fieldset>   
+  </fieldset>
+
+  <fieldset name="permissions" description="JCONFIG_PERMISSIONS_DESC" label="JCONFIG_PERMISSIONS_LABEL">
+    <field 
+      name="rules" 
+      type="rules" 
+      component="com_yendifvideoshare" 
+      class="inputbox" 
+      filter="rules" 
+      validate="rules" 
+      label="JCONFIG_PERMISSIONS_LABEL" 
+      section="component"
+    />
+	</fieldset>
+</config>

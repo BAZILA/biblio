@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension
+	type="module"
+	version="4.x"
+	client="site"
+	method="upgrade">
+	<name>Headline JT5</name>
+	<author>JOOMLATEMA.NET</author>
+	<creationDate>Jan 04, 2014</creationDate>
+	<copyright>Copyright (C) 2008 - 2022 http://www.Joomlatema.Net All rights reserved.</copyright>
+	<license>GNU/GPL</license>	
+	<authorEmail>destek@joomlatema.net</authorEmail>
+	<authorUrl>www.Joomlatema.Net</authorUrl>
+	<version>2.1</version>
+		<description> 	<![CDATA[<div style="color:#222;">
+		This module allows you to display your Joomla content as single news block on one side and multiple news block on the other side.
+		<br /><br />
+		<p style="color:#666; font-size:90%;">Extension created by <a href="http://www.joomlatema.net" target="_blank" title="" >JoomlaTemaNet</a></p>
+		</div>
+		]]>    
+	</description>
+	<files>
+		<filename module="mod_headline_jt5">mod_headline_jt5.php</filename>
+		<filename>index.html</filename>
+		<folder>classes/</folder>
+		<folder>language</folder>
+		<folder>tmpl</folder>
+		<folder>helpers/</folder>
+	</files>
+	<updateservers>
+ <server type="extension" priority="1" name="Headline JT5 Updates">http://joomlatema.net/update_server/joomla4/headline_jt5.xml</server>
+</updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB.mod_headline_jt5.ini</language>
+		<language tag="tr-TR">language/tr-TR.mod_headline_jt5.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				</fieldset>	
+				<!--general_settings-->
+			<fieldset name="general_settings" label="GENERAL_SETTINGS">
+			<field name="layout_type" type="radio" class="btn-group" default="static" label="LAYOUT" description="LAYOUT_DESC">
+				<option value="static">LAYOUT_STATIC</option>
+				<option value="slider">LAYOUT_SLIDER</option>
+					</field> 
+					<field name="news_autorun" type="radio" class="btn-group" showon="layout_type:slider" default="1" label="AUTORUN" description="AUTORUN_DESC">
+					<option value="0">AUTORUN_NO</option>
+					<option value="1">AUTORUN_YES</option>
+				</field>
+				<field name="modulewidth" type="text" default="auto" label="MODULE_WIDTH" description="MODULE_WIDTH_DESC" />
+				<field name="moduleheight" type="text" default="auto" label="MODULE_HEIGHT" description="MODULE_HEIGHT_DESC" />
+				<field name="padding" default="10px 10px 10px 10px" label="MODULE_PADDING" type="text" description="MODULE_PADDING_DESC" />
+				<field name="newsbg" default="#ffffff00" label="NEWSCONTENT_BG"  type="color"  format="hex" description="NEWSCONTENT_BG_DESC" />
+				<field name="show_image" type="radio" default="1" class="btn-group"
+					label="SHOW_IMAGE" description="SHOW_IMAGE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="jt5_link_limage" type="radio" class="btn-group" default="1" showon="show_image:1" label="LINK_IMAGES" description="LINK_IMAGES_DESC">
+					<option value="1">LINK_IMAGES_YES</option>
+					<option value="0">LINK_IMAGES_NO</option>
+				</field>
+				<field name="use_introimg" type="radio" default="1" class="btn-group"
+					label="USE_INTROIMG" description="USE_INTROIMG_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="checkimg_fulltext" type="radio" default="0" class="btn-group"
+					label="CHECKIMG_FULLTEXT" description="CHECKIMG_FULLTEXT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="check_image_exist" type="radio" default="0" class="btn-group"
+					label="CHECK_IMAGE_EXIST" description="CHECK_IMAGE_EXIST_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="default_thumb" type="radio" default="1" class="btn-group"
+					label="DEFAULT_THUMB" description="DEFAULT_THUMB_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+			 <field name="replacer" type="text" default="..." label="REPLACER" description="REPLACER_DESC" />
+			 	<field name="showall" type="radio" class="btn-group" default="1" label="SHOW_MOREIN_LINK" description="SHOW_MOREIN_LINK_DESC">
+				<option value="1">MOREIN_SHOW</option>
+				<option value="0">MOREIN_HIDE</option>
+			</field>
+			<field name="show_all_text" type="text" default="More In" showon="showall:1" label="MOREIN_TEXT" description="MOREIN_TEXT_DESC" />
+			<field name="date_format" type="text"  default="d M Y" label="DATE_FORMAT" description="DATE_FORMAT_DESC" />
+			<field name="DateLabel" type="text"  default="Date:" filter="raw" label="DATE_LABEL" description="DATE_LABEL_DESC" />
+			<field name="AuthorLabel" type="text"  default="Author:" filter="raw" label="AUTHOR_LABEL" description="AUTHOR_LABEL_DESC" />
+			<field name="HitsLabel" type="text"  default="Hits:" filter="raw" label="HITS_LABEL" description="HITS_LABEL_DESC" />
+			<field name="readon_text" default="Details" showon="showreadone:1" label="READON_TEXT" type="text" description="READON_TEXT_DESC" />
+				</fieldset>
+				<!--source_setting-->
+					<fieldset name="source_settings" label="SOURCE_SETTINGS">
+					<field name="source" type="list" default="0" llabel="CONTENT_CATEGORY"
+					description="CONTENT_CATEGORY_DESC">
+					<option value="category">CATEGORY</option>
+					<option value="article_ids">ARTICLES_IDS</option>
+					<option value="joomla_tags">JOOMLA_TAGS</option>
+				</field>
+				<field name="article_ids" type="text" default="" label="ARTICLES_IDS" class="source_article_ids"
+					description="ARTICLES_IDS_DESC" />
+					<field name="category" show_root="true" type="category" showon="source:category" class="source_category"
+					extension="com_content" multiple="true" size="10" label="CONTENT_CATEGORY"
+					description="CONTENT_CATEGORY_DESC" />
+					<field name="article_ids" type="text" default="" showon="source:article_ids" label="ARTICLES_IDS" class="source_article_ids"
+					description="ARTICLES_IDS_DESC" />
+					<field name="joomla_tags" type="tag"  showon="source:joomla_tags" label="JOOMLA_TAGS" description="JOOMLA_TAGS_DESC" mode="nested" class="inputbox span12 small" multiple="true" />
+				<field name="auto_category" class="source_category btn-group" type="radio" default="0" label="AUTO_CATEGORY"
+					description="AUTO_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>	
+				</field> 
+				<field name="sub_categories" type="radio" class="source_category btn-group" default="0" label="SUB_CATEGORIES" description="SUB_CATEGORIES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="exclude_categories" type="text" class="source_category" label="EXCLUDE_CATEGORIES" description="EXCLUDE_CATEGORIES_DESC"/>
+				<field name="limit_items" type="text" default="4" label="LIMIT_ITEMS"
+					description="LIMIT_ITEMS_DESC" />
+				<field name="limit_items_for_each" type="radio" class="btn-group" default="0" label="LIMIT_ITEMS_FOR_EACH" description="LIMIT_ITEMS_FOR_EACH_DESC">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+				<field name="user_id" type="list" default="0" label="USER_FILTER"
+					description="USER_FILTER_DESC">
+					<option value="0">USER_ANYONE</option>
+					<option value="by_me">USER_ADDED_BY_ME</option>
+					<option value="not_me">USER_NOTADDED_BY_ME</option>
+				</field>
+				<field name="show_featured" type="list" default="1"
+					label="SHOW_FEATURED" description="SHOW_FEATURED_DESC">
+					<option value="1">JSHOW</option>
+					<option value="2">JHIDE</option>
+					<option value="3">ONLY_SHOW_FEATURED</option>
+				</field>
+				<field name="ordering" type="list" default="created-asc"
+					label="ARTCILES_SORTED_BY" description="ARTCILES_SORTED_BY_DESC">
+					<option value="id-asc">ID_ASCENDING</option>
+					<option value="id-desc">ID_DESCENDING</option>
+					<option value="title-asc">TITLE_ASCENDING</option>
+					<option value="title-desc">TITLE_DESCENDING</option>
+					<option value="ordering-asc">ORDERING_ASCENDING</option>
+					<option value="ordering-desc">ORDERING_DESCENDING</option>
+					<option value="hits-asc">HIT_ASCENDING</option>
+					<option value="hits-desc">HIT_DESCENDING</option>
+					<option value="created-asc">DATE_ASCENDING</option>
+					<option value="created-desc">DATE_DESCENDING</option>
+					<option value="publish_up-asc">PUBLISHED_DATE_ASCENDING</option>
+					<option value="publish_up-desc">PUBLISHED_DATE_DESCENDING</option>
+					<option value="featured-">FEATURED_ORDERING</option>
+					<option value="rand-">RANDOM</option>
+				</field>
+				
+				</fieldset>	<!-- SINGLE ROW BLOCK SETTINGS -->
+				<fieldset name="singlerow" label="SINGLEROW_BLOCK_SETTINGS">
+				<field name="singlerowfloat" type="radio" class="btn-group" default="left" label="SINGLEROW_FLOAT" description="SINGLEROW_FLOAT_DESC">
+				<option value="left">FLOAT_LEFT</option>
+				<option value="right">FLOAT_RIGHT</option>
+					</field>
+					<field name="singleblock_padding" default="10px 10px 10px 10px" label="SINGLEBLOCK_PADDING" type="text" description="SINGLEBLOCK_PADDING_DESC" />
+					<field type="spacer" name="title_option" label="TITLE_OPTION" />
+				<field name="show_title" type="radio" class="btn-group"  default="1" label="TITLE_SHOW" description="TITLE_SHOW_DESC">
+				<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="limit_title_by" type="radio" class="btn-group" showon="show_title:1" default="word" label="MOD_HEADLINEJT5_TITLE_LIMIT_TYPE"  description="MOD_HEADLINEJT5_TITLE_LIMIT_TYPE_DESC">
+				<option value="word">LIMIT_WORD</option>
+					<option value="char">LIMIT_CHARACTER</option>
+				</field>
+				<field name="title_max_chars" default="5" showon="show_title:1" label="MOD_HEADLINEJT5_TITLE_LIMIT" type="text" description="MOD_HEADLINEJT5_TITLE_LIMIT_DESC" />
+<field name="TitleType" type="list" default="h3" label="TITLE_CLASS"
+					description="TITLE_CLASS_DESC">
+					<option value="h1">h1</option>
+					<option value="h2">h2</option>
+					<option value="h3">h3</option>
+					<option value="h4">h4</option>
+					<option value="h5">h5</option>
+					<option value="h6">h6</option>
+				</field>
+				<field name="linktitle" type="radio"  showon="show_title:1"  class="btn-group" default="1" label="LINK_TITLE" description="LINK_TITLE_DESC">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+			</field>
+				<field type="spacer" name="intro_text_option" label="INTRO_TEXT_OPTION" />
+				<field name="showintrotext" type="radio" class="btn-group"  default="1" label="INTRO_SHOW" description="INTRO_SHOW_DESC">
+				<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="limit_description_by" type="radio" class="btn-group" showon="showintrotext:1"  default="char" label="LIMIT_INTRO_TYPE"  description="LIMIT_INTRO_TYPE_DESC">
+				<option value="word">LIMIT_WORD</option>
+					<option value="char">LIMIT_CHARACTER</option>
+				</field>
+				<field name="description_max_chars" type="text" default="200" showon="showintrotext:1" label="INTROTEXT_LENGTH" description="INTROTEXT_LENGTH_DESC" />
+					<field name="show_category_name" type="radio" default="0"
+					class="btn-group" label="SHOW_CATEGORY_NAME" description="SHOW_CATEGORY_NAME_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_category_name_as_link" showon="show_category_name:1" type="radio" default="0"
+					class="btn-group"  label="SHOW_CATEGORY_NAME_AS_LINK" description="SHOW_CATEGORY_NAME_AS_LINK_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_date" type="radio" default="0" class="btn-group"
+					label="SHOW_DATE" description="SHOW_DATE_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_author" type="radio" default="0" class="btn-group"
+					label="SHOW_AUTHOR" description="SHOW_AUTHOR_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="show_hits" type="radio" default="0" class="btn-group"
+					label="SHOW_HITS" description="SHOW_HITS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field class="btn-group" name="auto_strip_tags" type="radio"
+					default="1" label="STRIP_TAGS" description="STRIP_TAGS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="allow_tags" type="list" showon="auto_strip_tags:0" default="" multiple="multiple"
+					label="ALLOW_TAGS" description="ALLOW_TAGS_DESC">
+					<option value="a">OPTION_LINK</option>
+					<option value="img">OPTION_IMAGE</option>
+					<option value="b">OPTION_BOLD</option>
+					<option value="i">OPTION_ITALIC</option>
+					<option value="font">OPTION_FONT</option>
+					<option value="br">OPTION_NEWLINE</option>				
+				</field>
+				<field name="open_target" type="radio" class="btn-group" default="_parent"
+					label="CLICK_LINK_OPEN_IN" description="CLICK_LINK_OPEN_IN_DESC">
+					<option value="_blank">OPTION_NEW_WINDOW</option>
+					<option value="_parent">OPTION_PARENT_WINDOW</option>	
+				</field>				
+				<field type="spacer" name="image_option" label="IMAGE_OPTION" />
+				<field name="image_align"  type="radio" class="btn-group" default="left" label="IMAGE_FLOAT"
+					description="IMAGE_FLOAT_DESC">
+				<option value="left">FLOAT_LEFT</option>
+				<option value="right">FLOAT_RIGHT</option>
+				<option value="none">FLOAT_NONE</option>
+				</field>
+				<field name="imagemargin" type="text" default="0px 10px 15px 0px " label="IMAGE_MARGIN" description="IMAGE_MARGIN_DESC" />
+				<field name="image_thumb" type="radio" default="1" class="btn-group"
+					label="IMAGE_THUMB" description="IMAGE_THUMB_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="thumbnail_width" type="text" default="300"
+					label="THUMBS_WIDTH" description="THUMBS_WIDTH_DESC" />
+				<field name="thumbnail_height" type="text" default="135"
+					label="THUMBS_HEIGHT" description="THUMBS_HEIGHT_DESC" />
+				<field name="hovereffect" type="list" default="zoomin" class="btn-group"
+					label="IMAGE_THUMB_EFFECT" description="IMAGE_THUMB_EFFECT_DESC">
+					<option value=" ">JNONE</option>
+					<option value="opacity">OPACITY_EFFECT</option>
+					<option value="zoomin">ZOOMIN_EFFECT</option>
+					<option value="zoomout">ZOOMOUT_EFFECT</option>
+				</field>				
+				<field name="use_caption" type="radio" default="0" class="btn-group"
+					label="USE_CAPTION" description="USE_CAPTION_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="use_linka" type="radio" default="0" class="btn-group"
+					label="USE_LINKA" description="USE_LINKA_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>				
+				<field name="showreadone" type="radio"  default="1" class="btn-group" label="READON_SHOW" description="READON_SHOW_DESC">
+				<option value="1">READON_YES</option>
+					<option value="0">READON_NO</option>
+				</field>
+				<field name="readonposition" type="radio" class="btn-group" showon="showreadone:1" default="right" label="READON_POSITION"  description="READON_POSITION_DESC">
+				<option value="right">READON_POS_RIGHT</option>
+					<option value="left">READON_POS_LEFT</option>
+				</field>
+				
+					</fieldset>
+<!-- MULTIPLE ROW BLOCK SETTINGS -->
+				<fieldset name="multiplerow" label="MULTIPLEROW_BLOCK_SETTINGS">
+				<field name="multiplerowswidth" type="text" default="50" label="MULTIPLEROWS_WIDTH" description="MULTIPLEROWS_WIDTH_DESC" />
+				<field name="news_no_item" default="3" label="NUMBER_OF_ITEMS" type="text" description="NUMBER_OF_ITEMS_DESC" />
+				<field name="multiplerowsblock_padding" type="text" default="5px 5px 5px 5px" label="MULTIPLEROWSBLOCK_PADDING" description="MULTIPLEROWSBLOCK_PADDING_DESC" />
+					<field name="show_category_name2" type="radio" default="0"
+					class="btn-group" label="SHOW_CATEGORY_NAME" description="SHOW_CATEGORY_NAME_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_category_name_as_link2" showon="show_category_name2:1" type="radio" default="0"
+					class="btn-group"  label="SHOW_CATEGORY_NAME_AS_LINK" description="SHOW_CATEGORY_NAME_AS_LINK_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_littlethumb" type="radio" class="btn-group"  default="1" label="LITTLETHUMB_SHOW" description="LITTLETHUMB_SHOW_DESC">
+				<option value="1">HEADLINE_YES</option>
+					<option value="0">HEADLINE_NO</option>
+				</field>
+				<field name="showtitle2" type="radio" class="btn-group"  default="1" label="TITLE_SHOW" description="TITLE_SHOW_DESC">
+				<option value="1">HEADLINE_YES</option>
+					<option value="0">HEADLINE_NO</option>
+				</field>
+				<field name="limit_title_by2"  type="radio" class="btn-group" showon="showtitle2:1"  default="word" label="TITLE_LIMIT_TYPE2"  description="TITLE_LIMIT_TYPE2_DESC">
+				<option value="word">LIMIT_WORD</option>
+					<option value="char">LIMIT_CHARACTER</option>
+				</field>
+				<field name="title_max_chars2" default="5" label="TITLE_LIMIT2" showon="showtitle2:1" type="text" description="TITLE_LIMIT_DESC" />
+				<field name="linktitle2"  type="radio" class="btn-group" default="1" showon="showtitle2:1" label="LINK_TITLE2" description="LINK_TITLE2_DESC">
+			<option value="0">LINK_IMAGES_NO</option>
+			<option value="1">LINK_IMAGES_YES</option>
+			</field>
+<field name="TitleType2" type="list" default="h4" label="TITLE_CLASS2"
+					description="TITLE_CLASS2_DESC">
+					<option value="h1">h1</option>
+					<option value="h2">h2</option>
+					<option value="h3">h3</option>
+					<option value="h4">h4</option>
+					<option value="h5">h5</option>
+					<option value="h6">h6</option>
+				</field>
+
+
+				<field name="little_thumbwidth" default="65" label="LITTLE_THUMBS_WIDTH" type="text" description="LITTLE_THUMBS_WIDTH_DESC" />
+				 <field name="little_thumbheight" default="50" label="LITTLE_THUMBS_HEIGHT" type="text" description="LITTLE_THUMBS_HEIGHT_DESC" />
+				<field name="showintrotext2" type="radio" class="btn-group"  default="1" label="INTRO_SHOW" description="INTRO_SHOW_DESC">
+				<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="limit_description_by2" type="radio" class="btn-group" showon="showintrotext2:1"  default="char" label="LIMIT_INTRO_TYPE"  description="LIMIT_INTRO_TYPE_DESC">
+				<option value="word">LIMIT_WORD</option>
+					<option value="char">LIMIT_CHARACTER</option>
+				</field>
+				<field name="description_max_chars2" type="text" default="75" showon="showintrotext2:1" label="INTROTEXT_LENGTH" description="INTROTEXT_LENGTH_DESC" />
+			<field name="show_date2" type="radio" default="0" class="btn-group"
+					label="SHOW_DATE" description="SHOW_DATE_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_author2" type="radio" default="0" class="btn-group"
+					label="SHOW_AUTHOR" description="SHOW_AUTHOR_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="show_hits2" type="radio" default="0" class="btn-group"
+					label="SHOW_HITS" description="SHOW_HITS_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="borderbottom" type="text" default="1px dotted #d5d5d5" label="BORDER_BOTTOM" description="BORDER_BOTTOM_DESC" />
+				<field name="multiplerows_padding" type="text" default="5px 0px 5px 0px" label="MULTIPLEROWS_PADDING" description="MULTIPLEROWS_PADDING_DESC" />
+			<field name="imagefloat2"  type="radio" class="btn-group" default="left" label="IMAGE_FLOAT2" description="IMAGE_FLOAT2_DESC">
+				<option value="left">FLOAT_LEFT</option>
+				<option value="right">FLOAT_RIGHT</option>
+				<option value="none">FLOAT_NONE</option>
+					</field> 
+					<field name="imagemargin2" type="text" default="0px 10px 0px 0px " label="IMAGE_MARGIN2" description="IMAGE_MARGIN2_DESC" />
+				<field name="showreadone2"  type="radio" class="btn-group"  default="1" label="READON_SHOW2" description="READON_SHOW2_DESC">
+				<option value="1">READON_YES</option>
+					<option value="0">READON_NO</option>
+				</field>
+				<field name="readonposition2"  type="radio" class="btn-group" showon="showreadone2:1" default="right" label="READON_POSITION2"  description="READON_POSITION2_DESC">
+				<option value="right">READON_POS_RIGHT</option>
+					<option value="left">READON_POS_LEFT</option>
+				</field>	
+				 <field name="timming" type="text" default="3000" showon="news_autorun:1" label="DELAY_TIME" description="DELAY_TIME_DESC" />
+				<field name="news_event_type" type="radio" class="btn-group" default="mouseover" label="EVENT_TYPE" description="EVENT_TYPE_DESC">
+					<option value="click">EVENT_CLICK</option>
+					<option value="mouseover">EVENT_MOUSEOVER</option>
+				</field> 
+				<field name="enablefade" type="radio" class="btn-group" default="false" label="ENABLE_FADE" description="ENABLE_FADE_DESC">
+					<option value="false">FADE_FALSE</option>
+					<option value="true">FADE_TRUE</option>
+				</field> 
+			</fieldset>			
+						
+			<fieldset name="advanced">
+		<field name="moduleclass_sfx" type="text" default="" label="MODULE_CLASS_SUFFIX" description="MODULE_CLASS_SUFFIX_DESC" />
+			<field
+					name="layout"
+					type="modulelayout"
+					class="custom-select"
+					label="JFIELD_ALT_LAYOUT_LABEL"
+					description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+					
+				<field name="cache_time" type="text" default="900" label="CACHE_TIME" description="CACHE_TIME_DESC" />
+				<field addfieldpath="/modules/mod_headline_jt5/admin/formfield" type="asset" name="asset" path="modules/mod_headline_jt5/admin/" />
+				</fieldset>
+		</fields>
+	</config>
+</extension>

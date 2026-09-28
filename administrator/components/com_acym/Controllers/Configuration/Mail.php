@@ -1,0 +1,177 @@
+<?php
+
+namespace AcyMailing\Controllers\Configuration;
+
+use AcyMailing\Helpers\ExportHelper;
+use AcyMailing\Helpers\MailerHelper;
+
+trait Mail
+{
+    public function ports(): void
+    {
+        $mailerHelper = new MailerHelper();
+
+        $tests = [
+            25 => 'smtp.sendgrid.com',
+            2525 => 'smtp.sendgrid.com',
+            587 => 'smtp.sendgrid.com',
+            465 => 'ssl://smtp.gmail.com',
+        ];
+
+        $response = [];
+        foreach ($tests as $port => $targetServer) {
+            if ($mailerHelper->isPortOpen($port, $targetServer)) {
+                $response[$port] = [
+                    'open' => true,
+                    'port' => $port,
+                    'message' => acym_translationSprintf('ACYM_SMTP_AVAILABLE_PORT', $port),
+                ];
+            } else {
+                $response[$port] = [
+                    'open' => false,
+                    'port' => $port,
+                    'message' => acym_translationSprintf('ACYM_SMTP_NOT_AVAILABLE_PORT', $port, $mailerHelper->portError),
+                ];
+            }
+        }
+
+        acym_sendAjaxResponse('', $response);
+    }
+
+    public function testCredentialsSendingMethod(): void
+    {
+        $sendingMethod = acym_getVar('string', 'sendingMethod', '');
+        $config = acym_getVar('array', 'config', []);
+
+        if (empty($sendingMethod) || empty($config)) acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_FIND_SENDING_METHOD'), [], false);
+        acym_trigger('onAcymTestCredentialSendingMethod', [$sendingMethod, $config]);
+    }
+
+    public function copySettingsSendingMethod(): void
+    {
+        $plugin = acym_getVar('string', 'plugin', '');
+        $method = acym_getVar('string', 'method', '');
+
+        if (empty($plugin) || empty($method)) {
+            acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_RETRIEVE_DATA'), [], false);
+        }
+
+        $data = [];
+
+        if ($method === 'from_options') {
+            $wpMailSmtpSetting = acym_getCMSConfig('wp_mail_smtp', '');
+            if (!empty($wpMailSmtpSetting) && !empty($wpMailSmtpSetting['mail'])) {
+                $mailSettings = $wpMailSmtpSetting['mail'];
+
+                if (!empty($mailSettings['from_email']) && !empty($mailSettings['from_name'])) {
+                    $data['from_email'] = $mailSettings['from_email'];
+                    $data['from_name'] = $mailSettings['from_name'];
+                }
+            }
+        } else {
+            acym_trigger('onAcymGetSettingsSendingMethodFromPlugin', [&$data, $plugin, $method]);
+        }
+
+        if (empty($data)) {
+            acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_RETRIEVE_DATA'), [], false);
+        }
+
+        acym_sendAjaxResponse('', $data);
+    }
+
+    public function synchronizeExistingUsers(): void
+    {
+        acym_checkToken();
+
+        $sendingMethod = acym_getVar('string', 'sendingMethod', '');
+
+        if (empty($sendingMethod)) {
+            acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_FIND_SENDING_METHOD'), [], false);
+        }
+
+        acym_trigger('onAcymSynchronizeExistingUsers', [$sendingMethod]);
+    }
+
+    public function downloadExportChangesFile(): void
+    {
+        $current = acym_getVar('boolean', 'export_changes_file_current', true);
+        $dateTime = $current ? 'now' : '1 month ago';
+
+        $exportHelper = new ExportHelper();
+
+        $filenameToSearch = $exportHelper->getExportChangesFileName(acym_date($dateTime, 'Y'), acym_date($dateTime, 'm'), false);
+
+        $exportFolder = acym_getLogPath();
+        $files = scandir($exportFolder);
+        if (empty($files)) {
+            acym_enqueueMessage(acym_translation('ACYM_NO_FILE_TO_EXPORT'), 'info');
+            $this->listing();
+
+            return;
+        }
+
+        $filename = acym_getLogPath($filenameToSearch);
+
+        $zipFiles = [];
+
+        foreach ($files as $file) {
+            if (strpos($file, $filenameToSearch) === false) continue;
+            $zipFiles[] = [
+                'name' => $file,
+                'data' => acym_fileGetContent(acym_getLogPath($file)),
+            ];
+        }
+
+        if (empty($zipFiles)) {
+            acym_enqueueMessage(acym_translation('ACYM_NO_FILE_TO_EXPORT'), 'info');
+            $this->listing();
+
+            return;
+        }
+
+        acym_createArchive($filename, $zipFiles);
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        $exportHelper->setDownloadHeaders($filenameToSearch, 'zip');
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- Downloading a file, better than WP functions for memory handling.
+        readfile($filename.'.zip');
+        acym_deleteFile($filename.'.zip');
+
+        exit;
+    }
+
+    public function loginForOAuth2Smtp(): void
+    {
+        $this->loginForOAuth2();
+    }
+
+    public function loginForOAuth2Bounce(): void
+    {
+        $this->loginForOAuth2(false);
+    }
+
+    public function logoutForOAuth2Smtp(): void
+    {
+        acym_checkToken();
+
+        acym_trigger('onAcymOauthRevoke');
+
+        $this->listing();
+    }
+
+    public function logoutForOAuth2Bounce(): void
+    {
+        acym_checkToken();
+
+        $this->config->saveConfig(
+            [
+                'bounce_refresh_token' => '',
+                'bounce_refresh_token_expiration' => '',
+            ]
+        );
+
+        $this->listing();
+    }
+}

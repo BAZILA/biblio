@@ -1,0 +1,20 @@
+<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- View file, its variables are local to the include scope, not true globals.
+defined('_JEXEC') || die('Restricted Access');
+?>
+<form id="acym_form" action="<?php echo acym_escapeUrl(acym_completeLink(acym_getVar('cmd', 'ctrl'))); ?>" method="post" name="acyForm">
+	<input type="hidden" name="preselectList" value="1" />
+    <?php
+    $isEmpty = empty($data['lists']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
+    if (!$isEmpty) {
+        $data['toolbar']->displayToolbar($data);
+    } ?>
+	<div id="acym__lists" class="acym__content">
+        <?php if ($isEmpty) {
+            include acym_getView('lists', 'listing_empty');
+        } else {
+            include acym_getView('lists', 'listing_listing');
+        } ?>
+	</div>
+    <?php acym_formOptions(); ?>
+</form>

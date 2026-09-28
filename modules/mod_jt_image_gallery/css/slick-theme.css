@@ -1,0 +1,232 @@
+/**
+* @title		JT Image Gallery  module
+* @website		http://www.joomlatema.net
+* @copyright	Copyright (C) 2008 -2023 JoomlaTema.net. All rights reserved.
+* @license		http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
+**/
+@charset 'UTF-8';
+
+/* Slider */
+@font-face {
+font-family: 'FontAwesome';
+    src:url('fonts/fontawesome-webfont.woff2') format('woff2'),
+         url('fonts/fontawesome-webfont.woff') format('woff');
+    font-weight:normal;
+    font-style:normal;
+}
+[data-icon]:before {
+	font-family: 'FontAwesome';
+	content: attr(data-icon);
+	speak: none;
+}
+.mod-image-gallery .slick-loading .slick-list
+{
+}
+/* Arrows */
+.mod-image-gallery .slick-prev,
+.mod-image-gallery .slick-next
+{
+    font-size: 0;
+    line-height: 0;
+    position: absolute;
+    top: 50%;
+    display: block;
+    width:44px;
+    height:44px;
+    padding: 0;
+    -webkit-transform: translate(0, -50%);
+    -ms-transform: translate(0, -50%);
+    transform: translate(0, -50%);
+    cursor: pointer;
+    z-index: 1;
+    color: transparent;
+    border: none;
+    outline: none;
+    background: #000;
+	opacity:0.4;
+    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+	border-radius:100%;
+}
+.mod-image-gallery .slick-prev:hover,
+.mod-image-gallery .slick-next:hover
+{
+    color: transparent;
+    outline: none;
+    background: #000;
+	opacity:0.8;
+    
+
+}
+.mod-image-gallery .slick-prev  button[disabled],.mod-image-gallery .slick-prev:focus,.mod-image-gallery .slick-prev:active{
+    background: #000;
+	opacity:0.4;
+    }
+.mod-image-gallery .slick-next button[disabled],.mod-image-gallery .slick-next:focus, .mod-image-gallery .slick-next:active{
+    background: #000;
+	opacity:0.4;
+ 
+ }
+.mod-image-gallery .slick-prev:hover:before,
+.mod-image-gallery .slick-next:hover:before
+{
+    opacity: 1;
+    color: #fff;
+}
+.mod-image-gallery .slick-prev.slick-disabled:before,
+.mod-image-gallery .slick-next.slick-disabled:before
+{
+    opacity: .25;
+}
+
+.mod-image-gallery .slick-prev:before,
+.mod-image-gallery .slick-next:before
+{
+    position: absolute;
+    left:50%;
+    top: 50%;
+    font-size: 20px;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+	font-family: 'FontAwesome';
+	transform:translate(-50%,-50%);
+
+	
+}
+
+.mod-image-gallery .slick-prev
+{
+    left: 0px;
+  /* background:rgba(0, 0, 0, 0.95) url(images/slick-prev.png) no-repeat center center;*/
+}
+[dir='rtl'] .mod-image-gallery .slick-prev
+{
+    right: 0px;
+    left: auto;
+  /* background:rgba(0, 0, 0, 0.95) url(images/slick-next.png) no-repeat center center;*/
+}
+.mod-image-gallery .slick-prev:before
+{
+  content: "\f053";
+}
+[dir='rtl'] .mod-image-gallery .slick-prev:before
+{
+   content: "\f054";
+}
+
+.mod-image-gallery .slick-next
+{
+    right: 0px;
+   /*background:rgba(0, 0, 0, 0.95) url(images/slick-next.png) no-repeat center center;*/
+}
+[dir='rtl'] .mod-image-gallery .slick-next
+{
+    right: auto;
+    left: 0px;
+   /*background:rgba(0, 0, 0, 0.95) url(images/slick-prev.png) no-repeat center center;*/
+}
+.mod-image-gallery .slick-next:before
+{
+ content: "\f054";
+}
+[dir='rtl'] .mod-image-gallery .slick-next:before
+{
+ content: "\f053";
+}
+
+/* Dots */
+.mod-image-gallery .slick-dotted.slick-slider
+{
+    margin-bottom: 30px;
+}
+
+.mod-image-gallery .slick-dots
+{
+    position: absolute;
+    bottom: -20px;
+
+    display: block;
+
+    width: 100%;
+    padding: 0;
+    margin:10px 0 0 0;
+    list-style: none;
+    text-align: center;
+	clear:both;
+}
+.mod-image-gallery .slick-dots li
+{
+    position: relative;
+
+    display: inline-block;
+
+    width: 20px;
+    height: 20px;
+    margin: 0 5px;
+    padding: 0;
+
+    cursor: pointer;
+}
+.mod-image-gallery .slick-dots li button
+{
+    font-size: 0;
+    line-height: 0;
+
+    display: block;
+
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+
+    cursor: pointer;
+
+    color: transparent;
+    border: 0;
+    outline: none;
+    background: transparent;
+	box-shadow:none;
+}
+.mod-image-gallery .slick-dots li button:hover,
+.mod-image-gallery .slick-dots li button:focus
+{
+    outline: none;
+}
+.mod-image-gallery .slick-dots li button:hover:before,
+.mod-image-gallery .slick-dots li button:focus:before
+{
+    opacity: 1;
+}
+.mod-image-gallery .slick-dots li button:before
+{
+	font-family: 'FontAwesome';
+    font-size: 12px;
+    line-height: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    opacity: .25;
+    color: black;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: 
+	grayscale;content: "\e229";
+	box-shadow:none;
+}
+.mod-image-gallery .slick-dots li.slick-active button:before
+{
+    opacity: .75;
+    color: black;
+}
+
+.mod-image-gallery .slick-list.draggable:hover,.mod-image-gallery .slick-list.draggable:focus{cursor:grab;}

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE install PUBLIC "-//Joomla! 2.5//DTD template 1.0//EN" "https://www.joomla.org/xml/dtd/2.5/template-install.dtd">
+<extension version="3.9" type="template" method="upgrade" client="site">
+	<name>exeltis</name>
+	<version>1.0</version>
+	<creationDate>Apr, 2021</creationDate>
+	<author>JoomlaTema.Net</author>
+	<authorEmail>destek@joomlatema.net</authorEmail>
+	<authorUrl>http://www.joomlatema.net</authorUrl>
+	<copyright>Copyright (C), JoomlaTema.net. All Rights Reserved.</copyright>
+	<copyright>Copyright (C), J.O.O.M Solutions Co., Ltd. All Rights Reserved.</copyright>
+	<license>license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<t3>
+		<base>base-bs3</base>
+	</t3>
+	<description>
+		<![CDATA[
+		<div align="center">
+			<div class="alert alert-success" style="background-color:#DFF0D8;border-color:#D6E9C6;color: #468847;padding: 1px 0;">
+				<p> </p>
+				<span style="color:#FF0000">Note: Exeltis Template requires T3 plugin to be installed and enabled.</span><p></p>
+				<p>Copyright 2008 - 2021 <a href='http://www.joomlatema.net/' title='Visit Joomlart.com!'>JoomlaTema.Net</a>.</p>
+			</div>
+			<style>table.adminform{width: 100%;}</style>
+		</div>
+		]]>
+	</description>
+	<files>
+		<filename>component.php</filename>
+		<filename>favicon.ico</filename>
+		<filename>index.html</filename>
+		<filename>index.php</filename>
+		<filename>error.php</filename>
+		<filename>thememagic.xml</filename>
+		<filename>templateInfo.php</filename>
+		<filename>templateHook.php</filename>
+		<filename>template_preview.png</filename>
+		<filename>template_thumbnail.png</filename>
+		<filename>templateDetails.xml</filename>
+		<folder>etc</folder>
+		<folder>fonts</folder>
+		<folder>html</folder>
+		<folder>css</folder>
+		<folder>js</folder>
+		<folder>less</folder>
+		<folder>language</folder>
+		<folder>images</folder>
+		<folder>tpls</folder>
+	</files>
+	
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.tpl_exeltis.ini</language>
+		<language tag="en-GB">en-GB/en-GB.tpl_exeltis.sys.ini</language>
+	</languages>
+
+	<positions>
+		<position>languageswitcherload</position>
+		<position>sitebase</position>
+		<position>header-right</position>
+		<position>mainnav</position>
+		<position>navhelper</position>
+		<position>breadcrumbs</position>
+		<position>highlighter</position>
+		<position>upperspot</position>
+		<position>off-canvas</position>
+		<position>sidebar-1</position>
+		<position>sidebar-2</position>
+		<position>mast-col</position>
+		<position>footer</position>
+		<position>home-0</position>
+		<position>home-1</position>
+		<position>home-2</position>
+		<position>home-3</position>
+		<position>home-4</position>
+		<position>home-5</position>
+		<position>nav-search</position>
+		<position>position-0</position>
+		<position>position-1</position>
+		<position>position-2</position>
+		<position>position-3</position>
+		<position>position-4</position>
+		<position>position-5</position>
+		<position>position-6</position>
+		<position>position-7</position>
+		<position>position-8</position>
+		<position>position-9</position>
+		<position>position-10</position>
+		<position>position-11</position>
+		<position>position-12</position>
+		<position>position-13</position>
+		<position>position-14</position>
+		<position>position-15</position>
+		<position>footer-0</position>
+		<position>footer-1</position>
+		<position>footer-2</position>
+		<position>footer-3</position>
+		<position>footer-4</position>
+		<position>footer-5</position>
+		<position>footer-6</position>
+		<position>footer-7</position>
+		<position>footer-8</position>
+		<position>footer-9</position>
+		<position>footer-10</position>
+		<position>footerbase-1</position>
+		<position>footerbase-2</position>
+		<position>debug</position>
+		<position>slider</position>
+		<position>subslider-1</position>
+		<position>subslider-2</position>
+		<position>topsl</position>
+		<position>topsl-2</position>
+		<position>topsl-3</position>
+		<position>topbar-left</position>
+		<position>topbar-right</position>
+		<position>topbar-middle</position>
+		<position>topbar2-left</position>
+		<position>topbar2-right</position>
+		<position>coloredmodule-1</position>
+		<position>coloredmodule-2</position>
+		<position>coloredmodule-4</position>
+		<position>colored_spot1</position>
+		<position>colored_spot2</position>
+		<position>middlespot</position>
+		<position>bottomline</position>
+		<position>bottomspot</position>
+		<position>bottomspot-2</position>
+		<position>bottomspot-3</position>
+		<position>baseline</position>
+		<position>uppermain</position>
+		<position>uppermain-spot-1</position>
+		<position>uppermain-spot-2</position>
+		<position>uppermain-2</position>
+		<position>uppermain-3</position>
+		<position>uppermain-4</position>
+		<position>uppermain-5</position>
+		<position>uppermain-6</position>
+		<position>uppermain-7</position>
+		<position>main-top</position>
+		<position>column-1</position>
+		<position>column-2</position>
+		<position>column-3</position>
+		<position>subcolumn-1</position>
+		<position>subcolumn-2</position>
+		<position>subcolumn-3</position>
+		<position>submain-1</position>
+		<position>submain-2</position>
+		<position>submain-3</position>
+		<position>submain-4</position>
+		<position>submain-5</position>
+		<position>submain-6</position>
+		<position>submain-7</position>
+	</positions>
+
+	<config>
+		<fields name="params" addfieldpath="/plugins/system/t3/includes/depend">
+			<fieldset name="menu_params" label="T3_PARAMS_ADDITIONAL_SETTINGS">
+				</fieldset>
+				<fieldset name="menu_params" label="T3_PARAMS_BGTYPE">
+				<field name="bgtype" type="list"  default="bgpattern" label="T3_PARAMS_BGTYPE_LABEL" function="@group">
+				<option	value="fiximage">Fixed Image</option>
+				<option	value="bgpattern">Pattern Background</option>
+				<option	value="bgcolor">Solid Color</option>
+				</field>
+				<field name="bgcolorvalue" type="text" showon="bgtype:bgcolor" default="#ffffff"  label="T3_PARAMS_BGCOLOR_LABEL" function="@group">
+				</field>
+				<field name="patternimage" type="imagelist" showon="bgtype:bgpattern" default="16.png" directory="templates/exeltis/images/patterns" label="T3_PARAMS_PATTERNTYPE_LABEL" function="@group">
+				</field>
+				<field name="fontSizeBody" type="text" default="14px"  label="T3_PARAMS_FONTSIZEBODY_LABEL" function="@group">
+				</field>
+				<field name="fontsize_nav" type="text" default="14px"  label="T3_PARAMS_FONTSIZENAV_LABEL" function="@group">
+				</field>
+				</fieldset>
+				<fieldset name="menu_params" label="T3_PARAMS_GOOGLEFONTS">
+				<field name="googlefontsbody" type="list" label="T3_PARAMS_GOOGLEFONTSFORBODY_LABEL" default ="Raleway" desc="T3_PARAMS_GOOGLEFONTSFORBODY_LABEL_DESC" function="@group">
+				<option	value="Play">Play Regular</option>
+				<option	value="Poppins">Poppins Regular</option>
+				<option	value="Poppins:wght@700">Poppins Bold</option>
+				<option	value="Roboto">Roboto Regular</option>
+				<option	value="Roboto+Condensed">Roboto Condensed Regular</option>
+				<option	value="Roboto+Condensed+Bold">Roboto Condensed Bold</option>
+				<option	value="Roboto:wght@500">Roboto Medium</option>
+				<option	value="Raleway">Raleway Regular</option>
+				<option	value="Oswald">Oswald Regular</option>
+				<option	value="Roboto+Slab:wght@400;700">Roboto Slab</option>
+				<option	value="Old+Standard+TT">Old Standard TT</option>
+				<option	value="Libre+Franklin">Libre Franklin</option>
+				<option	value="News+Cycle">News Cycle</option>
+				<option	value="Source+Sans+Pro:wght@400;600">Source Sans Pro</option>
+				<option	value="OpenSans">Open Sans Regular</option>
+				<option	value="PT+Sans">PT Sans</option>
+				<option	value="Rajdhani">Rajdhani</option>
+				<option	value="Lato:wght@400;700">Lato</option>
+				<option	value="Domine">Domine</option>
+				<option	value="Prompt:wght@400;500;700">Prompt</option>
+				<option	value="Belgrano">Belgrano</option>
+				<option	value="Brawler">Brawler</option>
+				<option	value="Playfair+Display:wght@400;700">Playfair Display</option>
+				<option	value="Slabo+27px">Slabo 27px</option>
+				<option	value="Montserrat:wght@400;600;700">Montserrat</option>
+				<option	value="Varela">Varela</option>
+				<option	value="Cairo">Cairo</option>
+				<option	value="IBM+Plex+Sans:wght@400;600;700">IBM Plex Sans</option>
+				<option	value="Nunito+Sans">Nunito Sans Regular</option>
+				<option	value="Nunito+Sans:wght@700">Nunito Sans Bold</option>
+				</field>
+			</fieldset>
+			<fieldset name="menu_params" label="T3_PARAMS_GOOGLEFONTS">
+				<field name="googlefontsheading" type="list" label="T3_PARAMS_GOOGLEFONTSFORHEADINGS_LABEL" default ="Roboto" desc="T3_PARAMS_GOOGLEFONTSFORHEADINGS_LABEL_DESC" function="@group">
+				<option	value="Play">Play Regular</option>
+				<option	value="Poppins">Poppins Regular</option>
+				<option	value="Poppins:wght@700">Poppins Bold</option>
+				<option	value="Roboto+Condensed">Roboto Condensed Regular</option>
+				<option	value="Roboto+Condensed+Bold">Roboto Condensed Bold</option>
+				<option	value="Raleway">Raleway Regular</option>
+				<option	value="Oswald">Oswald</option>
+				<option	value="Roboto">Roboto Regular</option>
+				<option	value="Roboto:wght@500">Roboto Medium</option>
+				<option	value="Roboto+Slab:wght@400;700">Roboto Slab</option>
+				<option	value="Old+Standard+TT">Old Standard TT</option>
+				<option	value="Libre+Franklin">Libre Franklin</option>
+				<option	value="News+Cycle">News Cycle</option>
+				<option	value="Source+Sans+Pro:wght@400;600">Source Sans Pro</option>
+				<option	value="OpenSans">Open Sans Regular</option>
+				<option	value="PT+Sans">PT Sans</option>
+				<option	value="Rajdhani">Rajdhani</option>
+				<option	value="Lato:wght@400;700">Lato</option>
+				<option	value="Domine">Domine</option>
+				<option	value="Prompt:wght@400;500;700">Prompt</option>
+				<option	value="Belgrano">Belgrano</option>
+				<option	value="Brawler">Brawler</option>
+				<option	value="Playfair+Display:wght@400;700">Playfair Display</option>
+				<option	value="Slabo+27px">Slabo 27px</option>
+				<option	value="Montserrat:wght@400;600;700">Montserrat</option>
+				<option	value="Varela">Varela</option>
+				<option	value="Cairo">Cairo</option>
+				<option	value="IBM+Plex+Sans:wght@400;600;700">IBM Plex Sans</option>
+				<option	value="Nunito+Sans">Nunito Sans Regular</option>
+				<option	value="Nunito+Sans:wght@700">Nunito Sans Bold</option>
+				</field>
+			</fieldset>
+			
+			<fieldset name="menu_params" label="T3_PARAMS_GOOGLEFONTS">
+				<field name="googlefontsnav" type="list" label="T3_PARAMS_GOOGLEFONTSFORNAV_LABEL" default ="Roboto" desc="T3_PARAMS_GOOGLEFONTSFORNAV_LABEL_DESC" function="@group">
+				<option	value="Play">Play Regular</option>
+				<option	value="Poppins">Poppins Regular</option>
+				<option	value="Poppins:wght@700">Poppins Bold</option>
+				<option	value="Roboto+Condensed">Roboto Condensed Regular</option>
+				<option	value="Roboto+Condensed+Bold">Roboto Condensed Bold</option>
+				<option	value="Raleway">Raleway Regular</option>
+				<option	value="Oswald">Oswald</option>
+				<option	value="Roboto">Roboto Regular</option>
+				<option	value="Roboto:wght@500">Roboto Medium</option>
+				<option	value="Roboto+Slab:wght@400;700">Roboto Slab</option>
+				<option	value="Old+Standard+TT">Old Standard TT</option>
+				<option	value="Libre+Franklin">Libre Franklin</option>
+				<option	value="News+Cycle">News Cycle</option>
+				<option	value="Source+Sans+Pro:wght@400;600">Source Sans Pro</option>
+				<option	value="OpenSans">Open Sans Regular</option>
+				<option	value="PT+Sans">PT Sans</option>
+				<option	value="Rajdhani">Rajdhani</option>
+				<option	value="Lato:wght@400;700">Lato</option>
+				<option	value="Domine">Domine</option>
+				<option	value="Prompt:wght@400;500;700">Prompt</option>
+				<option	value="Belgrano">Belgrano</option>
+				<option	value="Brawler">Brawler</option>
+				<option	value="Playfair+Display:wght@400;700">Playfair Display</option>
+				<option	value="Slabo+27px">Slabo 27px</option>
+				<option	value="Montserrat:wght@400;600;700">Montserrat</option>
+				<option	value="Varela">Varela</option>
+				<option	value="Cairo">Cairo</option>
+				<option	value="IBM+Plex+Sans:wght@400;600;700">IBM Plex Sans</option>
+				<option	value="Nunito+Sans">Nunito Sans Regular</option>
+				<option	value="Nunito+Sans:wght@700">Nunito Sans Bold</option>
+				</field>
+			</fieldset>
+			<fieldset name="menu_params" label="T3_PARAMS_TEXT_TRANSFORM_TITLES">
+				<field name="text_transform_titles" type="list" label="T3_PARAMS_TEXT_TRANSFORM_TITLES_LABEL" default ="none" desc="T3_PARAMS_TEXT_TRANSFORM_TITLES_LABEL_DESC" function="@group">
+				<option	value="none">None</option>
+				<option	value="capitalize">Capitalize</option>
+				<option	value="lowercase">Lowercase</option>
+				<option	value="uppercase">Uppercase</option>
+				<option	value="initial">Initial</option>
+				<option	value="inherit">Inherit</option>
+				</field>
+				</fieldset>
+			<fieldset name="menu_params" label="T3_PARAMS_TEXT_TRANSFORM_NAV">
+				<field name="text_transform_nav" type="list" label="T3_PARAMS_TEXT_TRANSFORM_NAV_LABEL" default ="none" desc="T3_PARAMS_TEXT_TRANSFORM_NAV_LABEL_DESC" function="@group">
+				<option	value="none">None</option>
+				<option	value="capitalize">Capitalize</option>
+				<option	value="lowercase">Lowercase</option>
+				<option	value="uppercase">Uppercase</option>
+				<option	value="initial">Initial</option>
+				<option	value="inherit">Inherit</option>
+				</field>
+				</fieldset>
+				<fieldset name="menu_params" label="T3_PARAMS_LOGOSIZE">
+				<field name="logosize" type="list" label="T3_PARAMS_LOGOSIZE_LABEL" default ="4" desc="T3_PARAMS_LOGOSIZE_LABEL_DESC" function="@group">
+				<option	value="1">1</option>
+				<option	value="2">2</option>
+				<option	value="3">3</option>
+				<option	value="4">4</option>
+				<option	value="5">5</option>
+				<option	value="6">6</option>
+				<option	value="7">7</option>
+				<option	value="8">8</option>
+				</field>
+				<field name="horizontal_align" type="list" label="T3_PARAMS_LOGOHORZALIGN_LABEL" default ="flex-start" desc="T3_PARAMS_LOGOHORZALIGN_LABEL_DESC" function="@group">
+				<option	value="flex-start">Left</option>
+				<option	value="flex-end">Right</option>
+				<option	value="center">Center </option>
+				</field>
+				<field name="vertical_align" type="list" label="T3_PARAMS_LOGOVERTALIGN_LABEL" default ="center" desc="T3_PARAMS_LOGOVERTALIGN_LABEL_DESC" function="@group">
+				<option	value="flex-start">Top</option>
+				<option	value="flex-end">Bottom</option>
+				<option	value="center">Center </option>
+				</field>
+				<field name="body_bgpattern" type="imagelist" default="blank.png" directory="templates/exeltis/images/patterns" label="T3_PARAMS_PATTERNTYPE_LABEL" function="@group">
+				</field>
+				<field name="header_bgpattern" type="imagelist" default="blank.png" directory="templates/exeltis/images/patterns" label="T3_PARAMS_HEADERPATTERNTYPE_LABEL" function="@group">
+				</field>
+				<field name="slide_overlay" type="list" label="T3_PARAMS_SLIDEROVERLAY_LABEL" default ="color" desc="T3_PARAMS_SLIDEROVERLAY_LABEL_DESC" function="@group">
+				<option	value="dots">Dots Overlay</option>
+				<option	value="color">Color Overlay</option>
+				</field>
+				</fieldset>
+		</fields>
+	</config>
+</extension>

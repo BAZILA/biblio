@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="4.0" method="upgrade">
+    <name>Yendif Video Share</name>
+    <creationDate>November 2025</creationDate>
+    <copyright>Copyright (c) 2012 - 2025 PluginsWare Interactive Pvt. Ltd. All Rights Reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <author>PluginsWare Interactive Pvt. Ltd</author>
+    <authorEmail>admin@yendifplayer.com</authorEmail>
+    <authorUrl>https://yendifplayer.com/</authorUrl>
+    <version>2.3.0</version>
+    <description>COM_YENDIFVIDEOSHARE_XML_DESCRIPTION</description>
+    <namespace path="src">PluginsWare\Component\YendifVideoShare</namespace>    
+    <scriptfile>script.yendifvideoshare.php</scriptfile>    
+    <install> <!-- Runs on install -->
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+        </sql>
+    </install>
+    <update> <!-- Runs on update -->
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+    <uninstall> <!-- Runs on uninstall -->
+        <sql>
+            <file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+        </sql>
+    </uninstall>    
+    <files folder="site">        
+        <folder>forms</folder>
+        <folder>src</folder>
+        <folder>tmpl</folder>
+        <filename>komento_plugin.php</filename>
+    </files>
+    <media destination="com_yendifvideoshare" folder="media">
+        <folder>css</folder>
+        <folder>images</folder>
+        <folder>js</folder>
+        <folder>player</folder>
+        <folder>uploads</folder>
+        <filename>joomla.asset.json</filename>
+    </media>
+    <languages folder="site/language">        
+		<language tag="en-GB">en-GB/com_yendifvideoshare.ini</language>
+    </languages>
+    <administration>
+        <menu>COM_YENDIFVIDEOSHARE</menu>
+        <submenu>            
+			<menu link="option=com_yendifvideoshare&amp;view=videos">
+                COM_YENDIFVIDEOSHARE_TITLE_VIDEOS
+                <params>
+					<menu-quicktask-title>COM_YENDIFVIDEOSHARE_TITLE_VIDEOS</menu-quicktask-title>
+					<menu-quicktask>index.php?option=com_yendifvideoshare&amp;view=videos&amp;task=video.add</menu-quicktask>
+				</params>
+            </menu>            
+			<menu link="option=com_yendifvideoshare&amp;view=categories">
+                COM_YENDIFVIDEOSHARE_TITLE_CATEGORIES
+                <params>
+					<menu-quicktask-title>COM_YENDIFVIDEOSHARE_TITLE_CATEGORIES</menu-quicktask-title>
+					<menu-quicktask>index.php?option=com_yendifvideoshare&amp;view=categories&amp;task=category.add</menu-quicktask>
+				</params>
+            </menu>
+            <menu link="option=com_yendifvideoshare&amp;view=imports">COM_YENDIFVIDEOSHARE_TITLE_IMPORTS</menu>
+			<menu link="option=com_yendifvideoshare&amp;view=adverts">COM_YENDIFVIDEOSHARE_TITLE_ADVERTS</menu>
+            <menu link="option=com_yendifvideoshare&amp;view=ratings">COM_YENDIFVIDEOSHARE_TITLE_RATINGS</menu>
+            <menu link="option=com_yendifvideoshare&amp;view=likes">COM_YENDIFVIDEOSHARE_TITLE_LIKES_DISLIKES</menu>
+        </submenu>
+        <files folder="admin">            
+            <folder>forms</folder>
+            <folder>services</folder>            
+            <folder>sql</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+        </files>
+        <languages folder="admin/language">            
+			<language tag="en-GB">en-GB/com_yendifvideoshare.ini</language>
+			<language tag="en-GB">en-GB/com_yendifvideoshare.sys.ini</language>
+        </languages>
+    </administration>  
+</extension>

@@ -1,0 +1,84 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "com_yendifvideoshare",
+  "version": "2.1.1",
+  "license": "GNU General Public License version 2 or later; see LICENSE.txt",
+  "assets": [
+    {
+      "name": "com_yendifvideoshare.admin",
+      "type": "style",
+      "uri": "com_yendifvideoshare/admin.css"
+    },
+    {
+      "name": "com_yendifvideoshare.admin",
+      "type": "script",
+      "uri": "com_yendifvideoshare/admin.js",
+      "dependencies": [
+        "jquery"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_yendifvideoshare.modal",
+      "type": "script",
+      "uri": "com_yendifvideoshare/modal.js",
+      "dependencies": [
+        "core",
+        "jquery"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_yendifvideoshare.bootstrap",
+      "type": "style",
+      "uri": "com_yendifvideoshare/bootstrap.css"
+    },    
+    {
+      "name": "com_yendifvideoshare.popup",
+      "type": "style",
+      "uri": "com_yendifvideoshare/magnific-popup.css"
+    },
+    {
+      "name": "com_yendifvideoshare.site",
+      "type": "style",
+      "uri": "com_yendifvideoshare/site.css"
+    },    
+    {
+      "name": "com_yendifvideoshare.popup",
+      "type": "script",
+      "uri": "com_yendifvideoshare/jquery.magnific-popup.min.js",
+      "dependencies": [
+        "jquery"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_yendifvideoshare.site",
+      "type": "script",
+      "uri": "com_yendifvideoshare/site.js",
+      "dependencies": [
+        "jquery"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_yendifvideoshare.form",
+      "type": "script",
+      "uri": "com_yendifvideoshare/form.js",
+      "dependencies": [
+        "jquery"
+      ],
+      "attributes": {
+        "defer": true
+      }
+    }
+  ]
+}

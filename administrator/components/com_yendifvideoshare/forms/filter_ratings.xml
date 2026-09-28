@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+    <fields name="filter">
+        <field 
+            name="search" 
+            type="text" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_SEARCH"
+            hint="JSEARCH_FILTER"
+            class="js-stools-search-string" 
+        />
+
+        <field 
+            name="rating"             
+            type="list" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_RATING" 
+            onchange="this.form.submit();" 
+            >
+            <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_RATING_NONE</option>
+            <option value="0.5">0.5</option>
+            <option value="1.0">1.0</option>
+            <option value="1.5">1.5</option>
+            <option value="2.0">2.0</option>
+            <option value="2.5">2.5</option>
+            <option value="3.0">3.0</option>
+            <option value="3.5">3.5</option>
+            <option value="4.0">4.0</option>
+            <option value="4.5">4.5</option>
+            <option value="5.0">5.0</option>
+        </field>
+
+        <field 
+            name="userid"             
+            type="sql" 
+            query="SELECT id,name FROM #__users ORDER BY name ASC" 
+            key_field="id" 
+            value_field="name" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_USERID" 
+            translate="true"             
+            onchange="this.form.submit();"
+            >
+            <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_USER_NONE</option>
+        </field>
+    </fields>
+
+    <fields name="list">
+        <field 
+            name="fullordering"
+            type="list"
+            default="a.id DESC"
+            label="JGLOBAL_SORT_BY"
+            onchange="this.form.submit();"            
+            >
+            <option value="">JGLOBAL_SORT_BY</option>   
+            <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="a.id DESC">JGRID_HEADING_ID_DESC</option>          
+            <option value="a.title ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_VIDEOS_ASC</option>
+            <option value="a.title DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_VIDEOS_DESC</option>
+            <option value="a.userid ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_ASC</option>
+            <option value="a.userid DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_DESC</option>
+            <option value="a.rating ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_RATINGS_ASC</option>
+            <option value="a.rating DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_RATINGS_DESC</option>            
+        </field>
+
+       <field 
+            name="limit"
+            type="limitbox"
+            default="25"
+            label="JGLOBAL_LIST_LIMIT"
+            class="input-mini"            
+            onchange="this.form.submit();"
+        />
+    </fields>
+</form>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension
+	type="module"
+	client="site"
+	method="upgrade">
+	<name>JT Image Gallery</name>
+ <creationDate>Apr 2023</creationDate>
+    <author>Joomlatema.net</author>
+    <copyright>JoomlaTema</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+    <authorEmail>admin@joomlatema.net</authorEmail>
+    <authorUrl>http://www.joomlatema.net</authorUrl>
+    <version>2.1</version>
+	<description>MOD_JT_IMAGEGALLERY_DESCRIPTION</description>
+	<files>
+		<filename module="mod_jt_image_gallery">mod_jt_image_gallery.php</filename>
+		<folder>tmpl</folder>
+		<folder>js</folder>
+		<folder>language</folder>
+		<folder>elements</folder>
+		<folder>css</folder>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>		
+		<filename>mod_jt_image_gallery.xml</filename>
+	</files>
+		<updateservers>
+        <server type="extension" priority="1" name="JT Image Gallery Updates">https://joomlatema.net/update_server/joomla4/jt_imagegallery.xml</server>
+    </updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB.mod_jt_image_gallery.ini</language>
+		<language tag="tr-TR">language/tr-TR.mod_jt_image_gallery.ini</language>
+		<language tag="pl-PL">language/pl-PL.mod_jt_image_gallery.ini</language>
+	</languages>
+<config>
+	
+		<fields name="params"  addfieldpath="/modules/mod_jt_image_gallery/elements/formfield">
+			<fieldset name="JTIMG_GALLERY_SETTINGS">
+			<field name="module_padding" type="text" default="10px 10px 10px 10px" label="JTIMG_GALLERY_MODULE_PADDING" description="JTIMG_GALLERY_MODULE_PADDING_DESC" />
+			<field name="image_folders" type="foldertree" directory="images" filter="" label="JTIMG_IMAGE_DIRECTORY" description="JTIMG_IMAGE_DIRECTORY_DESC" />
+			<field name="limititems" type="text" default="0" label="JTIMG_GALLERY_LIMITITEMS" description="JTIMG_GALLERY_LIMITITEMS_DESC" />
+			<field name="order_by" type="list" class="btn-group"  default="random" label="JTIMG_GALLERY_ORDERBY" description="JTIMG_GALLERY_ORDERBY_DESC">
+					<option value="title">JGLOBAL_TITLE</option>
+					<option value="date_created">JGLOBAL_CREATED_DATE</option>
+					<option value="date_modified">JGLOBAL_MODIFIED_DATE</option>
+					<option value="type">JTIMG_GALLERY_FILETYPE</option>
+					<option value="random">JGLOBAL_RANDOM_ORDER</option>
+				</field>
+				<field name="order_dir" type="radio" class="btn-group"  default="desc" label="JTIMG_GALLERY_ORDERDIRECTION" description="JTIMG_GALLERY_ORDERDIRECTION_DESC">
+					<option value="asc">JGLOBAL_ORDER_ASCENDING</option>
+					<option value="desc">JGLOBAL_ORDER_DESCENDING</option>
+				</field>
+			<field name="itemsPerPage" type="text" default="6" label="JTIMG_GALLERY_ITEMSPERPAGE" description="JTIMG_GALLERY_ITEMSPERPAGE_DESC" />
+				<field name="thumb_width" type="text" label="JTIMG_GALLERY_THUMBWIDTH" default="250" description="JTIMG_GALLERY_THUMBWIDTH_DESC">
+					<filter type="integer" />
+				</field>
+				<field name="thumb_height" type="text" label="JTIMG_GALLERY_THUMBHEIGHT" default="150" description="JTIMG_GALLERY_THUMBHEIGHT_DESC">
+			
+				</field>
+				<field name="thumb_type" type="radio" class="btn-group"  default=".jpg" label="JTIMG_GALLERY_THUMBTYPE" description="JTIMG_GALLERY_THUMBTYPE_DESC">
+					<option value=".jpg">JTIMG_JPG</option>
+					<option value=".png">JTIMG_PNG</option>
+					<option value=".webp">JTIMG_WEBP</option>
+					<option value=".gif">JTIMG_GIF</option>
+				</field>
+				<field name="thumb_quality" type="text" default="85" label="JTIMG_GALLERY_THUMBQUALITY" description="JTIMG_GALLERY_THUMBQUALITY_DESC" />
+				<field name="ImgBorderRadius" type="text" default="0px"  label="JTIMG_GALLERY_THUMBNAIL_BORDERRADIUS_LABEL" description="JTIMG_GALLERY_THUMBNAIL_BORDERRADIUS_DESC" />
+				<field name="ImageBorder" type="text" default="1px solid #e5e5e5" label="JTIMG_GALLERY_THUMBNAIL_BORDER_LABEL" description="JTIMG_GALLERY_THUMBNAIL_BORDER_DESC" />	
+				<field name="columns" type="text" label="JTIMG_GALLERY_COLUMNS" default="3" description="JTIMG_GALLERY_COLUMNS_DESC" />
+				<field name="columns_fortablet" type="text" label="JTIMG_GALLERY_COLUMNS_TABLET" default="2" description="JTIMG_GALLERY_COLUMNS_TABLET_DESC" />
+				<field name="columns_formobile" type="text" label="JTIMG_GALLERY_COLUMNS_MOBILE" default="1" description="JTIMG_GALLERY_COLUMNS_MOBILE_DESC" />
+				
+				<field name="item_margin" type="text" default="5px 5px 5px 5px" label="JTIMG_GALLERY_ITEM_MARGIN" description="JTIMG_GALLERY_ITEM_MARGIN_DESC" />
+				<field name="item_padding" type="text" default="0px 0px 0px 0px" label="JTIMG_GALLERY_ITEM_PADDING" description="JTIMG_GALLERY_ITEM_PADDING_DESC" />
+				<field name="grow_effect" type="radio" class="btn-group"  default="1" label="JTIMG_GALLERY_GROW_IMAGE_EFFECT" description="JTIMG_GALLERY_GROW_IMAGE_EFFECT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>		
+			<field name="speed" type="text" default="800" label="JTIMG_GALLERY_SPEED" description="JTIMG_GALLERY_SPEED_DESC" />
+				<field name="autoplay" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_AUTOPLAY" description="JTIMG_GALLERY_AUTOPLAY_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>	
+			<field name="autoplaySpeed" type="text" default="3000" label="JTIMG_GALLERY_AUTOPLAY_SPEED" description="JTIMG_GALLERY_AUTOPLAY_SPEED_DESC" />
+				<field name="dots" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_DOTS" description="JTIMG_GALLERY_DOTS_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="arrows" type="radio" class="btn-group"  default="true" label="JTIMG_GALLERY_ARROWS" description="JTIMG_GALLERY_ARROWS_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="draggable" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_DRAGGABLE" description="JTIMG_GALLERY_DRAGGABLE_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="fade" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_FADE" description="JTIMG_GALLERY_FADE_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="pauseOnHover" type="radio" class="btn-group"  default="true" label="JTIMG_GALLERY_PAUSEONHOVER" description="JTIMG_GALLERY_PAUSEONHOVER_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="swipe" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_SWIPE" description="JTIMG_GALLERY_SWIPE_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+				<field name="vertical" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_VERTICAL" description="JTIMG_GALLERY_VERTICAL_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+			<field name="verticalSwiping" type="radio" class="btn-group"  default="false" label="JTIMG_GALLERY_VERTICALSWIPING" description="JTIMG_GALLERY_VERTICALSWIPING_DESC">
+					<option value="true">JYES</option>
+					<option value="false">JNO</option>
+				</field>
+			<field name="dotsClass" type="text" default="slick-dots" label="JTIMG_GALLERY_DOTS_CLASS" description="JTIMG_GALLERY_DOTS_CLASS_DESC" />
+			<field name="delete_thumbs" type="Cache" label="JTIMG_GALLERY_THUMBNAIL_DELETE" description="JTIMG_GALLERY_THUMBNAIL_DELETE_DESC"   />
+			</fieldset>
+			<fieldset name="FANCYBOX_SETTINGS">
+				<field name="fancybox_background" type="color" format="hex" default="#000000"  label="FANCYBOX_BG" description="FANCYBOX_BG_DESC" />	
+				<field name="OpeningSpeed" type="text"  default="250"  label="FANCYBOX_OPENSPEED" description="FANCYBOX_OPENSPEED_DESC" />	
+				<field name="closeSpeed" type="text"  default="250"  label="FANCYBOX_CLOSESPEED" description="FANCYBOX_CLOSESPEED_DESC" />	
+				<field name="fancybox_openEffect" type="radio" class="btn-group"  default="fade" label="JTIMG_GALLERY_FANCYBOX_OPENEFFECT" description="JTIMG_GALLERY_FANCYBOX_OPENEFFECT_DESC">
+					<option value="elastic">Elastic</option>
+					<option value="fade">Fade</option>
+					<option value="none">None</option>
+				</field>	
+				<field name="FancyboxCloseEffect" type="radio" class="btn-group"  default="fade" label="JTIMG_GALLERY_FANCYBOX_CLOSEEFFECT" description="JTIMG_GALLERY_FANCYBOX_CLOSEEFFECT_DESC">
+					<option value="elastic">Elastic</option>
+					<option value="fade">Fade</option>
+					<option value="none">None</option>
+				</field>
+				<field name="FancyboxNextEffect" type="radio" class="btn-group"  default="elastic" label="JTIMG_GALLERY_FANCYBOX_NEXTEFFECT" description="JTIMG_GALLERY_FANCYBOX_NEXTEFFECT_DESC">
+					<option value="elastic">Elastic</option>
+					<option value="fade">Fade</option>
+					<option value="none">None</option>
+				</field>
+				<field name="FancyboxPrevEffect" type="radio" class="btn-group"  default="elastic" label="JTIMG_GALLERY_FANCYBOX_PREVEFFECT" description="JTIMG_GALLERY_FANCYBOX_PREVEFFECT_DESC">
+					<option value="elastic">Elastic</option>
+					<option value="fade">Fade</option>
+					<option value="none">None</option>
+				</field>
+				<field name="showtitle" type="radio" class="btn-group"  default="0" label="JTIMG_GALLERY_SHOWTITLE" description="JTIMG_GALLERY_SHOWTITLE_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field name="Title_Type" type="radio" class="btn-group" showon="showtitle:1"   default="inside" label="JTIMG_GALLERY_FANCYBOX_TITLETYPE" description="JTIMG_GALLERY_FANCYBOX_TITLETYPE_DESC">
+					<option value="inside">Inside</option>
+					<option value="outside">Outside</option>
+					<option value="float">Float</option>
+					<option value="over">Over</option>
+				</field>	
+				</fieldset>
+			<fieldset name="advanced">
+		<field name="moduleclass_sfx" type="text" default="" label="MODULE_CLASS_SUFFIX" description="MODULE_CLASS_SUFFIX_DESC" />
+	<field name="cache" type="radio" class="btn-group"  default="1" label="CACHE" description="CACHE">
+					<option value="1">USE_GLOBAL</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="CACHE_TIME" description="CACHE_TIME" />
+				<field 
+					name="loadFancybox" 
+					type="radio" 
+					class="btn-group" 
+					default="1" 
+					label="JTIMG_GALLERY_LOADFANCYBOX" 
+					description="JTIMG_GALLERY_LOADFANCYBOX_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>			
+		</fields>
+	</config>
+</extension>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="image_modal" class="testimonial-subform">
+		<field name="img" type="media" default="" label="MOD_JTTEST_IMG"  description="MOD_JTTEST_IMG_DESC" size="30" />
+		<field name="name" type="text" size="60" default="" label="MOD_JTTEST_NAME" description="MOD_JTTEST_NAME" />
+		<field name="position" type="text" default="" label="MOD_JTTEST_POSITION" description="MOD_JTTEST_POSITION" />
+		<field name="email" type="text" default="" label="E-Mail" description="E-Mail" />
+		<field name="website" type="text" default="" label="Website" description="Website" />
+		<field name="facebook" type="text" default="" label="Facebook" description="Facebook" />
+		<field name="twitter" type="text" default="" label="Twitter" description="Twitter" />
+		<field name="linkedin" type="text" default="" label="Linkedin" description="Linkedin" />
+		<field name="instagram" type="text" default="" label="Instagram" description="Instagram" />
+		<field name="pinterest" type="text" default="" label="Pinterest" description="Pinterest" />
+		<field name="twitter" type="text" default="" label="Twitter" description="Twitter" />
+		<field name="youtube" type="text" default="" label="Youtube" description="Youtube" />
+		<field name="tiktok" type="text" default="" label="Tiktok" description="Tiktok" />
+		<field name="testimonial" type="textarea" default="" label="MOD_JTTEST_TESTIMONIAL" description="Testimonial text" published="1"/>		
+		<field name="stars" type="list" default="" label="MOD_JTTEST_RATINGSTARS" description="MOD_JTTEST_RATINGSTARS_DESC" >
+		<option value="">MOD_JTTEST_NOT_RATED</option>
+		    <option value="star0">0_MOD_JTTEST_STAR</option>
+			<option value="star1">1_MOD_JTTEST_STAR</option>
+			<option value="star15">1,5_MOD_JTTEST_STARS</option>
+			<option value="star2">2_MOD_JTTEST_STARS</option>
+			<option value="star25">2,5_MOD_JTTEST_STARS</option>
+			<option value="star3">3_MOD_JTTEST_STARS</option>
+			<option value="star35">3,5_MOD_JTTEST_STARS</option>
+			<option value="star4">4_MOD_JTTEST_STARS</option>
+			<option value="star45">4,5_MOD_JTTEST_STARS</option>
+			<option value="star5">5_MOD_JTTEST_STARS</option>
+		</field>
+	</fieldset>
+</form>

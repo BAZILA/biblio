@@ -1,0 +1,25 @@
+.jcc-color-box {
+    float: left;
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.other-filters {
+    padding: 0 14px;
+}
+
+#yendif-video-share-modal-box .modal-dialog {
+    max-width: 640px;
+}
+
+#yendif-video-share-modal-box .modal-title {
+    padding: 10px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+#yendif-video-share-modal-box .modal-body {
+    padding: 10px 10px 5px 10px;
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form>
+	<fieldset name="image_modal" class="testimonial-subform">
+		<field name="jtcimage" type="media" default="" label="MOD_JT_CAROUSEL_IMG"  description="MOD_JT_CAROUSEL_IMG_DESC" size="30" />
+		<field name="title" type="text" size="60" default="" label="MOD_JT_CAROUSEL_NAME" description="MOD_JT_CAROUSEL_NAME" />
+		<field name="link" type="text" default="" label="MOD_JT_CAROUSEL_ITEMLINK" description="MOD_JT_CAROUSEL_ITEMLINK" />
+		<field name="description" type="textarea" default="" label="MOD_JT_CAROUSEL_ITEM_DESCRIPTION" description="MOD_JT_CAROUSEL_ITEM_DESCRIPTION" published="1"/>		
+	</fieldset>
+</form>

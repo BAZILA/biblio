@@ -1,0 +1,311 @@
+
+.player {
+	margin: 0px;
+}
+.member {
+	text-align: center;
+	width: 25%;
+	float: left;
+	margin: 14px 0 20px;
+}
+.member-inner {
+	-webkit-transition: border 0.2s ease-in-out;
+	-o-transition: border 0.2s ease-in-out;
+	transition: border 0.2s ease-in-out;
+	-webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+	padding-bottom:20px;
+	margin:0 15px
+}
+.member hgroup {
+	text-transform: uppercase;
+	margin: 20px 0 10px;
+}
+.member h2 {
+	text-align:left;
+	font-size: 14px;
+	margin-bottom: 1px;
+	margin-top:10px;
+	line-height: 15px;
+	padding-left:15px;
+	padding-right:15px;
+}
+.member span {
+	font-size:11px;display: block;text-align:left;padding-left:15px;padding-right:15px;
+}
+.member p.intro {
+	text-align:left;
+	margin: 10px auto;
+	font-size: 13px;
+	line-height: 18px;
+	padding-left:15px;
+	padding-right:15px;
+}
+.playersquad-avatar a.image-link{ display:block; height:100%; width:100%; position:relative; z-index:3;}
+.member .playersquad-avatar {
+	width: auto;
+	height: auto;
+	overflow: hidden;
+	position: relative;
+	display: block;
+	margin: 0px 0px 20px 0px;
+}
+.member .playersquad-avatar img {
+	border-radius: 0;
+	max-width: 100%!important;
+	height: auto;
+	
+	transition: all 0.5s linear 0s;
+	-moz-transition: all 0.5s linear 0s;
+	-o-transition: all 0.5s linear 0s;
+	-webkit-transition: all 0.5s linear 0s;
+}
+.member .playersquad-avatar:hover img {
+	transform: scale(1.05, 1.05);
+	-moz-transform: scale(1.05, 1.05);
+	-o-transform: scale(1.05, 1.05);
+	-webkit-transform: scale(1.05, 1.05);
+	
+	transition: all 0.5s linear 0s;
+	-moz-transition: all 0.5s linear 0s;
+	-o-transition: all 0.5s linear 0s;
+	-webkit-transition: all 0.5s linear 0s;
+
+}
+.rad10 .member .playersquad-avatar img {
+	border-radius: 10%;
+}
+.rad50 .member .playersquad-avatar img {
+	border-radius: 50%;
+}
+
+.member figcaption::after{transition: all 0.35s linear 0s; outline:none; position:absolute; z-index:3; content:""; width:100%; height:100%; background:rgba(0,0,0,0.5); opacity:0; left:0; top:0;}
+.member .playersquad-avatar:hover figcaption::after{opacity:1;transition: all 0.35s linear 0s; outline:none;}
+.member figcaption a {	background:rgba(255,255,255,0.95) url(../images/social-icons.png) no-repeat;
+	width: 30px;
+	height: 30px;
+	display: block;
+	float: left;
+	margin: 0 2px;
+	opacity: 0;
+	border: none;
+	border-radius:3px;
+	
+}
+.member figcaption a:hover {
+	opacity: 0.7;
+}
+.member figcaption a.envelope {
+	background-position: 0 0;
+}
+.member figcaption a.facebook {
+	background-position: -31px -1px;
+}
+.member figcaption a.delicious {
+	background-position: -61px -1px;
+}
+.member figcaption a.digg {
+	background-position: -91px -1px;
+}
+.member figcaption a.reddit {
+	background-position: -121px -1px;
+	
+}
+.member figcaption a.flickr {
+	background-position: -151px -1px;
+}
+.member figcaption a.stumbleupon {
+	background-position: -181px -1px;
+}
+.member figcaption a.newsvine {
+	background-position: -211px -1px;
+}
+.member figcaption a.pinterest {
+	background-position: -241px -1px;
+}
+.member figcaption a.mixx {
+	background-position: -271px -1px;
+}
+.member figcaption a.technorati {
+	background-position: -301px -1px;
+}
+.member figcaption a.rss {
+	background-position: -331px -1px;
+}
+.member figcaption a.instagram {
+	background-position: -361px -1px;
+}
+.member figcaption a.myspace {
+	background-position: -391px -1px;
+}
+.member figcaption a.google {
+	background-position: -421px -1px;
+}
+.member figcaption a.twitter {
+	background-position: -451px -1px;
+}
+.member a.profile-link{text-align:right; padding-right:20px; display:block}
+.uk-icon-envelope:before {
+	margin-left: 1px;
+}
+.playersquad-avatar figcaption::before,
+.playersquad-avatar figcaption::after {
+	pointer-events: none;
+}
+.playersquad-avatar figcaption,
+.playersquad-avatar figcaption > a {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.playersquad-avatar ul {
+	width: 100%;
+	text-transform: none;
+	font-size: 121%;
+	line-height: 2;
+	list-style:none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin:0;
+	margin-top: 5px;
+	padding:0;
+	-webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+	transition: opacity 0.35s, transform 0.35s;
+	-webkit-transform: translate3d(-50%,-50%,0);
+	transform: translate3d(-50%,-50%,0);
+	-webkit-transform-origin: 50%;
+	transform-origin: 50%;
+	z-index:4;
+}
+
+.playersquad-avatar ul li {
+	display:inline-block;
+	margin:2px;
+}
+.playersquad-avatar ul li a {
+	opacity: 0;
+	width:30px;
+	height:30px;
+	transition: all ease-in-out 0.5s;
+	-webkit-transition: all ease-in-out 0.5s;
+
+}
+.playersquad-avatar i{ font-family:fontAwesome; display:inline-block; width:30px; height:30px;}
+.playersquad-avatar ul li a:hover {
+  	opacity: 1;
+  	color: #444;
+  	background-position:inherit bottom;
+	transition: all ease-in-out 0.5s;
+	-webkit-transition: all ease-in-out 0.5s;
+}
+.member figcaption a.envelope:hover {
+	background-position: 0 -30px;
+}
+.member figcaption a.facebook:hover {
+	background-position: -31px -31px;
+}
+.member figcaption a.delicious:hover {
+	background-position: -61px -31px;
+}
+.member figcaption a.digg:hover {
+	background-position: -91px -31px;
+}
+.member figcaption a.reddit:hover {
+	background-position: -121px -31px;
+}
+.member figcaption a.flickr:hover {
+	background-position: -151px -31px;
+}
+.member figcaption a.stumbleupon:hover {
+	background-position: -181px -31px;
+}
+.member figcaption a.newsvine:hover {
+	background-position: -211px -31px;
+}
+.member figcaption a.pinterest:hover {
+	background-position: -241px -31px;
+}
+.member figcaption a.mixx:hover {
+	background-position: -271px -31px;
+}
+.member figcaption a.technorati:hover {
+	background-position: -301px -31px;
+}
+.member figcaption a.rss:hover {
+	background-position: -331px -31px;
+}
+.member figcaption a.instagram:hover {
+	background-position: -361px -31px;
+}
+.member figcaption a.myspace:hover {
+	background-position: -391px -31px;
+}
+.member figcaption a.google:hover {
+	background-position: -421px -31px;
+}
+.member figcaption a.twitter:hover {
+	background-position: -451px -31px;
+}
+.playersquad-avatar ul li a::before {
+	line-height:30px;
+}
+.playersquad-avatar ul li:first-child a {
+	-webkit-transform: translate3d(-60px,-60px,0);
+	transform: translate3d(-60px,-60px,0);
+}
+
+.playersquad-avatar ul li:nth-child(2) a {
+	-webkit-transform: translate3d(60px,-60px,0);
+	transform: translate3d(60px,-60px,0);
+}
+
+.playersquad-avatar ul li:nth-child(3) a {
+	-webkit-transform: translate3d(-60px,60px,0);
+	transform: translate3d(-60px,60px,0);
+}
+
+.playersquad-avatar ul li:nth-child(4) a {
+	-webkit-transform: translate3d(60px,60px,0);
+	transform: translate3d(-60px,-60px,0);
+}
+.playersquad-avatar ul li:last-child a {
+	-webkit-transform: translate3d(-60px,60px,0);
+	transform: translate3d(60px,60px,0);
+}
+
+.playersquad-avatar:hover ul li a:empty {
+	-webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0,0,0);
+	opacity: 1;
+}
+
+
+.box20 .member { width:20%; }
+.box25 .member { width:25%; }
+.box33 .member { width:33.3%; }
+.box50 .member { width:50%; }
+.box100 .member { width:100%; }
+
+@media (max-width: 900px) {
+	.box20 .member { width:25%; }
+	.box25 .member { width:25%; }
+	.box33 .member { width:50%; }
+}
+@media (max-width: 650px) {
+	.box20 .member { width:33.3%; }
+	.box25 .member { width:50%; }
+	.box33 .member { width:50%; }
+	.box50 .member { width:100%; }
+}
+@media (max-width: 500px) {
+	.box20 .member { width:100%; }
+	.box25 .member { width:100%; }
+	.box33 .member { width:100%; }
+	.box50 .member { width:100%; }
+}
+
+

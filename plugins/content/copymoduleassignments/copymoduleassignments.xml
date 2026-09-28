@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="content" method="upgrade">
+	<name>plg_copy_module_assignments</name>
+	<author>Aleksandar Jovanović</author>
+	<creationDate>March 2016</creationDate>
+	<copyright>Copyright (C) 2016 Aleksandar Jovanović. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<authorEmail>himself@alexxandar.me</authorEmail>
+	<authorUrl>alexxandar.me</authorUrl>
+	<version>3.0.0</version>
+	<description>PLG_COPY_MODULE_ASSIGNMENTS_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="copymoduleassignments">copymoduleassignments.php</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">en-GB.plg_content_copymoduleassignments.ini</language>
+		<language tag="en-GB">en-GB.plg_content_copymoduleassignments.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+		</fields>
+	</config>
+</extension>

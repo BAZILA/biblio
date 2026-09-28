@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+        <layout title="COM_YENDIFVIDEOSHARE_LAYOUT_USER_DASHBOARD_TITLE" option="View">
+                <message>
+                        <![CDATA[COM_YENDIFVIDEOSHARE_LAYOUT_USER_DASHBOARD_DESC]]>
+                </message>
+	</layout>	
+</metadata>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="package" version="4.0" method="upgrade">
+    <name>Yendif Video Share</name>
+    <author>PluginsWare Interactive Pvt. Ltd</author>    
+    <creationDate>November 2025</creationDate>
+    <packagename>yendifvideoshare</packagename>
+    <version>2.3.0</version>
+    <url>https://yendifplayer.com/</url>
+    <packager>PluginsWare Interactive Pvt. Ltd</packager>
+    <packagerurl>https://yendifplayer.com/</packagerurl>
+    <copyright>Copyright (c) 2012 - 2025 PluginsWare Interactive Pvt. Ltd. All Rights Reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <description>Yendif Video Share - A Joomla Video Player and Gallery extension.</description>
+    <blockChildUninstall>true</blockChildUninstall>
+    <scriptfile>script.yendifvideoshare.php</scriptfile> 
+    <files folder="packages">
+        <!-- Component -->
+        <file type="component" id="com_yendifvideoshare">com_yendifvideoshare.zip</file>
+        <!-- Modules -->
+        <file type="module" client="site" id="mod_yendifvideoshare_categories">mod_yendifvideoshare_categories.zip</file>
+        <file type="module" client="site" id="mod_yendifvideoshare_videos">mod_yendifvideoshare_videos.zip</file>
+        <file type="module" client="site" id="mod_yendifvideoshare_player">mod_yendifvideoshare_player.zip</file>
+        <file type="module" client="site" id="mod_yendifvideoshare_playlist">mod_yendifvideoshare_playlist.zip</file>
+        <file type="module" client="site" id="mod_yendifvideoshare_related">mod_yendifvideoshare_related.zip</file>
+        <file type="module" client="site" id="mod_yendifvideoshare_search">mod_yendifvideoshare_search.zip</file>
+        <!-- Plugins -->
+        <file type="plugin" group="content" id="yendifvideoshare">plg_content_yendifvideoshare.zip</file>
+        <file type="plugin" group="finder" id="yendifvideoshare">plg_finder_yendifvideoshare.zip</file>
+        <file type="plugin" group="system" id="yendifvideoshare">plg_system_yendifvideoshare.zip</file>
+    </files>  
+    <updateservers>
+        <server type="extension" name="com_yendifvideoshare" priority="1">https://yendifplayer.com/updates/yendifvideoshare-update.xml</server>
+    </updateservers>
+</extension>

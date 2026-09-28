@@ -1,0 +1,40 @@
+<?php
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- View file, its variables are local to the include scope, not true globals.
+defined('_JEXEC') || die('Restricted Access');
+?>
+<div class="acym__template__choose__modal__loader cell grid-x acym_vcenter align-center">
+    <?php acym_loaderLogo(); ?>
+</div>
+<div class="grid-x grid-margin-x acym__template__edit__choose-template__ajax">
+	<input type="hidden" name="tag_template_choose" id="acym_tag_template_choose__ajax" value="">
+	<input type="hidden" name="search_template_choose" id="acym_search_template_choose__ajax" value="">
+	<div class="cell grid-x grid-margin-x">
+		<div class="medium-4 cell">
+            <?php acym_filterSearch('', 'mailchoose_search__ajax', 'ACYM_SEARCH'); ?>
+		</div>
+
+		<div class="medium-4 cell">
+            <?php
+            $allTags = new stdClass();
+            $allTags->name = acym_translation('ACYM_ALL_TAGS');
+            $allTags->value = '';
+            array_unshift($data['allTags'], $allTags);
+            acym_select(
+                $data['allTags'],
+                'mailchoose_tag__ajax',
+                null,
+                ['class' => 'acym__templates__filter__tags__ajax acym__select'],
+                'value',
+                'name',
+                null,
+                false,
+                true
+            );
+            ?>
+		</div>
+	</div>
+	<div class="grid-x cell">
+	</div>
+	<div class="acym__template__choose__ajax cell grid-x ">
+	</div>
+</div>

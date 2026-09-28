@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+  <fieldset>
+    <field 
+      name="id" 
+      type="text" 
+      readonly="true" 
+      class="readonly" 
+      default="0" 
+      description="JGLOBAL_FIELD_ID_DESC"
+    />   
+
+    <field 
+      name="title" 
+      type="text" 
+      filter="string"       
+      required="true" 
+      label="JGLOBAL_TITLE"
+    />
+
+    <field 
+      name="service" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="type"
+      type="list"  
+      default="playlist" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_TYPE" 
+      class="disable-on-edit"
+      >
+      <option value="playlist">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_TYPE_PLAYLIST</option>
+      <option value="channel">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_TYPE_CHANNEL</option>
+      <option value="username">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_TYPE_USERNAME</option>
+      <option value="search">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_TYPE_SEARCH</option>
+      <option value="videos">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_TYPE_VIDEOS</option>
+    </field>
+
+    <field 
+      name="playlist" 
+      type="url" 
+      validate="url"   
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_PLAYLIST" 
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_PLAYLIST" 
+      class="required-conditionally disable-on-edit"  
+      labelclass="required-conditionally-label"
+      showon="type:playlist"
+    />
+
+    <field 
+      name="channel" 
+      type="url" 
+      validate="url" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_CHANNEL"
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_CHANNEL"  
+      class="required-conditionally disable-on-edit"  
+      labelclass="required-conditionally-label"
+      showon="type:channel"
+    />
+
+    <field 
+      name="username" 
+      type="text" 
+      filter="string"
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_USERNAME"
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_USERNAME"
+      class="required-conditionally disable-on-edit"  
+      labelclass="required-conditionally-label"
+      showon="type:username"
+    />
+
+    <field 
+      name="search" 
+      type="text" 
+      filter="string"
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_SEARCH"
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_SEARCH"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_SEARCH"
+      class="required-conditionally disable-on-edit"  
+      labelclass="required-conditionally-label"
+      showon="type:search"
+    />
+
+    <field 
+      name="videos"      
+      type="textarea" 
+      filter="string"
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEOS" 
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_VIDEOS"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEOS" 
+      rows="10"
+      class="required-conditionally disable-on-edit"  
+      labelclass="required-conditionally-label"
+      showon="type:videos"
+    />
+
+    <field 
+      name="exclude"      
+      type="textarea" 
+      filter="string"
+      default="" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_EXCLUDE" 
+      hint="COM_YENDIFVIDEOSHARE_FORM_HINT_IMPORT_EXCLUDE"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_EXCLUDE" 
+      rows="10"
+    />
+
+    <field 
+      name="order_by"
+      type="list"  
+      default="relevance" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_ORDER_BY" 
+      showon="type:search"
+      >
+      <option value="date">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_ORDER_BY_DATE</option>
+      <option value="rating">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_ORDER_BY_RATING</option>
+      <option value="relevance">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_ORDER_BY_RELEVANCE</option>
+      <option value="title">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_ORDER_BY_TITLE</option>
+      <option value="viewCount">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_ORDER_BY_VIEW_COUNT</option>
+    </field>
+
+    <field 
+      name="limit" 
+      type="text" 
+      filter="int"       
+      default="50"
+      required="true" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_LIMIT"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_LIMIT"
+    />
+
+    <field 
+      name="schedule"
+      type="list"  
+      default="0" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_SCHEDULE" 
+      >
+      <option value="0">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_SCHEDULE_NONE</option>
+      <option value="3600">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_SCHEDULE_EVERY_HOUR</option>
+      <option value="86400">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_SCHEDULE_EVERY_DAY</option>
+      <option value="604800">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_SCHEDULE_EVERY_WEEK</option>
+      <option value="2419200">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_SCHEDULE_EVERY_MONTH</option>
+    </field>
+
+    <field 
+      name="reschedule" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="0" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_RESCHEDULE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_RESCHEDULE" 
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field> 
+
+    <field 
+      name="import_state" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="params" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="history" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="next_import_date" 
+      type="hidden" 
+      filter="unset"
+    />  
+
+    <field 
+      name="video_catid" 
+      type="nestedcategories" 
+      layout="joomla.form.field.list-fancy-select" 
+      required="true" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEO_CATID"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEO_CATID" 
+      >
+      <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_CATEGORY_NONE</option>
+    </field> 
+
+    <field 
+      name="video_description" 
+      type="radio" 
+      buttons="true" 
+      layout="joomla.form.field.radio.switcher" 
+      default="0" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEO_DESCRIPTION" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEO_DESCRIPTION" 
+      >
+      <option value="0">JNO</option>
+      <option value="1">JYES</option>
+    </field>
+
+    <field 
+      name="video_date"
+      type="list"  
+      default="imported" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEO_DATE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEO_DATE" 
+      >
+      <option value="original">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_VIDEO_DATE_ORIGINAL</option>
+      <option value="imported">COM_YENDIFVIDEOSHARE_FORM_OPTION_IMPORT_VIDEO_DATE_IMPORTED</option>
+    </field>
+
+    <field
+			name="video_userid"
+			type="user"
+      default="0"
+			label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEO_USERID"
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEO_USERID"
+			validate="UserId"
+		/>
+
+    <field 
+      name="video_state"
+      type="list"  
+      default="1"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_VIDEO_STATE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_VIDEO_STATE" 
+      >
+      <option value="1">JPUBLISHED</option>
+      <option value="0">JUNPUBLISHED</option>
+    </field>
+
+    <field 
+      name="state"
+      type="list"  
+      default="1"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_IMPORT_STATE" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_IMPORT_STATE" 
+      class="form-select-color-state"
+      size="1"
+      >
+      <option value="1">JYES</option>
+      <option value="0">JNO</option>
+    </field>
+
+    <field 
+      name="checked_out" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="checked_out_time" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="created_by" 
+      type="createdby" 
+      default="0" 
+      label="JGLOBAL_FIELD_CREATED_BY_LABEL" 
+      description="JGLOBAL_FIELD_CREATED_BY_DESC" 
+      hidden="true" 
+    />
+
+    <field 
+      name="modified_by" 
+      type="modifiedby" 
+      default="0" 
+      label="JGLOBAL_FIELD_MODIFIED_BY_LABEL" 
+      description="JGLOBAL_FIELD_MODIFIED_BY_DESC" 
+      hidden="true" 
+    />    
+  </fieldset>
+</form>

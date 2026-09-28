@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+  <fieldset>
+    <field name="id" />
+    <field name="videoid" />
+    <field name="likes" />
+    <field name="dislikes" />
+    <field name="userid" />
+    <field name="sessionid" />
+    <field name="created_date" />
+    <field name="updated_date" />
+  </fieldset>
+</form>

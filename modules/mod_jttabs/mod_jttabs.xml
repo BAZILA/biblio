@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="4.x" client="site" method="upgrade">
+    <name>JT Tabs</name>
+    <author>JoomlaTema</author>
+    <creationDate>Apr 2022</creationDate>
+    <copyright>Copyright (C) 2022 JoomlaTema.net All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <authorEmail>admin@joomlatema.net</authorEmail>
+    <authorUrl>https://www.joomlatema.net</authorUrl>
+    <version>2.1</version>
+    <description><![CDATA[<link href="../modules/mod_jttabs/assets/css/admin.css" rel="stylesheet" type="text/css" media="all" /><p>JT Tabs is a module created by JoomlaTema to display articles and modules as tabs. It is very simple to use with options and adaptive to any Joomla! website.</p><br /><img src='../modules/mod_jttabs/assets/images/logo.png' /><p><h3>Useful links</h3></p>
+	<ul><li><a href='https://www.joomlatema.net/forum.html'>Support Forum</a></li>
+	<li><a href='https://www.joomlatema.net/contact.html'>Report bug</a></li></ul>
+	
+	]]></description>
+    <files>
+        <filename module="mod_jttabs">mod_jttabs.php</filename>
+        <filename>index.html</filename>
+        <filename>helper.php</filename>
+        <filename>mod_jttabs.xml</filename>
+        <folder>assets</folder>
+        <folder>elements</folder>
+        <folder>language</folder>
+        <folder>tmpl</folder>
+    </files>
+	<updateservers>
+        <server type="extension" priority="1" name="JT Tabs Updates">http://joomlatema.net/update_server/joomla4/jttabs.xml</server>
+    </updateservers>
+	<languages>
+		<language tag="en-GB">language/en-GB.mod_jttabs.ini</language>
+		<language tag="tr-TR">language/tr-TR.mod_jttabs.ini</language>
+	</languages>
+    <config>
+        <fields addfieldpath="/modules/mod_jttabs/elements" name="params">
+			
+			 <fieldset
+                name="general"  label="MOD_JT_TABS_GENERAL_SETTINGS">
+				
+					<field 
+					name="showpretext" type="radio" 
+					default="0" 
+					class="btn-group"
+					label="SHOW_MOD_JT_TABS_PRETEXT" description="SHOW_MOD_JT_TABS_PRETEXT_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+					
+					<field 
+					name="pretexttitle" 
+					showon="showpretext:1" 
+					type="text" default=""
+					filter="raw"
+					label="MOD_JT_TABS_PRETEXT_TITLE" 
+					description="MOD_JT_TABS_PRETEXT_TITLE_DESC" />
+					
+					<field 
+				name="pretext" 
+				type="textarea" 
+				showon="showpretext:1" 
+				default=""
+				filter="raw"
+				label="MOD_JT_TABS_PRETEXT" description="MOD_JT_TABS_PRETEXT_DESC" />
+					
+				<field
+				name="image_type"
+				type="list"
+				default="intro"
+				label="MOD_JT_TABS_IMAGE_TYPE"
+				description="MOD_JT_TABS_IMAGE_TYPE_DESC">
+				
+    <option value="intro">MOD_JT_TABS_INTRO_IMAGE</option>
+    <option value="full">MOD_JT_TABS_FULL_TEXT_IMAGE</option>
+</field>
+</fieldset>
+		<fieldset name="tabs" label="MOD_JT_TABS_TABS">		
+		<field name="tab_items" type="subform" formsource="modules/mod_jttabs/elements/field/tab_items.xml" class="advancedSelect" min="1" max="50" multiple="true" layout="joomla.form.field.subform.repeatable" groupByFieldset="true" label="MOD_JT_TABS_TABS" description="MOD_JT_TABS_TABS_DESC" />
+			</fieldset>         
+            <fieldset
+                name="advanced">
+                <field
+                    name="layout"
+                    type="modulelayout"
+                    default="default"
+					class="custom-select"
+                    label="JFIELD_ALT_LAYOUT_LABEL"
+                    description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+                    
+                <field
+                    name="moduleclass_sfx"
+                    type="text"
+                    label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+                    description="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" />
+                    
+                <field
+                  name="cache"
+                  type="list"
+                  default="1"
+                  label="COM_MODULES_FIELD_CACHING_LABEL"
+                  description="COM_MODULES_FIELD_CACHING_LABEL">
+                  <option
+                    value="1">JGLOBAL_USE_GLOBAL</option>
+                  <option
+                    value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+                </field>
+
+                <field
+                  name="cache_time"
+                  type="text"
+                  default="900"
+                  label="COM_MODULES_FIELD_CACHE_TIME_LABEL"
+                  description="COM_MODULES_FIELD_CACHE_TIME_LABEL" />
+                <field
+                  name="cachemode"
+                  type="hidden"
+                  default="static">
+                  <option
+                    value="static"></option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
+</extension>

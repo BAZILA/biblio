@@ -1,0 +1,19 @@
+.tab-padding.exeltis {
+  background: #1c2d4c;
+  border: 1px solid #182641;
+  -webkit-box-shadow: inset 0px 0px 1px 1px #1f3154;
+  -moz-box-shadow: inset 0px 0px 1px 1px #1f3154;
+  box-shadow: inset 0px 0px 1px 1px #1f3154;
+}
+.tab-exeltis ul.tabs_container li.tab {
+  color: #ffffff;
+  background: #1f3154;
+  background: -moz-linear-gradient(top, #1f3154 0%, #1f3154 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, #1f3154), color-stop(100%, #1f3154));
+  background: -webkit-linear-gradient(top, #1f3154 0%, #1f3154 100%);
+  background: -o-linear-gradient(top, #1f3154 0%, #1f3154 100%);
+  background: -ms-linear-gradient(top, #1f3154 0%, #1f3154 100%);
+  background: linear-gradient(to bottom, #1f3154 0%, #1f3154 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='lighten(@brand-secondary,5%)', endColorstr='lighten(@brand-secondary,5%)', GradientType=0);
+  border: 1px solid #182641;
+}

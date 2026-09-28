@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+  <fieldset>
+    <field 
+      name="id" 
+      type="text" 
+      readonly="true" 
+      class="readonly" 
+      default="0" 
+      description="JGLOBAL_FIELD_ID_DESC"
+    />    
+
+    <field 
+      name="title"       
+      type="text" 
+      filter="string" 
+      required="true" 
+      label="JGLOBAL_TITLE"
+    />
+
+    <field 
+      name="catid" 
+      type="nestedcategories" 
+      required="true" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_CATID" 
+      >
+      <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_CATEGORY_NONE</option>
+    </field>
+
+    <field 
+      name="type"       
+      type="list" 
+      default="general" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_TYPE" 
+      >
+      <option value="video">COM_YENDIFVIDEOSHARE_FORM_OPTION_VIDEO_TYPE_VIDEO</option>
+      <option value="youtube">COM_YENDIFVIDEOSHARE_FORM_OPTION_VIDEO_TYPE_YOUTUBE</option>
+      <option value="vimeo">COM_YENDIFVIDEOSHARE_FORM_OPTION_VIDEO_TYPE_VIMEO</option>
+      <option value="rtmp">COM_YENDIFVIDEOSHARE_FORM_OPTION_VIDEO_TYPE_RTMP</option>
+    </field>
+
+    <field 
+      name="mp4" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_MP4" 
+      class="required-conditionally" 
+      labelclass="required-conditionally-label"
+      showon="type:video"
+    />
+
+    <field 
+      name="mp4_hd" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_MP4_HD" 
+      showon="type:video"
+    />
+
+    <field 
+      name="webm" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_WEBM" 
+      showon="type:video"
+    />
+
+    <field 
+      name="ogv" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_OGV" 
+      showon="type:video"
+    />
+
+    <field 
+      name="youtube"       
+      type="url" 
+      validate="url" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_YOUTUBE" 
+      class="required-conditionally" 
+      labelclass="required-conditionally-label"
+      showon="type:youtube"
+    />
+
+    <field 
+      name="vimeo"       
+      type="url" 
+      validate="url" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_VIMEO" 
+      class="required-conditionally" 
+      labelclass="required-conditionally-label"
+      showon="type:vimeo"
+    />
+
+    <field 
+      name="hls"       
+      type="url" 
+      validate="url" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_HLS" 
+      class="required-conditionally" 
+      labelclass="required-conditionally-label"
+      showon="type:rtmp"
+    />
+
+    <field 
+      name="dash" 
+      type="url" 
+      validate="url"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_DASH" 
+      showon="type:rtmp"
+    />
+
+    <field 
+      name="image" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_IMAGE" 
+    />
+
+    <field 
+      name="captions" 
+      type="fileupload" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_CAPTIONS" 
+      showon="type:video"
+    />
+
+    <field 
+      name="duration" 
+      type="text" 
+      filter="string"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_DURATION"
+    />
+
+    <field 
+      name="description" 
+      type="editor" 
+      filter="\Joomla\CMS\Component\ComponentHelper::filterText" 
+      editor="|" 
+      buttons="false"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_DESCRIPTION" 
+    />
+
+    <field 
+      name="access" 
+      type="hidden" 
+      filter="int" 
+    />
+
+    <field 
+      name="views" 
+      type="hidden" 
+      filter="int" 
+    />
+
+    <field 
+      name="featured" 
+      type="hidden" 
+      filter="int" 
+    />
+
+    <field 
+      name="rating" 
+      type="hidden"
+      filter="float" 
+    />
+
+    <field 
+      name="preroll" 
+      type="hidden" 
+      filter="int" 
+    />
+
+    <field 
+      name="postroll" 
+      type="hidden" 
+      filter="int" 
+    />
+
+    <field 
+      name="meta_keywords" 
+      filter="string" 
+      type="textarea" 
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_META_KEYWORDS" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_VIDEO_META_KEYWORDS" 
+      hint="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_META_KEYWORDS"
+    />
+
+    <field 
+      name="meta_description"
+      type="textarea"  
+      filter="string"       
+      label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_META_DESCRIPTION" 
+      description="COM_YENDIFVIDEOSHARE_FORM_DESC_VIDEO_META_DESCRIPTION" 
+    />
+ 
+    <field 
+      name="state" 
+      default="1" 
+      type="list" 
+      label="JSTATUS" 
+      description="JFIELD_PUBLISHED_DESC" 
+      class="inputbox" 
+      size="1">
+      <option value="1">JPUBLISHED</option>
+      <option value="0">JUNPUBLISHED</option>
+    </field> 
+
+    <field
+			name="published_up"
+			type="calendar"
+      filter="user_utc"
+			label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_PUBLISHED_UP"
+			translateformat="true"
+			showtime="true"
+		/>
+
+		<field
+			name="published_down"
+			type="calendar"
+      filter="user_utc"
+			label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_PUBLISHED_DOWN"
+			translateformat="true"
+			showtime="true"
+		/>
+
+    <field 
+      name="ordering"
+      type="hidden" 
+      filter="int"
+    />
+
+    <field 
+      name="checked_out" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="checked_out_time" 
+      type="hidden" 
+      filter="unset"
+    />
+
+    <field 
+      name="created_date" 
+      type="hidden" 
+      filter="server_utc" 
+    />
+
+    <field 
+      name="related" 
+      type="hidden"
+      filter="string"
+    />
+  </fieldset>
+</form>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<extension type="module" version="3.x" client="site" method="upgrade">
+    <name>Sidepanel JT1</name>
+    <creationDate>July 2012</creationDate>
+    <author>Joomlatema.net</author>
+    <copyright>JOOMLATEMA.NET</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+    <authorEmail>destek@joomlatema.net</authorEmail>
+    <authorUrl>http://www.joomlatema.net</authorUrl>
+    <version>1.6</version>
+   <description>
+	
+<![CDATA[<div>SidePanel JT1 Module is a commercial extension developed by JOOMLATEMA.NET. This Module allows you to publish your html content or joomla modules (up to 6 modules) as a sliding-panel. You can publish SidePanel at the right, left, top or bottom of the page. Panel uses jquery for sliding.</div>
+<style type='text/css'>span.readonly { padding: 10px; font-family: Arial; font-size:13px !important; font-weight: normal !important; text-align: left; color: #4d4d4d; line-height: 24px; } span.readonly h1 { clear:both; font-family: Georgia, sans-serif; font-size:38px; margin:30px 20px 23px; padding:0px 0px 24px 10px; color:#333; border-bottom: 1px solid #eee; font-weight: normal; } span.readonly p { margin: 0 26px 10px } span.readonly p a { color: #ab3f0a } span.readonly p.homepage { margin-top: 30px } span.readonly p.license { border-top: 1px solid #eee; font-size: 11px; margin: 30px 26px 0; padding: 6px 0; }</style><span class='readonly'><h1>SidePanel JT1 Module <small>ver. 1.6</small></h1><p class="img-logo"><img src="../modules/mod_sidepanel_jt1/images/logo.png" width="175" height="151" align="right"  />SidePanel JT1 Module is a commercial extension developed by <a href='http://www.joomlatema.net' target='_blank' style='color: #146295'>Joomlatema.Net</a>.</p><p>
+<br><strong>Features:</strong>
+    <ul style="margin-left:15px;">
+  <li>Joomla 2.5 and 3.0 compatible</li>
+  <li>Select html or module mode</li>
+  <li>Add up to 6 modules</li>
+  <li>Change panel width, border width, background color etc.</li>
+  <li>Left, Right, Top and Bottom Panel Positions</li>
+  <li>SidePanel Top Position (Px)</li>
+  <li>Side Panel Left Position (Px)</li>
+  <li>Panel Background Color </li>
+  <li>Panel Border Color </li>
+  <li>Panel Border Width (Px) </li>
+  <li>SidePanel Position</li>
+  <li>Enter SidePanel Title</li>
+  <li>Select Image or Enter Text-Icon for Handle</li>
+  <li>SidePanel Mode (Add Modules or Html text)</li><li>
+  SidePanel Width</li><li>
+  Side Panel Height</li><li>
+  SidePanel Position</li><li>
+  SidePanel Top Distance</li><li>
+  SidePanel Left Distance</li><li>
+  Panel Background Color</li><li>
+  Panel Border Color</li><li>
+  Panel Border Width (Px)</li><li>
+  Select Tab Style (Image or Enter Text-Icon for Handle)</li><li>
+  Tab (Handle) Text</li><li>
+  Tab (Handle) Icon (Font Awesome 4.6)</li><li>
+  Tab (Handle) Background </li><li>SidePanel Title</li><li>
+  Animation Duration</li><li>
+  Open On Page Load</li><li>
+  Open Panel Action</li><li>
+  Hover Time Out</li><li>
+  Click Screen to Close</li>
+	</ul>
+.</p> <p class='homepage'><a href='http://www.joomlatema.net' target='_blank'>http://www.joomlatema.net</a></p><p class='license'>Thanks for choosing us. <a target="_blank" href="http://www.joomlatema.net/forum">Support Forum.</a></p></span>
+	]]></description>
+    <files>
+        <filename module="mod_sidepanel_jt1">mod_sidepanel_jt1.php</filename>
+        <filename module="mod_sidepanel_jt1">helper.php</filename>
+        <filename module="mod_sidepanel_jt1">index.html</filename>
+		 <folder module="mod_sidepanel_jt1">tmpl</folder>
+        <folder module="mod_sidepanel_jt1">libs</folder>
+		 <folder module="mod_sidepanel_jt1">images</folder>
+		  <folder module="mod_sidepanel_jt1">language</folder>
+		   <folder module="mod_sidepanel_jt1">js</folder>
+		    <folder module="mod_sidepanel_jt1">css</folder>
+    </files>
+		<updateservers>
+        <server type="extension" priority="1" name="Sidepanel JT1 Updates">http://joomlatema.net/update_server/joomla3/sidepanel_jt1.xml</server>
+    </updateservers>
+    <languages>
+        <language tag="en-GB">language/en-GB.mod_sidepanel_jt1.ini</language>
+		 <language tag="tr-TR">language/tr-TR.mod_sidepanel_jt1.ini</language>
+    </languages>
+    <config>
+        <fields name="params" addfieldpath="/modules/mod_sidepanel_jt1/libs/elements">
+            <fieldset name="basic" label="MODULE_MODE_SETTINGS">	
+		
+			</fieldset>
+			<fieldset name="source_setting" label="SIDEPANEL_MODE_SELECT">
+                <field name="group" type="list" hide_default="true" hide_none="true" default="file" label="SIDEPANEL_MODE_SELECT" description="SIDEPANEL_MODE_DESC" >
+                    <option value="file">Modules</option>
+                    <option value="jtn_login">Html Content</option>
+                </field>
+                <field type="fgroup" title="SIDEPANEL_HTML_MODE" label="" description="" name="logingroup" group="start" for="jtn_login" />
+                 <field name="login" type="textarea" disable="separator" cols="38" rows="7" default="If you choose html content mode you can enter your html content here." label="SIDEPANEL_HTML_CONTENT" description="SIDEPANEL_HTML_CONTENT_DESC" >
+                    <option value="">JDEFAULT </option>
+                </field>
+                <field name="enlogingroup" label="" description="" type="fgroup" title="" group="end" />
+                <field type="fgroup" title="START_GROUP" label="START_GROUP" description="START_GROUP_DESC" name="filegroup" group="start" for="file" />
+                <field name="file1" type="jtneffect" index="1" default="450" label="MODULE_1" description="MODULE_DESC"></field>
+                <field name="file2" type="jtneffect" index="2" default="450" label="MODULE_2" description="MODULE_DESC"></field>
+                <field name="file3" type="jtneffect" index="3" default="450" label="MODULE_3" description="MODULE_DESC"></field>
+                <field name="file4" type="jtneffect" index="4" default="450" label="MODULE_4" description="MODULE_DESC"></field>
+                <field name="file5" type="jtneffect" index="5" default="450" label="MODULE_5" description="MODULE_DESC"></field>
+                <field name="file6" type="jtneffect" index="6" default="450" label="MODULE_6" description="MODULE_DESC"></field>
+				<field name="enfilegroup" label="" description="" type="fgroup" title="" group="end" />
+				</fieldset>
+			<fieldset name="display_setting" label="DISPLAY_SETTINGS">
+				<field name="panel_width" type="text" size="10" default="300px" label="SIDEPANEL_WIDTH" description="SIDEPANEL_WIDTH_DESC"/>
+				<field name="panel_height" type="text" size="10" default="300px" label="SIDEPANEL_HEIGHT" description="SIDEPANEL_HEIGHT_DESC"/>
+				<field name="panel_position" type="list" default="right" label="SIDEPANEL_POSITION" description="SIDEPANEL_POSITION_DESC">
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+					<option value="top">Top</option>
+					<option value="bottom">Bottom</option>
+                </field>
+				<field name="padding" type="text" size="10" default="10px 15px 10px 15px" label="SIDEPANEL_PADDING" description="SIDEPANEL_PADDING_DESC"/>
+				<field name="offsetReverse" type="list" default="false" label="SIDEPANEL_OFFSET_REVERSE" description="SIDEPANEL_OFFSET_REVERSE_DESC">	
+				<option value="true">SIDEPANEL_YES</option>
+					<option value="false">SIDEPANEL_NO</option>
+                </field>
+				<field name="offset" type="text" size="10" default="145px" label="SIDEPANEL_TOP_OR_LEFT_POSITION" description="SIDEPANEL_TOP_OR_LEFT_POSITION_DESC"/>
+                <field name="background" type="text" size="10" default="#ffffff" label="SIDEPANEL_BACKGROUND" description="SIDEPANEL_BACKGROUND_DESC"/>
+                <field name="border_color" type="text" size="10" default="#930404" label="SIDEPANEL_BORDER_COLOR" description="SIDEPANEL_BORDER_COLOR_DESC"/>
+				<field name="border_width" type="text" size="10" default="7" label="SIDEPANEL_BORDER_WIDTH" description="SIDEPANEL_BORDER_WIDTH_DESC"/>
+				<field name="TabStyle" type="list"  default="false" label="SIDEPANEL_TABSTYLE" description="SIDEPANEL_TABSTYLE_DESC">	
+				<option value="TextandIcon">SIDEPANEL_TEXT_AND_ICON</option>
+					<option value="TabImage">SIDEPANEL_TAB_IMAGE</option>
+                </field>
+				 <field name="TabText" type="text" size="10" default="Open Panel"  showon="TabStyle:TextandIcon" label="SIDEPANEL_TABTEXT" description="SIDEPANEL_TABTEXT_DESC"/>
+				 <field name="TabIcon" type="text" size="10" default="fa fa-arrow-circle-o-left" showon="TabStyle:TextandIcon" label="SIDEPANEL_TABICON" description="SIDEPANEL_TABICON_DESC"/>
+				<field name="TabBg" type="text" size="10" default="#930404" showon="TabStyle:TextandIcon" label="SIDEPANEL_TAB_BACKGROUND" description="SIDEPANEL_TAB_BACKGROUND_DESC"/>
+				<field name="panel_open" type="imagelist" default="panel_open.png" showon="TabStyle:TabImage" label="SIDEPANEL_OPEN_IMAGE" description="SIDEPANEL_OPEN_IMAGE_DESC" directory="modules/mod_sidepanel_jt1/images" exclude="" stripext="" />
+				<field name="panel_close" type="imagelist" default="panel_close.png" showon="TabStyle:TabImage" label="SIDEPANEL_CLOSE_IMAGE" description="SIDEPANEL_CLOSE_IMAGE_DESC" directory="modules/mod_sidepanel_jt1/images" exclude="" stripext="" />
+				</fieldset>
+			<fieldset name="other_setting" label="SIDEPANEL_OTHER_SETTINGS">
+				<field name="heading" type="text" size="10" default="" label="SIDEPANEL_HEADING" description="SIDEPANEL_HEADING_DESC"/>
+				<field name="onloadslideout" type="list"  default="false" label="SIDEPANEL_ONSLIDEOUT" description="SIDEPANEL_ONSLIDEOUT_DESC">	
+				<option value="true">SIDEPANEL_YES</option>
+					<option value="false">SIDEPANEL_NO</option>
+                </field>
+				<field name="action" type="list"  default="click" label="SIDEPANEL_TAB_ACTION" description="SIDEPANEL_TAB_ACTION_DESC">	
+				<option value="click">SIDEPANEL_CLICK</option>
+					<option value="hover">SIDEPANEL_HOVER</option>
+                </field>
+				<field name="hoverTimeout" type="text"  size="10"  default="5000" label="SIDEPANEL_HOVER_TIMEOUT" description="SIDEPANEL_HOVER_TIMEOUT_DESC" />
+				<field name="clickScreenToClose" type="list" default="true" label="SIDEPANEL_CLICKSCREEN_TOCLOSE" description="SIDEPANEL_CLICKSCREEN_TOCLOSE_DESC">	
+				<option value="true">SIDEPANEL_YES</option>
+					<option value="false">SIDEPANEL_NO</option>
+                </field>
+            </fieldset>
+            <fieldset name="advanced">	
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"	description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />		
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+                <field name="cache" type="list" default="1" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+                    <option	value="1">JGLOBAL_USE_GLOBAL</option>
+                    <option	value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+                </field>
+
+                <field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+                <field name="cachemode"	type="hidden" default="static">
+                    <option	value="static"></option>				
+                </field>
+            </fieldset>
+        </fields>
+    </config>	
+</extension>

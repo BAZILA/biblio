@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+    <fields name="filter">
+        <field 
+            name="search" 
+            type="text" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_SEARCH"
+            hint="JSEARCH_FILTER"
+            class="js-stools-search-string" 
+        />
+
+        <field 
+            name="catid"             
+            type="nestedcategories" 
+            label="COM_YENDIFVIDEOSHARE_FORM_LBL_VIDEO_CATID" 
+            onchange="this.form.submit();"
+            >
+            <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_CATEGORY_NONE</option>
+        </field>
+    </fields>
+
+    <fields name="list">
+        <field 
+            name="fullordering"
+            type="list"
+            default="a.id DESC"
+            label="JGLOBAL_SORT_BY"
+            onchange="this.form.submit();"            
+            >
+            <option value="">JGLOBAL_SORT_BY</option>
+            <option value="a.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="a.id DESC">JGRID_HEADING_ID_DESC</option> 
+            <option value="a.title ASC">JGLOBAL_TITLE_ASC</option>
+            <option value="a.title DESC">JGLOBAL_TITLE_DESC</option>    
+            <option value="a.catid ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_CATEGORIES_ASC</option>
+            <option value="a.catid DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_CATEGORIES_DESC</option>
+            <option value="a.userid ASC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_ASC</option>
+            <option value="a.userid DESC">COM_YENDIFVIDEOSHARE_FORM_OPTION_FULLORDERING_USER_DESC</option>
+        </field>
+
+       <field 
+            name="limit"
+            type="limitbox"
+            default="25"
+            label="JGLOBAL_LIST_LIMIT"
+            class="input-mini"            
+            onchange="this.form.submit();"
+        />
+    </fields>
+</form>

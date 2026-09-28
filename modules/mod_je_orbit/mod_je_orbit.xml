@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.3" type="module" client="site" method="upgrade">
+	<name>JE Orbit SlideShow</name> 
+    <version>3.3</version>
+    <creationDate>February, 2015</creationDate>
+    <author>jExtensions.com</author>
+    <authorEmail>support@jExtensions.com</authorEmail>
+    <authorUrl>http://jExtensions.com</authorUrl>
+    <copyright>Copyright 2015 - jExtensions.com</copyright>
+    <license>GNU/GPL</license>
+	<description><![CDATA[
+	<h1 class="sub-heading">JE Orbit - jQuery SlideShow Module</h1>	
+	<div class="description">Download more free extensions from <a href="http://jextensions.com/" target="_blank">jExtensions.com</a><br/>
+	Need help? <a href="http://jextensions.com/orbit-jquery-slideshow-for-joomla-2.5/" target="_blank">Click here to visit the support page</a>.<br/>
+	<span class="credits">Credits: <a href="http://www.zurb.com/playground/jquery_image_slider_plugin" target="_blank" >Orbit</a></span>
+	</div>
+		]]>
+	</description>
+	
+	<files>
+		<filename module="mod_je_orbit">mod_je_orbit.php</filename>
+		<filename>index.html</filename>
+		<folder>css/</folder>
+		<folder>images/</folder>
+		<folder>tmpl/</folder>
+		<folder>js/</folder>
+		<folder>php/</folder>
+	</files>
+
+	<config>
+		<fields name="params" addfieldpath="/modules/mod_je_orbit/php">
+		<fieldset name="basic">
+			<field name="jQuery" type="list" default="0" label="jQuery" description="Enable or Disable the latest jQuery version. Make sure that jQuery is loaded only once on your website.">
+				<option value="0">Disable</option>
+				<option	value="1">Enable</option>
+			</field>
+
+			<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slideshow Configuration&lt;/div&gt;" />
+			
+			<field name="Animation" type="list" default="fade" label="Animation Type" description="">
+				<option value="fade">Fade</option>
+				<option value="slide"> Slide</option>
+			</field>
+			<field name="AnimationSpeed" type="text" default="600" label="Animation Speed" description="Sets the amount of time in milliseconds the transition between slides will last" />
+			<field name="Repeat" type="list" default="true" label="Repeat Animation" description="Start the slideshow again after last slide.">
+				<option value="true">Yes</option>
+				<option value="false">No</option>
+			</field>
+			<field name="Timer" type="list" default="true" label="Progress Bar" description="">
+				<option value="true">Show Bar</option>
+				<option value="false">Hide Bar</option>
+			</field>						
+			<field name="TimerSpeed" type="text" default="3000" label="Timer Speed" description="Sets the amount of time in milliseconds before transitioning a slide" />
+
+			<field name="pauseOnHover" type="list" default="true" label="Pause on Hover" description="Pauses on the current slide while hovering.">
+				<option value="true">Yes</option>
+				<option value="false">No</option>
+			</field>	
+			<field name="resumeNotHover" type="list" default="true" label="Resume Animation" description="Resumes playback after mousing out of slide.">
+				<option value="true">Yes</option>
+				<option value="false">No</option>
+			</field>
+			<field name="slideNumbers" type="list" default="true" label="Number of slides" description="">
+				<option value="true">Show</option>
+				<option value="false">Hide</option>
+			</field>		
+			<field name="navigation" type="list" default="true" label="Navigation Arrows" description="">
+				<option value="true">Show</option>
+				<option value="false">Hide</option>
+			</field>	
+			<field name="bullets" type="list" default="true" label="Navigation Bullets" description="">
+				<option value="true">Show</option>
+				<option value="false">Hide</option>
+			</field>
+			<field name="linkTarget" type="list" default="_self" label="Slide Link Target" description="">
+				<option value="_self">Same Window</option>
+				<option value="_blank">New Window</option>
+			</field>
+			<field type="asset" />		
+		</fieldset>
+
+		
+		<fieldset name="slides" label="&gt;&gt;&gt; Manage Slides &lt;&lt;&lt;">	
+	
+		<!-- SLIDE 1 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #1&lt;/div&gt;" />
+		<field name="Image1" label="Image 1" type="media"  description="Choose an image." />
+		<field name="Link1" label="Link 1" type="text"  description="URL where the slider image will link." />
+		<field name="Caption1" label="Caption 1" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 2 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #2&lt;/div&gt;" />
+		<field name="Image2" label="Image 2" type="media"  description="Choose an image." />
+		<field name="Link2" label="Link 2" type="text"  description="URL where the slider image will link." />
+		<field name="Caption2" label="Caption 2" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 3 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #3&lt;/div&gt;" />
+		<field name="Image3" label="Image 3" type="media"  description="Choose an image." />
+		<field name="Link3" label="Link 3" type="text"  description="URL where the slider image will link." />
+		<field name="Caption3" label="Caption 3" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />		
+		<!-- SLIDE 4 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #4&lt;/div&gt;" />
+		<field name="Image4" label="Image 4" type="media"  description="Choose an image." />
+		<field name="Link4" label="Link 4" type="text"  description="URL where the slider image will link." />
+		<field name="Caption4" label="Caption 4" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 5 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #5&lt;/div&gt;" />
+		<field name="Image5" label="Image 5" type="media"  description="Choose an image." />
+		<field name="Link5" label="Link 5" type="text"  description="URL where the slider image will link." />
+        <field name="Caption5" label="Caption 5" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 6 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #6&lt;/div&gt;" />
+		<field name="Image6" label="Image 6" type="media"  description="Choose an image." />
+		<field name="Link6" label="Link 6" type="text"  description="URL where the slider image will link." />
+        <field name="Caption6" label="Caption 6" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 7 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #7&lt;/div&gt;" />
+		<field name="Image7" label="Image 7" type="media"  description="Choose an image." />
+		<field name="Link7" label="Link 7" type="text"  description="URL where the slider image will link." />
+        <field name="Caption7" label="Caption 7" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 8 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #8&lt;/div&gt;" />
+		<field name="Image8" label="Image 8" type="media"  description="Choose an image." />
+		<field name="Link8" label="Link 8" type="text"  description="URL where the slider image will link." />
+        <field name="Caption8" label="Caption 8" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 9 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #9&lt;/div&gt;" />
+		<field name="Image9" label="Image 9" type="media"  description="Choose an image." />
+		<field name="Link9" label="Link 9" type="text"  description="URL where the slider image will link." />
+        <field name="Caption9" label="Caption 9" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 10 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #10&lt;/div&gt;" />
+		<field name="Image10" label="Image 10" type="media"  description="Choose an image." />
+		<field name="Link10" label="Link 10" type="text"  description="URL where the slider image will link." />
+        <field name="Caption10" label="Caption 10" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 11 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #11&lt;/div&gt;" />
+		<field name="Image11" label="Image 11" type="media"  description="Choose an image." />
+		<field name="Link11" label="Link 11" type="text"  description="URL where the slider image will link." />
+        <field name="Caption11" label="Caption 11" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 12 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #12&lt;/div&gt;" />
+		<field name="Image12" label="Image 12" type="media"  description="Choose an image." />
+		<field name="Video12" label="Video 12" type="text"  description="Embade a Youtube or Vimeo video." />
+		<field name="Link12" label="Link 12" type="text"  description="URL where the slider image will link." />
+        <field name="Caption12" label="Caption 12" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 13 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #13&lt;/div&gt;" />
+		<field name="Image13" label="Image 13" type="media"  description="Choose an image." />
+		<field name="Link13" label="Link 13" type="text"  description="URL where the slider image will link." />
+        <field name="Caption13" label="Caption 13" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 14 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #14&lt;/div&gt;" />
+		<field name="Image14" label="Image 14" type="media"  description="Choose an image." />
+		<field name="Link14" label="Link 14" type="text"  description="URL where the slider image will link." />
+        <field name="Caption14" label="Caption 14" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 15 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #15&lt;/div&gt;" />
+		<field name="Image15" label="Image 15" type="media"  description="Choose an image." />
+		<field name="Link15" label="Link 15" type="text"  description="URL where the slider image will link." />
+        <field name="Caption15" label="Caption 15" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 16 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #16&lt;/div&gt;" />
+		<field name="Image16" label="Image 16" type="media"  description="Choose an image." />
+		<field name="Link16" label="Link 16" type="text"  description="URL where the slider image will link." />
+        <field name="Caption16" label="Caption 16" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 17 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #17&lt;/div&gt;" />
+		<field name="Image17" label="Image 17" type="media"  description="Choose an image." />
+		<field name="Link17" label="Link 17" type="text"  description="URL where the slider image will link." />
+        <field name="Caption17" label="Caption 17" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 18 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #18&lt;/div&gt;" />
+		<field name="Image18" label="Image 18" type="media"  description="Choose an image." />
+		<field name="Link18" label="Link 18" type="text"  description="URL where the slider image will link." />
+        <field name="Caption18" label="Caption 18" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 19 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #19&lt;/div&gt;" />
+		<field name="Image19" label="Image 19" type="media"  description="Choose an image." />
+		<field name="Link19" label="Link 19" type="text"  description="URL where the slider image will link." />
+        <field name="Caption19" label="Caption 19" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+		<!-- SLIDE 20 -->
+		<field type="spacer" name="&lt;div class=&quot;sub-heading&quot;&gt;Slide #20&lt;/div&gt;" />
+		<field name="Image20" label="Image 20" type="media"  description="Choose an image." />
+		<field name="Link20" label="Link 20" type="text"  description="URL where the slider image will link." />
+        <field name="Caption20" label="Caption 20" type="textarea" filter="safehtml"  cols="30" rows="5" default="" description="Add image caption here. HTML allowed." />
+
+		</fieldset>						
+	</fields>
+	</config>
+</extension>

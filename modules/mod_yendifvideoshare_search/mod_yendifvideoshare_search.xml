@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="4.0" method="upgrade" client="site">
+    <name>mod_yendifvideoshare_search</name>
+    <creationDate>November 2025</creationDate>
+    <copyright>Copyright (c) 2012 - 2025 PluginsWare Interactive Pvt. Ltd. All Rights Reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <author>PluginsWare Interactive Pvt. Ltd</author>
+    <authorEmail>admin@yendifplayer.com</authorEmail>
+    <authorUrl>https://yendifplayer.com/</authorUrl>
+    <version>2.3.0</version>
+    <description>MOD_YENDIFVIDEOSHARE_SEARCH_XML_DESCRIPTION</description>
+    <files>
+        <filename module="mod_yendifvideoshare_search">mod_yendifvideoshare_search.php</filename>
+		<filename>index.html</filename>
+        <folder>tmpl</folder>
+    </files>
+    <languages folder="language">        
+		<language tag="en-GB">en-GB/mod_yendifvideoshare_search.ini</language>
+		<language tag="en-GB">en-GB/mod_yendifvideoshare_search.sys.ini</language>
+    </languages>  
+    <config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+					name="itemid"
+					type="menuitem"
+					filter="integer"
+					default="0"
+					label="MOD_YENDIFVIDEOSHARE_SEARCH_FORM_LBL_ITEMID"					
+					>
+					<option value="0">MOD_YENDIFVIDEOSHARE_SEARCH_FORM_OPTION_ITEMID_NONE</option>
+				</field>
+			</fieldset>
+			
+			<fieldset name="advanced">
+			    <field
+					name="moduleclass_sfx"
+					type="textarea"
+					validate="CssIdentifier"
+					rows="3"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+				/>
+			</fieldset>
+		</fields>
+	</config>  
+</extension>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="4.0" method="upgrade" client="site">
+    <name>mod_yendifvideoshare_related</name>
+    <creationDate>November 2025</creationDate>
+    <copyright>Copyright (c) 2012 - 2025 PluginsWare Interactive Pvt. Ltd. All Rights Reserved.</copyright>
+    <license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+    <author>PluginsWare Interactive Pvt. Ltd</author>
+    <authorEmail>admin@yendifplayer.com</authorEmail>
+    <authorUrl>https://yendifplayer.com/</authorUrl>
+    <version>2.3.0</version>
+    <description>MOD_YENDIFVIDEOSHARE_RELATED_XML_DESCRIPTION</description>
+    <namespace path="src">PluginsWare\Module\YendifVideoShareRelated</namespace>    
+    <files>
+        <filename module="mod_yendifvideoshare_related">mod_yendifvideoshare_related.php</filename>
+        <filename>index.html</filename>
+        <folder>src</folder>
+        <folder>tmpl</folder>
+    </files>
+    <languages folder="language">        
+		<language tag="en-GB">en-GB/mod_yendifvideoshare_related.ini</language>
+		<language tag="en-GB">en-GB/mod_yendifvideoshare_related.sys.ini</language>
+    </languages>
+    <config>
+        <fields name="params">
+            <fieldset name="basic" addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+                <field 
+					name="enable_popup" 
+					type="customlist" 
+					label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_ENABLE_POPUP" 
+					description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_ENABLE_POPUP" 
+                    extension="mod_yendifvideoshare_related"
+					>
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+                <field 
+                    name="autoplaylist" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_AUTOPLAYLIST" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_AUTOPLAYLIST" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+
+                <field 
+                    name="show_excerpt" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_EXCERPT" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_EXCERPT" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>
+
+                <field 
+                    name="show_category" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_CATEGORY" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_CATEGORY" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>
+
+				<field 
+                    name="show_user" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_USER" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_USER" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>
+
+                <field 
+                    name="show_date" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_DATE" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_DATE" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>
+
+                <field 
+                    name="show_views" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_VIEWS" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_VIEWS" 
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>
+
+                <field 
+                    name="show_rating" 
+                    type="list" 
+                    label="MOD_YENDIFVIDEOSHARE_RELATED_FORM_LBL_SHOW_RATING" 
+                    description="MOD_YENDIFVIDEOSHARE_RELATED_FORM_DESC_SHOW_RATING" 
+                    extension="MOD_YENDIFVIDEOSHARE_RELATED"
+                    >
+                    <option value="">MOD_YENDIFVIDEOSHARE_RELATED_FORM_OPTION_GLOBAL</option>
+                    <option value="0">JHIDE</option>
+                    <option value="1">JSHOW</option>
+                </field>                               
+            </fieldset>
+            
+            <fieldset name="advanced">       
+			    <field
+					name="moduleclass_sfx"
+					type="textarea"
+                    validate="CssIdentifier"
+                    rows="3"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"					
+				/>
+			</fieldset>
+        </fields>
+    </config>
+</extension>

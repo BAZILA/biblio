@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_YENDIFVIDEOSHARE_LAYOUT_USER_VIDEOS_TITLE" option="View">
+                <message>
+                        <![CDATA[COM_YENDIFVIDEOSHARE_LAYOUT_USER_VIDEOS_DESC]]>
+                </message>
+	</layout>
+
+        <fields name="params">
+                <fieldset name="basic" label="COM_YENDIFVIDEOSHARE_FIELDSET_MENU_PARAMS" addfieldprefix="PluginsWare\Component\YendifVideoShare\Administrator\Field">
+                        <fieldset name="general" label="COM_YENDIFVIDEOSHARE_FIELDSET_GENERAL">
+                                <field 
+                                        name="no_of_rows"                                 
+                                        type="text" 
+                                        filter="int" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_ROWS" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_ROWS" 
+                                />
+
+                                <field 
+                                        name="no_of_cols" 
+                                        type="text" 
+                                        filter="int"                                
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_NO_OF_COLS" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_NO_OF_COLS" 
+                                />
+
+                                <field 
+                                        name="orderby"
+                                        type="list"
+                                        default="latest"
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ORDERBY"                                
+                                        >
+                                        <option value="">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_NONE</option>
+                                        <option value="latest">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_LATEST</option>
+                                        <option value="date_added">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_DATE_ADDED</option>
+                                        <option value="most_viewed">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_MOST_VIEWED</option>
+		                        <option value="most_rated">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_MOST_RATED</option>
+                                        <option value="a_z">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_A_Z</option>
+                                        <option value="z_a">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_Z_A</option>
+                                        <option value="random">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_RANDOM</option>  
+                                        <option value="ordering">COM_YENDIFVIDEOSHARE_FORM_OPTION_ORDERBY_ORDERING</option>        
+                                </field>                                
+
+                                <field 
+                                        name="enable_popup" 
+                                        type="customlist" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_ENABLE_POPUP" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_ENABLE_POPUP" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+                                
+                                <field 
+                                        name="show_excerpt" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_EXCERPT" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_EXCERPT" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="show_category" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_CATEGORY" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_CATEGORY" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="show_user" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_USER" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_USER" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="show_date" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_DATE" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_DATE" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="show_views" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_VIEWS" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_VIEWS" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="show_rating" 
+                                        type="customlist" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHOW_RATING" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHOW_RATING" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+                        </fieldset>
+
+                        <fieldset name="player" label="COM_YENDIFVIDEOSHARE_FIELDSET_PLAYER">
+                                <field 
+                                        name="width"       
+                                        type="text" 
+                                        filter="string" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_WIDTH" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_WIDTH" 
+                                />
+                                
+                                <field 
+                                        name="ratio"       
+                                        type="text" 
+                                        filter="float" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_RATIO" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_RATIO" 
+                                />
+
+                                <field 
+                                        name="volume" 
+                                        first="0" 
+                                        last="100" 
+                                        step="1" 
+                                        type="integer" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VOLUME" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VOLUME" 
+                                        useglobal="true"
+                                />
+
+                                <field 
+                                        name="autoplay" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_AUTOPLAY" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_AUTOPLAY" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+
+                                <field 
+                                        name="loop" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_LOOP" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_LOOP" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JNO</option>
+                                        <option value="1">JYES</option>
+                                </field>
+
+                                <field 
+                                        name="controlbar" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CONTROLBAR" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CONTROLBAR" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="playbtn" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYBTN" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYBTN" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="playpause" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PLAYPAUSE" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PLAYPAUSE" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="currenttime" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_CURRENTTIME" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_CURRENTTIME" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="progress" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_PROGRESS" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_PROGRESS" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="duration" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DURATION" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DURATION" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="volumebtn" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_VOLUMEBTN" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_VOLUMEBTN" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="fullscreen" 
+                                        type="list" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_FULLSCREEN" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_FULLSCREEN"
+                                        useglobal="true" 
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="embed" 
+                                        type="customlist" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_EMBED" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_EMBED" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="share" 
+                                        type="customlist" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_SHARE" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_SHARE" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+
+                                <field 
+                                        name="download" 
+                                        type="customlist" 
+                                        label="COM_YENDIFVIDEOSHARE_FORM_LBL_DOWNLOAD" 
+                                        description="COM_YENDIFVIDEOSHARE_FORM_DESC_DOWNLOAD" 
+                                        useglobal="true"
+                                        >
+                                        <option value="0">JHIDE</option>
+                                        <option value="1">JSHOW</option>
+                                </field>
+                        </fieldset>
+                </fieldset>
+        </fields>	
+</metadata>

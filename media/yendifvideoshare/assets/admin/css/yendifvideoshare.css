@@ -1,0 +1,162 @@
+/*
+ * @version		$Id: yendifvideoshare.css 1.2.8 07-03-2019 $
+ * @package		Yendif Video Share
+ * @copyright   Copyright (C) 2014-2019 Yendif Technologies PVT Ltd
+ * @license     GNU/GPL http://www.gnu.org/licenses/gpl-2.0.html
+*/
+
+/*************************************************************************/
+/*** General ***/
+/*************************************************************************/
+body .page-title {
+	background: url(../images/logo_white.png) no-repeat 0 50%;	
+	padding-left: 5px;
+}
+
+body.com_yendifvideoshare #system-message-container {
+	padding: 0;
+}
+
+.yendif-video-share .radio,
+.yendif-video-share .checkbox {
+	padding-left: 0;
+}
+
+.yendif-video-share .radio input[type="radio"],
+.yendif-video-share .checkbox input[type="checkbox"] {
+	margin: 2px;
+}
+
+.yendif-video-share #filter-bar select {
+	width: auto;
+}
+
+.yendif-video-share .yendif-block {
+	display: block;	
+}
+
+.yendif-video-share .yendif-margin-right {
+	margin-right: 5px;
+}
+
+.yendif-video-share .yendif-margin-bottom {
+	margin-bottom: 9px;
+}
+
+.yendif-video-share .yendif-no-margin {
+	margin: 0;
+}
+
+.yendif-video-share.config .form-horizontal .control-label {
+	width: 170px;
+}
+
+.yendif-video-share.config textarea.responsive_css {
+	width: 100%;
+	height: 300px;
+}
+
+.yendif-video-share .yendif-upload-preloader,
+.yendif-video-share .yendif-upload-success,
+.yendif-video-share .yendif-upload-failed {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	margin: 0 5px 0 0;
+	padding: 0;
+	vertical-align: top;
+}
+
+#yt-preloader {
+	display: block;
+	width: 100%;
+}
+
+#yt-preloader-img {
+	display: block;
+	width: 16px;
+	height: 16px;
+	margin: 0 auto;
+	padding: 0;
+	vertical-align: top;
+}
+
+.yendif-video-share .yendif-upload-preloader,
+#yt-preloader-img {
+	background:url('../images/spinner.gif') no-repeat center center;
+}
+
+.yendif-video-share .yendif-upload-success {
+	background:url('../images/tick.png') no-repeat center center;
+}
+
+.yendif-video-share .yendif-upload-failed {
+	background:url('../images/publish_x.png') no-repeat center center;
+}
+
+#yt-notes {
+	padding-left: 10px;
+}
+
+/** 1.2.8**/
+.yendif-video-share .yendif-advert-vast .ima-max-textarea {
+	width: 270px;
+}
+
+.yendif-video-share .yendif-advert-vast .ima-advert-label {
+	margin-top: 35px;
+}
+
+/*************************************************************************/
+/*** Dashboard icons ***/
+/*************************************************************************/
+.yendif-video-share .cpanel div.icon {
+	float: left;
+	margin-right: 15px;
+	margin-bottom: 15px;
+	text-align: center;
+}
+
+.yendif-video-share .cpanel div.icon a {
+	background-color: #fff;
+	background-position: -30px;
+	display: block;
+	float: left;
+	height: 97px;
+	width: 108px;
+	color: #565656;
+	vertical-align: middle;
+	text-decoration: none;
+	border: 1px solid #CCC;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-transition-property: background-position,-webkit-border-bottom-left-radius,-webkit-box-shadow;
+	-moz-transition-property: background-position,-moz-border-radius-bottomleft,-moz-box-shadow;
+	-webkit-transition-duration: 0.8s;
+	-moz-transition-duration: 0.8s;
+}
+
+.yendif-video-share .cpanel div.icon a:hover,
+.yendif-video-share .cpanel div.icon a:focus,
+.yendif-video-share .cpanel div.icon a:active {
+	background-position: 0;
+	-webkit-border-bottom-left-radius: 50% 20px;
+	-moz-border-radius-bottomleft: 50% 20px;
+	border-bottom-left-radius: 50% 20px;
+	-webkit-box-shadow: -5px 10px 15px rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: -5px 10px 15px rgba(0, 0, 0, 0.25);
+	box-shadow: -5px 10px 15px rgba(0, 0, 0, 0.25);
+	position: relative;
+	z-index: 10;
+}
+
+.yendif-video-share .cpanel img {
+	padding: 10px 0;
+	margin: 0 auto;
+}
+
+.yendif-video-share .cpanel span {
+	display: block;
+	text-align: center;
+}
