@@ -2656,9 +2656,67 @@ ul.biblio-types small { color: #7a8594; }
   line-height: 1.15 !important;
 }
 @media (max-width: 767px) {
+  .slider .n2-ss-slider,
   .slider .n2-ss-slider-1,
+  .slider .n2-ss-slider-2,
+  .slider .n2-ss-slider-3,
+  .slider .n2-ss-slide,
   #slidermodul {
-    min-height: 360px;
+    min-height: 420px !important;
+    height: auto !important;
+  }
+  .slider .n2-ss-slide-backgrounds {
+    position: absolute !important;
+    inset: 0;
+  }
+  .slider .n2-ss-layer-content {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 24px 16px 28px !important;
+    box-sizing: border-box;
+    height: 100% !important;
+    overflow: visible !important;
+  }
+  .slider .n2-ss-layer[data-pm="absolute"] {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    box-sizing: border-box;
+  }
+  .slider .n2-ss-layer-content > .n2-ss-layer[data-pm="absolute"]:first-of-type,
+  .slider .n2-ss-layer-content > .n2-ss-layer[data-pm="absolute"]:first-of-type * {
+    font-size: clamp(22px, 6.4vw, 28px) !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  .slider .n2-ss-layer[data-pm="absolute"] p,
+  .slider .n2-ss-layer[data-pm="absolute"] p * {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    max-width: 100% !important;
+  }
+  .slider .n2-ss-layer[data-pm="absolute"] a,
+  .slider .n2-ss-layer[data-pm="absolute"] .n2-ss-button-container {
+    display: inline-flex !important;
+    margin-top: 4px;
+    max-width: 100%;
+    white-space: normal !important;
   }
 }
 
