@@ -16,7 +16,7 @@ if ($action === 'rendre' || $action === 'prolonger') {
     redirect(retour_sur(post_str('retour', ''), admin_url('prets')));
 }
 
-$filtre = get_str('filtre', 'en_cours');
+$filtre = get_str('filtre', 'tous');
 $q = get_str('q', '');
 $conds = [
     'en_cours' => 'p.date_retour IS NULL',
@@ -24,7 +24,7 @@ $conds = [
     'rendus'   => 'p.date_retour IS NOT NULL',
     'tous'     => '1',
 ];
-$where = $conds[$filtre] ?? $conds['en_cours'];
+$where = $conds[$filtre] ?? $conds['tous'];
 $params = [];
 if ($q !== '') {
     $where .= " AND (o.titre LIKE ? OR e.code LIKE ? OR CONCAT(u.prenom, ' ', u.nom) LIKE ? OR u.matricule LIKE ?)";

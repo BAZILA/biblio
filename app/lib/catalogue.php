@@ -117,6 +117,19 @@ function enrichir(array $ouvrages): array
     return $ouvrages;
 }
 
+/**
+ * URL de la couverture d'un ouvrage ; sans couverture : l'image par défaut choisie dans les réglages,
+ * sinon l'illustration fournie avec le site.
+ */
+function couverture(?string $image): string
+{
+    if ($image) {
+        return media($image);
+    }
+    $defaut = reglage('couverture_defaut');
+    return $defaut !== '' ? media($defaut) : asset('site/couverture-defaut.svg');
+}
+
 function ouvrage_url(array $o): string
 {
     return url('domaines/' . $o['domaine_slug'] . '/' . $o['slug']);

@@ -9,7 +9,7 @@ $badges = ['en_attente' => '', 'disponible' => 'vert', 'honoree' => 'bleu', 'ann
 </nav>
 
 <?php if ($filtre !== 'historique'): ?>
-<p class="doux">Quand un exemplaire est libre, il est mis de côté pour le premier lecteur de la file (statut « À retirer »). Il est conservé <?= reglage_int('reservation_delai_jours', 3) ?> jours, puis la réservation expire et l’exemplaire passe au lecteur suivant. Pour remettre l’ouvrage, cliquez sur « Remettre » : le guichet s’ouvre pré-rempli.</p>
+<p class="doux">Quand un exemplaire est libre, il est mis de côté pour le premier lecteur de la file (statut « À retirer »). Il est conservé <?= reglage_int('reservation_delai_jours', 3) ?> jours, puis la réservation expire et l’exemplaire passe au lecteur suivant. Quand le lecteur vient le chercher, cliquez sur « Remettre » : le prêt est enregistré aussitôt.</p>
 <?php endif; ?>
 
 <div class="carte" style="padding:0">
@@ -29,7 +29,7 @@ $badges = ['en_attente' => '', 'disponible' => 'vert', 'honoree' => 'bleu', 'ann
 				<td><?= $r['exemplaire_code'] ? '<code>' . e($r['exemplaire_code']) . '</code>' : '—' ?></td>
 				<td class="actions">
 <?php if ($r['statut'] === 'disponible'): ?>
-					<a class="btn petit" href="<?= e(admin_url('guichet', ['lecteur' => $r['lecteur_id'], 'code' => $r['exemplaire_code']])) ?>">Remettre</a>
+					<?= bouton_remettre($r) ?>
 <?php endif; ?>
 <?php if (in_array($r['statut'], ['disponible', 'en_attente'], true)): ?>
 					<?= bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') ?>

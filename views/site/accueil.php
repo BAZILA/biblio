@@ -12,10 +12,10 @@ $carte = function (array $o, int $index, bool $avecResume): string {
 			 <div class="slide" style="padding:10px 0px 10px 0px ;margin:0px 0px 0px 0px "  data-slide-index="<?= $index ?>">
 			  <div class="jt-inner">
 				<div class="jt-imagecover" style="float:none;margin-bottom:15px">
-					<img class="jtcs-image" src="<?= e(media($o['image'])) ?>" width="400" alt="<?= e($o['titre']) ?>" />
+					<img class="jtcs-image" src="<?= e(couverture($o['image'])) ?>" width="400" alt="<?= e($o['titre']) ?>" />
 				<div class="hover-icons">
 				<a class="jt-icon icon-url" title="<?= e($o['titre']) ?>" href="<?= e($o['url']) ?>"> <i class="fa fa-link"></i></a>
-			<a class="jt-icon icon-lightbox jt-image-link" href="<?= e(media($o['image'])) ?>" data-lightbox="jt-1"><i class="fa fa-search"></i></a>
+			<a class="jt-icon icon-lightbox jt-image-link" href="<?= e(couverture($o['image'])) ?>" data-lightbox="jt-1"><i class="fa fa-search"></i></a>
 		</div>				</div>
 		<div class="jt-introtitle-container">
 				<span class="jt-category">

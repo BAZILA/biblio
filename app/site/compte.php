@@ -36,31 +36,15 @@ switch ($action) {
         page('compte/connexion', compact('email', 'erreur', 'retour'), $gabarit + ['titre' => 'Connexion — Espace lecteur']);
 
     case 'inscription':
-        $saisie = ['prenom' => '', 'nom' => '', 'email' => '', 'categorie' => 'etudiant', 'matricule' => '', 'telephone' => ''];
+        $saisie = ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'categorie' => 'etudiant', 'matricule' => '', 'telephone' => '',
+            'faculte' => '', 'departement' => ''];
         $erreurs = [];
         if (is_post()) {
             csrf_verify();
-            foreach ($saisie as $k => $_) {
-                $saisie[$k] = post_str($k, '');
-            }
-            $saisie['email'] = mb_strtolower($saisie['email']);
+            // Tous les champs sont obligatoires (faculté et département pour un étudiant), e-mail compris
+            $saisie = lecteur_depuis_post($saisie);
+            $erreurs = valider_lecteur($saisie, true);
             $mdp = post_str('mot_de_passe', '', false);
-            foreach (['prenom', 'nom', 'email'] as $k) {
-                if ($saisie[$k] === '') {
-                    $erreurs[$k] = 'Champ requis.';
-                }
-            }
-            if ($saisie['email'] !== '' && !filter_var($saisie['email'], FILTER_VALIDATE_EMAIL)) {
-                $erreurs['email'] = 'Adresse e-mail invalide.';
-            } elseif (val('SELECT 1 FROM utilisateurs WHERE email = ?', [$saisie['email']])) {
-                $erreurs['email'] = 'Un compte existe déjà avec cette adresse.';
-            }
-            if (!isset(LIBELLES_CATEGORIE[$saisie['categorie']])) {
-                $erreurs['categorie'] = 'Catégorie invalide.';
-            }
-            if ($saisie['matricule'] !== '' && val('SELECT 1 FROM utilisateurs WHERE matricule = ?', [$saisie['matricule']])) {
-                $erreurs['matricule'] = 'Ce matricule est déjà associé à un compte.';
-            }
             if (mb_strlen($mdp) < 8) {
                 $erreurs['mot_de_passe'] = 'Au moins 8 caractères.';
             } elseif ($mdp !== ($_POST['mot_de_passe2'] ?? '')) {
@@ -68,11 +52,8 @@ switch ($action) {
             }
             if (!$erreurs) {
                 if (($_POST['site_web'] ?? '') === '') {
-                    insert('utilisateurs', [
-                        'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1,
-                        'prenom' => $saisie['prenom'], 'nom' => $saisie['nom'], 'email' => $saisie['email'],
-                        'categorie' => $saisie['categorie'], 'matricule' => $saisie['matricule'] ?: null,
-                        'telephone' => $saisie['telephone'], 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
+                    insert('utilisateurs', lecteur_donnees($saisie) + [
+                        'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1, 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
                     ]);
                 }
                 flash('succes', 'Votre demande est enregistrée. Votre compte sera activé par la bibliothèque après vérification ; vous pourrez alors vous connecter.');

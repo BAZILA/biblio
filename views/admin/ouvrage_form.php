@@ -1,54 +1,112 @@
 <?php
-/** @var array $o, $erreurs, $exemplaires, $domaines, $types, $file */
+/** Fiche d'édition d'un ouvrage. @var array $o, $erreurs, $exemplaires, $domaines, $types, $file */
 $optDomaines = ['' => '— Choisir —'] + array_column($domaines, 'nom', 'id');
 $optTypes = ['' => '— Aucun —'] + array_column($types, 'nom', 'id');
 $langues = ['Français', 'Anglais', 'Arabe', 'Espagnol', 'Allemand', 'Autre'];
+$enCirculation = count(array_filter($exemplaires, fn($x) => $x['statut'] !== 'retire'));
+$disponibles = count(array_filter($exemplaires, fn($x) => $x['statut'] === 'disponible'));
 ?>
 <div class="fil"><a href="<?= e(admin_url('ouvrages')) ?>">Ouvrages</a> ›</div>
 <div class="entete">
-	<h1><?= $o['id'] ? e($o['titre']) : 'Nouvel ouvrage' ?></h1>
+	<div>
+		<h1><?= $o['id'] ? e($o['titre']) : 'Nouvel ouvrage' ?></h1>
+<?php if ($o['id']): ?>
+		<div class="sous-titre">
+			<?= $o['publie'] ? '<span class="badge vert">Publié</span>' : '<span class="badge orange">Non publié</span>' ?>
+			<?= $o['coup_de_coeur'] ? '<span class="badge bleu">Coup de cœur</span>' : '' ?>
+			<span class="badge"><?= $disponibles ?> / <?= $enCirculation ?> exemplaire(s) disponible(s)</span>
+		</div>
+<?php endif; ?>
+	</div>
 <?php if ($o['id']): ?>
 	<div class="actions">
+		<?php if (!$o['consultation_sur_place'] && $disponibles): ?><a class="btn" href="<?= e(admin_url('guichet', ['ouvrage' => $o['id']])) ?>"><i class="fa-solid fa-right-left"></i> Prêter</a><?php endif; ?>
 		<?php if ($o['publie']): ?><a class="btn secondaire" href="<?= e(ouvrage_url($o)) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Voir sur le site</a><?php endif; ?>
 	</div>
 <?php endif; ?>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="grille grille-form">
+<form method="post" enctype="multipart/form-data" class="fiche-ouvrage" id="form-ouvrage">
 	<?= csrf_field() ?>
-	<div>
+
+	<aside class="fiche-ouvrage-cote">
 		<section class="carte">
+			<h2><i class="fa-solid fa-image"></i> Couverture</h2>
+			<div class="zone-couverture<?= isset($erreurs['image']) ? ' en-erreur' : '' ?>">
+				<img id="apercu-couverture" src="<?= e(couverture($o['image'])) ?>" alt="Couverture">
+				<?php if (!$o['image']): ?><span class="etiquette-defaut">Couverture par défaut</span><?php endif; ?>
+			</div>
+			<label class="btn secondaire bouton-fichier" for="f_image"><i class="fa-solid fa-upload"></i> <?= $o['image'] ? 'Changer l’image…' : 'Choisir une image…' ?></label>
+			<input type="file" id="f_image" name="image" accept="image/jpeg,image/png,image/webp,image/gif" data-apercu="apercu-couverture" class="fichier-cache">
+			<div class="nom-fichier doux" data-pour="f_image"></div>
+			<div class="aide">JPG, PNG ou WebP, 5 Mo max., format portrait. Sans image, la couverture par défaut est affichée (modifiable dans Réglages).</div>
+			<?php if (isset($erreurs['image'])): ?><div class="erreur"><?= e($erreurs['image']) ?></div><?php endif; ?>
+			<?php if ($o['image']): ?><?= champ('retirer_image', 'Revenir à la couverture par défaut', 0, [], ['type' => 'case']) ?><?php endif; ?>
+		</section>
+
+		<section class="carte">
+			<h2><i class="fa-solid fa-sliders"></i> Options</h2>
+			<label class="option-interrupteur"><input type="checkbox" name="publie" value="1"<?= $o['publie'] ? ' checked' : '' ?>><span><strong>Visible sur le site</strong><small>Décochez pour préparer la fiche sans la publier.</small></span></label>
+			<label class="option-interrupteur"><input type="checkbox" name="coup_de_coeur" value="1"<?= $o['coup_de_coeur'] ? ' checked' : '' ?>><span><strong>Coup de cœur</strong><small>Mis en avant sur la page d’accueil.</small></span></label>
+			<label class="option-interrupteur"><input type="checkbox" name="consultation_sur_place" value="1"<?= $o['consultation_sur_place'] ? ' checked' : '' ?>><span><strong>Consultation sur place</strong><small>Exclu du prêt (dictionnaires, thèses…).</small></span></label>
+<?php if (!$o['id']): ?>
+			<?= champ('nb_exemplaires', 'Exemplaires à créer', 1, $erreurs, ['type' => 'number', 'attrs' => 'min="0" max="50"', 'aide' => 'Codes créés automatiquement : cote-1, cote-2…']) ?>
+<?php endif; ?>
+			<?= champ('slug', 'Adresse web de la fiche', $o['slug'], $erreurs, ['attrs' => 'data-slug-de="titre"', 'aide' => 'Remplie automatiquement à partir du titre.']) ?>
+		</section>
+
+<?php if ($file): ?>
+		<section class="carte">
+			<h2><i class="fa-solid fa-bookmark"></i> File de réservation</h2>
+			<ol class="liste-file">
+<?php foreach ($file as $r): ?>
+				<li><?= e(trim($r['prenom'] . ' ' . $r['nom'])) ?> <?= $r['statut'] === 'disponible' ? '<span class="badge vert">' . e($r['exemplaire_code']) . ' à retirer</span>' : '<span class="badge">en attente</span>' ?></li>
+<?php endforeach; ?>
+			</ol>
+		</section>
+<?php endif; ?>
+	</aside>
+
+	<div class="fiche-ouvrage-principal">
+		<section class="carte">
+			<h2><i class="fa-solid fa-book"></i> Informations</h2>
 			<?= champ('titre', 'Titre', $o['titre'], $erreurs, ['required' => true]) ?>
-			<?= champ('auteurs_txt', 'Auteur(s)', $o['auteurs_txt'], $erreurs, ['type' => 'textarea', 'attrs' => 'rows="3" style="min-height:0"',
-				'aide' => 'Un auteur par ligne, dans l’ordre d’affichage. Les nouveaux noms sont ajoutés à l’index des auteurs.']) ?>
+			<div class="champ">
+				<label for="auteurs-saisie">Auteur(s)</label>
+				<div class="champ-auteurs" data-url="<?= e(admin_url('auteurs/chercher')) ?>">
+					<textarea name="auteurs_txt" id="f_auteurs_txt" rows="3"><?= e($o['auteurs_txt']) ?></textarea>
+				</div>
+				<div class="aide">Tapez un nom : choisissez un auteur existant dans la liste, ou ajoutez-le s’il n’existe pas encore. L’ordre est celui de l’affichage.</div>
+			</div>
 			<div class="ligne">
 				<?= champ('domaine_id', 'Domaine', $o['domaine_id'], $erreurs, ['type' => 'select', 'options' => $optDomaines, 'required' => true]) ?>
 				<?= champ('type_id', 'Type de document', $o['type_id'], $erreurs, ['type' => 'select', 'options' => $optTypes]) ?>
 			</div>
-			<?= champ('resume', 'Résumé', $o['resume'], $erreurs, ['type' => 'textarea',
-				'aide' => 'Affiché sur la fiche et dans les listes. Séparez les paragraphes par une ligne vide. Mise en forme possible avec <strong>, <em>, <ul>/<li>, <a>.']) ?>
+		</section>
+
+		<section class="carte">
+			<h2><i class="fa-solid fa-align-left"></i> Présentation</h2>
+			<?= champ('resume', 'Résumé', $o['resume'], $erreurs, ['type' => 'textarea', 'aide' => 'Affiché sur la fiche et dans les listes. Séparez les paragraphes par une ligne vide.']) ?>
 			<?= champ('description', 'Description complémentaire (facultatif)', $o['description'], $erreurs, ['type' => 'textarea', 'aide' => 'Affichée sous le résumé, sur la fiche uniquement.']) ?>
 		</section>
 
 		<section class="carte">
-			<h2>Notice bibliographique</h2>
+			<h2><i class="fa-solid fa-barcode"></i> Notice bibliographique</h2>
 			<div class="ligne">
 				<?= champ('editeur', 'Éditeur / Origine', $o['editeur'], $erreurs) ?>
-				<?= champ('annee', 'Année de publication', $o['annee'], $erreurs) ?>
-			</div>
-			<div class="ligne">
-				<?= champ('cote', 'Cote', $o['cote'], $erreurs, ['aide' => 'Sert aussi de préfixe aux codes des exemplaires (ex. INF-001-1).']) ?>
-				<?= champ('isbn', 'ISBN', $o['isbn'], $erreurs) ?>
-			</div>
-			<div class="ligne">
-				<?= champ('pages', 'Nombre de pages', $o['pages'], $erreurs, ['type' => 'number', 'attrs' => 'min="1"']) ?>
+				<?= champ('annee', 'Année', $o['annee'], $erreurs) ?>
 				<?= champ('langue', 'Langue', $o['langue'], $erreurs, ['type' => 'select', 'options' => array_combine($langues, $langues)]) ?>
+			</div>
+			<div class="ligne">
+				<?= champ('cote', 'Cote', $o['cote'], $erreurs, ['aide' => 'Préfixe des codes d’exemplaires (ex. INF-001-1).']) ?>
+				<?= champ('isbn', 'ISBN', $o['isbn'], $erreurs) ?>
+				<?= champ('pages', 'Pages', $o['pages'], $erreurs, ['type' => 'number', 'attrs' => 'min="1"']) ?>
 			</div>
 		</section>
 
 <?php if ($o['id']): ?>
 		<section class="carte" id="exemplaires">
-			<div class="carte-titre"><h2>Exemplaires (<?= count(array_filter($exemplaires, fn($x) => $x['statut'] !== 'retire')) ?> en circulation)</h2></div>
+			<div class="carte-titre"><h2><i class="fa-solid fa-layer-group"></i> Exemplaires <small class="doux">(<?= $enCirculation ?> en circulation)</small></h2></div>
 <?php if (!$exemplaires): ?>
 			<p class="doux">Aucun exemplaire : l’ouvrage apparaît comme indisponible sur le site.</p>
 <?php else: ?>
@@ -82,55 +140,20 @@ $langues = ['Français', 'Anglais', 'Arabe', 'Espagnol', 'Allemand', 'Autre'];
 				<button form="ajout-ex" class="btn secondaire" type="submit"><i class="fa-solid fa-plus"></i> Ajouter des exemplaires</button>
 			</div>
 		</section>
+
+		<section class="carte zone-sensible">
+			<h2>Supprimer l’ouvrage</h2>
+			<p class="doux">Impossible si l’ouvrage a déjà été prêté : décochez « Visible sur le site » à la place.</p>
+			<button form="suppr-ouvrage" class="btn danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer</button>
+		</section>
 <?php endif; ?>
 	</div>
 
-	<aside>
-		<section class="carte">
-			<h2>Publication</h2>
-			<?= champ('publie', 'Publié sur le site', $o['publie'], $erreurs, ['type' => 'case']) ?>
-			<?= champ('coup_de_coeur', 'Coup de cœur des bibliothécaires (accueil)', $o['coup_de_coeur'], $erreurs, ['type' => 'case']) ?>
-			<?= champ('consultation_sur_place', 'Consultation sur place uniquement (exclu du prêt)', $o['consultation_sur_place'], $erreurs, ['type' => 'case']) ?>
-			<?= champ('slug', 'Adresse de la fiche', $o['slug'], $erreurs, ['attrs' => 'data-slug-de="titre"', 'aide' => 'Générée à partir du titre si vide.']) ?>
-<?php if (!$o['id']): ?>
-			<?= champ('nb_exemplaires', 'Exemplaires à créer', 1, $erreurs, ['type' => 'number', 'attrs' => 'min="0" max="50"']) ?>
-<?php endif; ?>
-			<div class="form-actions">
-				<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>
-				<a class="btn secondaire" href="<?= e(admin_url('ouvrages')) ?>">Annuler</a>
-			</div>
-		</section>
-
-		<section class="carte">
-			<h2>Couverture</h2>
-			<img id="apercu-couverture" class="apercu-image" src="<?= $o['image'] ? e(media($o['image'])) : '' ?>" alt="" style="<?= $o['image'] ? '' : 'display:none' ?>">
-			<div class="champ<?= isset($erreurs['image']) ? ' en-erreur' : '' ?>">
-				<input type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif" data-apercu="apercu-couverture">
-				<div class="aide">JPG, PNG ou WebP, 5 Mo max. Format portrait conseillé (2:3).</div>
-				<?php if (isset($erreurs['image'])): ?><div class="erreur"><?= e($erreurs['image']) ?></div><?php endif; ?>
-			</div>
-			<?php if ($o['image']): ?><?= champ('retirer_image', 'Retirer la couverture', 0, [], ['type' => 'case']) ?><?php endif; ?>
-		</section>
-
-<?php if ($file): ?>
-		<section class="carte">
-			<h2>File de réservation</h2>
-			<ol style="padding-left:18px;margin:0">
-<?php foreach ($file as $r): ?>
-				<li><?= e(trim($r['prenom'] . ' ' . $r['nom'])) ?> — <?= $r['statut'] === 'disponible' ? '<span class="badge vert">' . e($r['exemplaire_code']) . ' à retirer</span>' : '<span class="badge">en attente</span>' ?></li>
-<?php endforeach; ?>
-			</ol>
-		</section>
-<?php endif; ?>
-
-<?php if ($o['id']): ?>
-		<section class="carte">
-			<h2>Zone sensible</h2>
-			<p class="doux">La suppression est impossible si l’ouvrage a déjà été prêté : dépubliez-le à la place.</p>
-			<button form="suppr-ouvrage" class="btn danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer l’ouvrage</button>
-		</section>
-<?php endif; ?>
-	</aside>
+	<div class="barre-actions">
+		<span class="doux"><?= $o['id'] ? 'Modifications non enregistrées tant que vous ne cliquez pas sur Enregistrer.' : 'Nouvel ouvrage' ?></span>
+		<a class="btn secondaire" href="<?= e(admin_url('ouvrages')) ?>">Annuler</a>
+		<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>
+	</div>
 </form>
 
 <?php if ($o['id']): ?>

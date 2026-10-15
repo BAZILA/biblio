@@ -13,7 +13,7 @@ $ressources = [
             'nom' => ['Nom', 'text', ['required' => true]],
             'slug' => ['Adresse (URL)', 'slug', ['aide' => 'ex. informatique → index.php/domaines/informatique']],
             'description' => ['Description courte', 'textarea', []],
-            'icone' => ['Icône', 'icone', ['aide' => 'Nom d’icône Font Awesome 4, ex. fa-laptop, fa-flask, fa-balance-scale.']],
+            'icone' => ['Icône affichée sur la page d’accueil', 'icone', []],
             'ordre' => ['Ordre d’affichage', 'number', []],
         ],
         'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrages WHERE domaine_id = ?', [$id]) ? 'Ce domaine contient des ouvrages : déplacez-les avant de le supprimer.' : null,
@@ -34,7 +34,7 @@ $ressources = [
         'voir' => fn($r) => url('types/' . $r['slug']),
     ],
     'auteurs' => [
-        'table' => 'auteurs', 'modifier' => "Modifier l’auteur", 'titre' => 'Auteurs', 'nouveau' => null, 'ordre' => 'nom',
+        'table' => 'auteurs', 'modifier' => "Modifier l’auteur", 'titre' => 'Auteurs', 'nouveau' => 'Nouvel auteur', 'importer' => 'auteurs', 'ordre' => 'nom',
         'liste' => ['nom' => 'Nom', 'nb' => 'Ouvrages'],
         'requete' => 'SELECT a.*, (SELECT COUNT(*) FROM ouvrage_auteur oa WHERE oa.auteur_id = a.id) AS nb FROM auteurs a ORDER BY a.nom',
         'champs' => [
@@ -43,7 +43,7 @@ $ressources = [
         ],
         'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrage_auteur WHERE auteur_id = ?', [$id]) ? 'Cet auteur est lié à des ouvrages : retirez-le de leurs fiches d’abord.' : null,
         'voir' => fn($r) => url('auteurs/' . $r['slug']),
-        'intro' => 'Les auteurs sont créés automatiquement quand vous les saisissez sur la fiche d’un ouvrage.',
+        'intro' => 'Ajoutez un auteur ici, importez une liste depuis un fichier, ou créez-le directement depuis la fiche d’un ouvrage.',
     ],
     'slides' => [
         'table' => 'slides', 'modifier' => 'Modifier la diapositive', 'titre' => 'Diaporama d’accueil', 'nouveau' => 'Nouvelle diapositive', 'ordre' => 'ordre, id',
@@ -76,6 +76,15 @@ $ressources = [
     ],
 ];
 
+// Auto-complétion des auteurs (fiche ouvrage)
+if ($section === 'auteurs' && $action === 'chercher') {
+    $q = '%' . get_str('q') . '%';
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(rows('SELECT a.nom, (SELECT COUNT(*) FROM ouvrage_auteur oa WHERE oa.auteur_id = a.id) AS nb
+                           FROM auteurs a WHERE a.nom LIKE ? ORDER BY a.nom LIMIT 10', [$q]), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $res = $ressources[$section];
 $table = $res['table'];
 
@@ -98,7 +107,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
     }
     $ligne = $action === 'modifier'
         ? (row("SELECT * FROM $table WHERE id = ?", [$id]) ?? admin_introuvable())
-        : array_fill_keys(array_keys($res['champs']), '') + ['id' => 0, 'publie' => 1, 'ordre' => (int) val("SELECT COALESCE(MAX(ordre), 0) + 1 FROM $table")];
+        : array_fill_keys(array_keys($res['champs']), '') + ['id' => 0, 'publie' => 1]
+          + (isset($res['champs']['ordre']) ? ['ordre' => (int) val("SELECT COALESCE(MAX(ordre), 0) + 1 FROM $table")] : []);
     $erreurs = [];
 
     if (is_post()) {

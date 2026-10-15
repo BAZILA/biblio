@@ -30,6 +30,19 @@ PHP 8.1+ et MySQL/MariaDB, sans framework ni CMS.
 
 ⚠ Relancer la migration **efface et recrée** toutes les tables de la nouvelle base.
 
+## Imports
+
+Admin → **Importer un fichier** : liste d’auteurs (un nom par ligne) ou catalogue d’ouvrages (CSV « point-virgule » enregistré depuis Excel ; modèle téléchargeable sur la page). Un aperçu ligne par ligne s’affiche avant tout enregistrement ; les doublons sont ignorés, les domaines et types inconnus sont créés.
+
+## E-mails et rappels
+
+- Réglages → **E-mails aux lecteurs** : tant que l’envoi est « désactivé », les messages sont seulement consignés (Admin → E-mails envoyés). Pour envoyer réellement, renseigner un serveur SMTP (celui de l’université, ou un compte Gmail/Outlook avec mot de passe d’application) et faire un envoi de test.
+- Messages : confirmation de prêt, rappel avant échéance, relances de retard, réservation à retirer, compte validé, mot de passe provisoire. Un lecteur sans adresse e-mail ne reçoit rien (le guichet le signale).
+- Les rappels et relances partent chaque jour au premier passage dans l’admin. Pour un envoi à heure fixe, créer une tâche planifiée Windows (une fois par jour) :
+  ```
+  schtasks /Create /SC DAILY /ST 07:00 /TN "Bibliotheque - rappels" /TR "C:\xampp\php\php.exe C:\xampp\htdocs\biblio\app\taches.php"
+  ```
+
 ## Mise en production
 
 - `app/config.php` : `'debug' => false` (les erreurs ne s'affichent plus, elles vont dans le journal PHP).

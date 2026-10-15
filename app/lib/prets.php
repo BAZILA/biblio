@@ -151,6 +151,7 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId)
         db()->rollBack();
         throw $t;
     }
+    mail_pret_enregistre($id);
     return $id;
 }
 
@@ -204,6 +205,7 @@ function liberer_exemplaire(int $exemplaireId): void
         q("UPDATE exemplaires SET statut = 'reserve' WHERE id = ?", [$exemplaireId]);
         q("UPDATE reservations SET statut = 'disponible', exemplaire_id = ?, disponible_le = NOW(), expire_le = ? WHERE id = ?",
             [$exemplaireId, plus_jours(aujourdhui(), reglage_int('reservation_delai_jours', 3)), $suivante['id']]);
+        notifier_reservation_disponible((int) $suivante['id']);
     } else {
         q("UPDATE exemplaires SET statut = 'disponible' WHERE id = ?", [$exemplaireId]);
     }

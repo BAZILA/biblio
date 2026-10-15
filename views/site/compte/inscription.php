@@ -28,9 +28,30 @@ $champ = function (string $nom, string $libelle, string $type = 'text', string $
 						<?php endforeach; ?>
 					</select></div>
 				</div>
-				<?= $champ('matricule', 'Matricule / n° de carte', 'text', '') ?>
+				<?= $champ('matricule', 'Matricule / n° de carte', 'text', 'required') ?>
 			</div>
-			<?= $champ('telephone', 'Téléphone (facultatif)', 'tel', 'autocomplete="tel"') ?>
+			<div class="biblio-form-2col" id="bloc-etudiant">
+				<?= $champ('faculte', 'Faculté', 'text', 'list="i_facultes"') ?>
+				<?= $champ('departement', 'Département', 'text', 'list="i_departements"') ?>
+			</div>
+			<datalist id="i_facultes"><?php foreach (valeurs_existantes('faculte') as $f): ?><option value="<?= e($f) ?>"><?php endforeach; ?></datalist>
+			<datalist id="i_departements"><?php foreach (valeurs_existantes('departement') as $d): ?><option value="<?= e($d) ?>"><?php endforeach; ?></datalist>
+			<?= $champ('telephone', 'Téléphone', 'tel', 'required autocomplete="tel"') ?>
+			<script>
+			(function () {
+				// Faculté et département : requis et visibles pour un étudiant ; matricule facultatif pour un lecteur externe
+				var cat = document.getElementById('i_categorie'), bloc = document.getElementById('bloc-etudiant');
+				var mat = document.getElementById('i_matricule');
+				function maj() {
+					var etudiant = cat.value === 'etudiant';
+					bloc.style.display = etudiant ? '' : 'none';
+					bloc.querySelectorAll('input').forEach(function (i) { i.required = etudiant; });
+					mat.required = cat.value !== 'externe';
+				}
+				cat.addEventListener('change', maj);
+				maj();
+			})();
+			</script>
 			<div class="biblio-form-2col">
 				<?= $champ('mot_de_passe', 'Mot de passe (8 caractères min.)', 'password', 'required minlength="8" autocomplete="new-password"') ?>
 				<?= $champ('mot_de_passe2', 'Confirmer le mot de passe', 'password', 'required minlength="8" autocomplete="new-password"') ?>

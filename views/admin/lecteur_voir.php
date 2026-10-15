@@ -1,4 +1,4 @@
-<?php /** @var array $l, $enCours, $reservations, $historique */ ?>
+<?php /** @var array $l, $enCours, $reservations, $historique @var string|null $mdpProvisoire */ ?>
 <div class="fil"><a href="<?= e(admin_url('lecteurs')) ?>">Lecteurs</a> ›</div>
 <div class="entete">
 	<h1><?= e(nom_complet($l)) ?></h1>
@@ -47,7 +47,7 @@
 				<tr><td><?= e($r['titre']) ?></td>
 					<td><?= $r['statut'] === 'disponible' ? '<span class="badge vert">À retirer avant le ' . e(date_fr($r['expire_le'])) . '</span>' : '<span class="badge">En attente — rang ' . (int) $r['rang'] . '</span>' ?></td>
 					<td class="actions">
-						<?php if ($r['statut'] === 'disponible'): ?><a class="btn petit" href="<?= e(admin_url('guichet', ['lecteur' => $l['id'], 'code' => $r['exemplaire_code']])) ?>">Remettre</a><?php endif; ?>
+						<?php if ($r['statut'] === 'disponible'): ?><?= bouton_remettre($r) ?><?php endif; ?>
 						<?= bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') ?>
 					</td></tr>
 <?php endforeach; ?>
@@ -76,13 +76,30 @@
 	<aside class="carte">
 		<h2>Coordonnées</h2>
 		<p><strong>Catégorie :</strong> <?= e(LIBELLES_CATEGORIE[$l['categorie']] ?? '—') ?><br>
+<?php if ($l['categorie'] === 'etudiant'): ?>
+		<strong>Faculté :</strong> <?= e($l['faculte'] ?: '—') ?><br>
+		<strong>Département :</strong> <?= e($l['departement'] ?: '—') ?><br>
+<?php endif; ?>
 		<strong>Matricule :</strong> <?= e($l['matricule'] ?? '—') ?><br>
-		<strong>E-mail :</strong> <a href="mailto:<?= e($l['email']) ?>"><?= e($l['email']) ?></a><br>
+		<strong>E-mail :</strong> <?= $l['email'] ? '<a href="mailto:' . e($l['email']) . '">' . e($l['email']) . '</a>' : '—' ?><br>
 		<strong>Téléphone :</strong> <?= e($l['telephone'] ?: '—') ?></p>
 		<p class="doux">Inscrit le <?= e(date_fr($l['cree_le'])) ?><br>
-		Dernière connexion en ligne : <?= $l['derniere_connexion'] ? e(date_fr($l['derniere_connexion'], true)) : 'jamais' ?><br>
-		Espace en ligne : <?= $l['mot_de_passe'] !== '' ? 'mot de passe défini' : 'pas de mot de passe' ?></p>
+		Dernière connexion en ligne : <?= $l['derniere_connexion'] ? e(date_fr($l['derniere_connexion'], true)) : 'jamais' ?></p>
+
+		<h2>Accès en ligne</h2>
+<?php if ($mdpProvisoire): ?>
+		<div class="flash info">Mot de passe provisoire : <code style="font-size:1rem"><?= e($mdpProvisoire) ?></code><br>
+			<small>Affiché une seule fois. Communiquez-le au lecteur<?= $l['email'] && reglage('mail_mode') === 'smtp' ? ' (il vient aussi de lui être envoyé par e-mail)' : '' ?> ; il pourra le changer dans son espace.</small></div>
+<?php endif; ?>
+<?php if ($l['mot_de_passe'] !== ''): ?>
+		<p class="doux">L’espace lecteur est ouvert.</p>
+		<?= bouton_action(admin_url('lecteurs/mot-de-passe/' . $l['id']), '<i class="fa-solid fa-key"></i> Réinitialiser le mot de passe', 'btn secondaire petit',
+			'Créer un nouveau mot de passe provisoire pour ce lecteur ? L’ancien ne fonctionnera plus.') ?>
+<?php else: ?>
+		<p class="doux">Pas d’accès en ligne : le lecteur emprunte au guichet uniquement. Pour l’ouvrir, cochez « Ouvrir l’espace lecteur » dans <a href="<?= e(admin_url('lecteurs/modifier/' . $l['id'])) ?>">Modifier</a>.</p>
+<?php endif; ?>
 		<?php if (!$enCours && !$historique): ?>
+			<hr style="border:0;border-top:1px solid var(--bord);margin:16px 0">
 			<?= bouton_action(admin_url('lecteurs/supprimer/' . $l['id']), '<i class="fa-solid fa-trash"></i> Supprimer ce lecteur', 'btn danger petit', 'Supprimer définitivement ce lecteur ?') ?>
 		<?php endif; ?>
 	</aside>

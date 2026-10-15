@@ -9,7 +9,7 @@
 	<link rel="icon" href="<?= e(media('images/biblio/favicon.png')) ?>">
 	<link rel="stylesheet" href="<?= asset('admin/admin.css') ?>">
 </head>
-<body>
+<body class="page-connexion">
 <div class="connexion">
 	<form class="boite" method="post" action="<?= e(admin_url('connexion')) ?>">
 		<img src="<?= e(media('images/biblio/logo-uk-original.png')) ?>" alt="<?= e(reglage('site_nom')) ?>">

@@ -25,6 +25,7 @@ $menu = [
         ['auteurs', 'auteurs', 'fa-feather', 'Auteurs', null],
         ['domaines', 'domaines', 'fa-layer-group', 'Domaines', null],
         ['types', 'types', 'fa-tags', 'Types de documents', null],
+        ['import', 'import', 'fa-file-import', 'Importer un fichier', null],
     ],
     'Site' => array_merge(
         [
@@ -35,7 +36,7 @@ $menu = [
         [['messages', 'messages', 'fa-envelope', 'Messages', $compteurs['messages'] ? [$compteurs['messages'], ''] : null]]
     ),
     'Configuration' => array_merge(
-        [['reglages', 'reglages', 'fa-sliders', 'Réglages', null]],
+        [['reglages', 'reglages', 'fa-sliders', 'Réglages', null], ['mails', 'mails', 'fa-paper-plane', 'E-mails envoyés', null]],
         is_admin() ? [['personnel', 'personnel', 'fa-user-shield', 'Comptes du personnel', null]] : []
     ),
 ];
@@ -54,10 +55,10 @@ $menu = [
 <body>
 <div class="adm">
 	<nav class="adm-nav" aria-label="Menu de l’administration">
-		<div class="adm-marque">
-			<img src="<?= e(media('images/biblio/uk-sigle.png')) ?>" alt="">
-			<div>Bibliothèque<small><?= e(reglage('site_nom')) ?></small></div>
-		</div>
+		<a class="adm-marque" href="<?= e(admin_url()) ?>">
+			<img src="<?= e(media('images/biblio/logo-blanc.png')) ?>" alt="<?= e(reglage('site_nom')) ?>">
+			<small>Bibliothèque · Administration</small>
+		</a>
 <?php foreach ($menu as $groupe => $entrees): ?>
 		<h4><?= e($groupe) ?></h4>
 	<?php foreach ($entrees as [$cle, $chemin, $icone, $libelle, $pastille]): ?>

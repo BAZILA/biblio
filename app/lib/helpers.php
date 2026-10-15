@@ -41,9 +41,15 @@ function admin_url(string $path = '', array $query = []): string
     return $query ? $u . '?' . http_build_query($query) : $u;
 }
 
+/**
+ * URL d'une ressource statique, avec la date de modification du fichier en paramètre (?v=…) :
+ * les navigateurs gardent les CSS/JS en cache, mais rechargent aussitôt un fichier modifié.
+ */
 function asset(string $path): string
 {
-    return base_url() . '/assets/' . ltrim($path, '/');
+    $path = ltrim($path, '/');
+    $fichier = ROOT_DIR . '/assets/' . $path;
+    return base_url() . '/assets/' . $path . (is_file($fichier) ? '?v=' . filemtime($fichier) : '');
 }
 
 /** URL d'un fichier média stocké sous la racine (images/…). */
@@ -130,7 +136,8 @@ function reglage_int(string $cle, int $defaut = 0): int
 
 /**
  * Contenu HTML d'un bloc éditable depuis l'admin (non échappé : saisi par le personnel).
- * Balises remplacées : {base} → racine du site, {recherche} → formulaire de recherche.
+ * Balises remplacées : {base} → racine du site, {recherche} → formulaire de recherche,
+ * {photo_apropos} → photo « À propos » choisie dans les réglages.
  */
 function bloc(string $cle): string
 {
@@ -144,6 +151,7 @@ function bloc(string $cle): string
     return strtr($cache[$cle] ?? '', [
         '{base}'      => base_url(),
         '{recherche}' => formulaire_recherche(),
+        '{photo_apropos}' => media(reglage('photo_apropos', 'images/biblio/apropos.jpg')),
     ]);
 }
 

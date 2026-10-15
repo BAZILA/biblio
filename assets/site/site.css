@@ -78,3 +78,61 @@
 
 /* Carrousels : couvertures recadrées comme les vignettes 400×600 d'origine */
 .jt-cs .jt-imagecover img.jtcs-image { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+
+/* Bouton « Rechercher » : icône visible (le thème colorait le glyphe comme le fond) et centrée */
+.biblio-search .btn, .biblio-search-row .btn, .biblio-finder .btn {
+	display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+}
+.biblio-search .btn .fa, .biblio-search-row .btn .fa, .biblio-finder .btn .fa {
+	margin: 0 !important; padding: 0 !important; width: auto !important; height: auto !important; font-size: 15px !important; background: none !important; border: 0 !important;
+}
+.biblio-search .btn .fa::before, .biblio-search-row .btn .fa::before, .biblio-finder .btn .fa::before {
+	color: #fff !important; position: static !important; display: inline !important; width: auto !important; line-height: 1 !important;
+}
+
+/* Cartes d'ouvrages (types, auteurs, catalogue, domaines) : hauteur identique, contenus alignés.
+   Chaque zone a une hauteur fixe en lignes ; le texte trop long est coupé proprement. */
+.biblio-cards { align-items: stretch; }
+.biblio-card { height: 100%; }
+.biblio-card-body { gap: 0; }
+.biblio-card-domain { display: block; font-size: 13px; line-height: 20px; height: 20px; color: var(--uk-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+.biblio-card-domain:hover { text-decoration: underline; }
+.biblio-card-body h3 { font-size: 17px; line-height: 23px; height: 46px; margin: 8px 0 6px; overflow: hidden;
+	display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.biblio-card-authors { font-size: 13px; line-height: 20px; height: 20px; margin: 0 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.biblio-card-badges { display: flex; flex-wrap: nowrap; gap: 6px; height: 22px; margin: 0 0 12px; overflow: hidden; }
+.biblio-badge { display: inline-block; padding: 0 9px; line-height: 22px; border-radius: 11px; font-size: 11.5px; font-weight: 600; background: #eef1f9; color: var(--uk-blue); white-space: nowrap; }
+.biblio-badge.biblio-dispo-disponible { background: #e5f5ea; color: var(--uk-green); }
+.biblio-badge.biblio-dispo-emprunte, .biblio-badge.biblio-dispo-indisponible { background: #fdf0e1; color: #b85c00; }
+.biblio-card-text { font-size: 14px; line-height: 21px; height: 63px; margin: 0 0 16px; overflow: hidden;
+	display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.biblio-card-body .btn { margin-top: auto; align-self: flex-start; }
+.com-content-category-blog .biblio-cards { margin-top: 10px; }
+
+/* Carrousels « Nouveautés » et « Coups de cœur » : cartes de même hauteur, zones alignées d'une carte à l'autre */
+.jtcs-nouveautes .jt-category, .jtcs-coeur .jt-category { height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 {
+	height: 52px; padding: 0 0 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.jtcs-nouveautes .jt-introtext, .jtcs-coeur .jt-introtext {
+	height: 67px; margin: 10px 0 12px; text-align: left; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.jtcs-nouveautes .jt-author-date, .jtcs-coeur .jt-author-date { height: 20px; margin: 10px 0; overflow: hidden; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.jtcs-nouveautes .owl-stage, .jtcs-coeur .owl-stage { display: flex; }
+.jtcs-nouveautes .owl-item, .jtcs-coeur .owl-item { display: flex; }
+.jtcs-nouveautes .owl-item > *, .jtcs-coeur .owl-item > * { width: 100%; }
+
+/* Citations : toutes les cartes à la même hauteur, l'auteur calé en bas */
+.jt_testimonial-biblio .owl2-stage { display: flex; }
+.jt_testimonial-biblio .owl2-item { display: flex; height: auto; }
+.jt_testimonial-biblio .jt_testimonial-outer { display: flex; width: 100%; }
+.jt_testimonial-biblio .jt_testimonial-block-slide { display: flex; flex-direction: column; width: 100%; }
+.jt_testimonial-biblio .testimonial_block-text { flex: 1 0 auto; }
+.jt_testimonial-biblio .testimonial_block { margin-top: auto; align-items: center; }
+
+/* Tuiles « Explorez le catalogue par domaine » : bouton aligné en bas */
+.biblio-domaines { display: flex; flex-wrap: wrap; }
+.biblio-domaines .col-md-3 { display: flex; }
+.biblio-domaines .xl-services-box-wrapper, .biblio-domaines .services-count-2 { display: flex; flex-direction: column; width: 100%; }
+.biblio-domaines .services-count-2 { flex: 1; }
+.biblio-domaines .services-content { display: flex; flex-direction: column; flex: 1; }
+.biblio-domaines .services-content .btn { margin-top: auto; align-self: center; }

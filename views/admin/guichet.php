@@ -1,54 +1,94 @@
 <?php
-/** @var array|null $lecteur @var array $pretsLecteur, $reservationsLecteur, $derniers @var string $codePropose */
+/**
+ * Guichet prêt / retour, par listes de sélection.
+ * @var array|null $lecteur, $rapide @var int $ouvrageChoisi
+ * @var array $lecteurs, $ouvrages, $pretsEnCours, $pretsLecteur, $reservationsLecteur, $derniers @var bool $nouveauLecteur
+ */
 $duree = reglage_int('pret_duree_jours', 14);
+$lecteurInactif = $lecteur && !$lecteur['actif'];
+// Ouvrages mis de côté pour le lecteur choisi : prêtables même si aucun exemplaire n'est « disponible »
+$misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) => $r['statut'] === 'disponible'), 'exemplaire_code', 'ouvrage_id') : [];
 ?>
 <div class="entete"><h1>Guichet prêt / retour</h1></div>
 
 <div class="guichet">
 	<section class="carte">
 		<h2><i class="fa-solid fa-book-open"></i> Nouveau prêt</h2>
-		<form method="post" action="<?= e(admin_url('guichet/pret')) ?>">
+		<form method="post" action="<?= e(admin_url('guichet/pret')) ?>" id="form-pret">
 			<?= csrf_field() ?>
+
 			<div class="champ">
-				<label for="lecteur-recherche">Lecteur</label>
-				<div class="choix-lecteur" data-url="<?= e(admin_url('guichet/chercher')) ?>" data-focus-ensuite="#code-pret">
-					<input type="search" id="lecteur-recherche" placeholder="Nom, matricule ou e-mail…" autocomplete="off" value="<?= $lecteur ? e(nom_complet($lecteur)) : '' ?>" <?= $lecteur ? '' : 'autofocus' ?>>
-					<input type="hidden" name="lecteur_id" value="<?= $lecteur ? (int) $lecteur['id'] : '' ?>">
-					<div class="suggestions"></div>
-				</div>
-				<div class="lecteur-choisi<?= $lecteur ? ' ouvert' : '' ?>">
-<?php if ($lecteur): ?>
-					<strong><?= e(nom_complet($lecteur)) ?></strong>
-					<div class="doux"><?= e(implode(' · ', array_filter([LIBELLES_CATEGORIE[$lecteur['categorie']] ?? '', $lecteur['matricule'], $lecteur['email']]))) ?></div>
-<?php endif; ?>
-				</div>
-<?php if ($lecteur && !$lecteur['actif']): ?>
-				<div class="flash erreur" style="margin:8px 0 0">
-					Compte <?= $lecteur['en_attente'] ? 'en attente de validation' : 'désactivé' ?> : prêt impossible.
-					<a href="<?= e(admin_url('lecteurs/voir/' . $lecteur['id'])) ?>">Ouvrir la fiche du lecteur</a>
-				</div>
+				<label for="choix-lecteur"><span class="etape-num">1</span> Lecteur</label>
+				<input type="search" class="filtre-liste" data-liste="#choix-lecteur" placeholder="Filtrer la liste : nom ou matricule…" aria-label="Filtrer les lecteurs">
+				<select name="lecteur_id" id="choix-lecteur" required data-recharger-exemplaires>
+					<option value="">— Choisir un lecteur (<?= count($lecteurs) ?>) —</option>
+<?php foreach ($lecteurs as $l): ?>
+					<option value="<?= (int) $l['id'] ?>"<?= $lecteur && (int) $lecteur['id'] === (int) $l['id'] ? ' selected' : '' ?>><?= e($l['nom'] . ' ' . $l['prenom']) ?> — <?= e(LIBELLES_CATEGORIE[$l['categorie']] ?? '') ?><?= $l['matricule'] ? ' · ' . e($l['matricule']) : '' ?><?= $l['actif'] ? '' : ' (inactif)' ?></option>
+<?php endforeach; ?>
+				</select>
+<?php if ($lecteurInactif): ?>
+				<div class="flash erreur" style="margin:8px 0 0">Compte <?= $lecteur['en_attente'] ? 'en attente de validation' : 'désactivé' ?> : prêt impossible.
+					<a href="<?= e(admin_url('lecteurs/voir/' . $lecteur['id'])) ?>">Ouvrir la fiche</a></div>
 <?php endif; ?>
 			</div>
+
 			<div class="champ">
-				<label for="code-pret">Code de l’exemplaire</label>
-				<input type="text" class="code" id="code-pret" name="code" value="<?= e($codePropose) ?>" placeholder="ex. INF-001-2" autocomplete="off" required <?= $lecteur ? 'autofocus' : '' ?>>
-				<div class="aide">Scannez le code-barres ou saisissez la cote suivie du numéro d’exemplaire. Durée du prêt : <?= $duree ?> jours.</div>
+				<label for="choix-ouvrage"><span class="etape-num">2</span> Ouvrage</label>
+				<input type="search" class="filtre-liste" data-liste="#choix-ouvrage" placeholder="Filtrer la liste : titre, auteur ou cote…" aria-label="Filtrer les ouvrages">
+				<select name="ouvrage_id" id="choix-ouvrage" data-url-exemplaires="<?= e(admin_url('guichet/exemplaires')) ?>">
+					<option value="">— Choisir un ouvrage (<?= count($ouvrages) ?>) —</option>
+<?php foreach ($ouvrages as $o):
+    $pourLui = isset($misDeCote[$o['id']]);
+    $pretable = !$o['consultation_sur_place'] && ($o['nb_dispo'] > 0 || $pourLui); ?>
+					<option value="<?= (int) $o['id'] ?>"<?= $pretable ? '' : ' disabled' ?><?= $ouvrageChoisi === (int) $o['id'] ? ' selected' : '' ?> data-recherche="<?= e(mb_strtolower($o['titre'] . ' ' . $o['auteurs_txt'] . ' ' . $o['cote'])) ?>"><?= e($o['titre']) ?><?= $o['auteurs_txt'] !== '' ? ' — ' . e(tronquer($o['auteurs_txt'], 40, '…')) : '' ?> · <?= $o['consultation_sur_place'] ? 'sur place uniquement' : ($pourLui ? 'mis de côté pour ce lecteur' : $o['nb_dispo'] . '/' . $o['nb_ex'] . ' disponible(s)') ?></option>
+<?php endforeach; ?>
+				</select>
 			</div>
-			<button class="btn" type="submit"<?= $lecteur && !$lecteur['actif'] ? ' disabled' : '' ?>><i class="fa-solid fa-circle-check"></i> Enregistrer le prêt</button>
+
+			<div class="champ">
+				<label for="choix-exemplaire"><span class="etape-num">3</span> Exemplaire</label>
+				<select name="code" id="choix-exemplaire">
+					<option value="">Automatique (meilleur exemplaire disponible)</option>
+				</select>
+				<div class="aide">Ou, avec une douchette : <input type="text" class="code code-scan" name="code_scan" placeholder="scanner le code-barres" autocomplete="off"></div>
+			</div>
+
+			<div class="form-actions">
+				<button class="btn" type="submit"<?= $lecteurInactif ? ' disabled' : '' ?>><i class="fa-solid fa-circle-check"></i> Enregistrer le prêt</button>
+				<span class="doux">Durée : <?= $duree ?> jours</span>
+			</div>
 		</form>
+
+		<details class="panneau-rapide"<?= $nouveauLecteur ? ' open' : '' ?>>
+			<summary><i class="fa-solid fa-user-plus"></i> Le lecteur n’est pas dans la liste ? Créer un lecteur (sans compte en ligne)</summary>
+			<form method="post" action="<?= e(admin_url('lecteurs/rapide')) ?>">
+				<?= csrf_field() ?>
+				<?php if ($ouvrageChoisi): ?><input type="hidden" name="ouvrage" value="<?= $ouvrageChoisi ?>"><?php endif; ?>
+				<p class="doux">Il pourra emprunter tout de suite. L’e-mail est facultatif : s’il est renseigné, le lecteur reçoit les rappels.</p>
+				<?= render(ROOT_DIR . '/views/admin/_champs_lecteur.php', ['l' => $rapide['saisie'] ?? ['categorie' => 'etudiant'], 'erreurs' => $rapide['erreurs'] ?? []]) ?>
+				<button class="btn" type="submit"><i class="fa-solid fa-user-plus"></i> Créer et sélectionner</button>
+			</form>
+		</details>
 	</section>
 
-	<section class="carte retour">
+	<section class="carte">
 		<h2><i class="fa-solid fa-rotate-left"></i> Retour</h2>
 		<form method="post" action="<?= e(admin_url('guichet/retour')) ?>">
 			<?= csrf_field() ?>
 			<?php if ($lecteur): ?><input type="hidden" name="lecteur" value="<?= (int) $lecteur['id'] ?>"><?php endif; ?>
 			<div class="champ">
-				<label for="code-retour">Code de l’exemplaire rendu</label>
-				<input type="text" class="code" id="code-retour" name="code" placeholder="ex. INF-001-2" autocomplete="off" required>
-				<div class="aide">Si un autre lecteur a réservé l’ouvrage, l’exemplaire lui est automatiquement mis de côté.</div>
+				<label for="choix-pret">Prêt en cours</label>
+				<input type="search" class="filtre-liste" data-liste="#choix-pret" placeholder="Filtrer : lecteur, titre ou code…" aria-label="Filtrer les prêts">
+				<select name="pret_id" id="choix-pret">
+					<option value="">— Choisir le prêt à clore (<?= count($pretsEnCours) ?> en cours) —</option>
+<?php foreach ($pretsEnCours as $p): ?>
+					<option value="<?= (int) $p['id'] ?>"<?= $lecteur && (int) $p['lecteur_id'] === (int) $lecteur['id'] && count($pretsLecteur) === 1 ? ' selected' : '' ?>><?= e(trim($p['nom'] . ' ' . $p['prenom'])) ?> — <?= e(tronquer($p['titre'], 45, '…')) ?> (<?= e($p['exemplaire_code']) ?>) · <?= $p['jours_retard'] > 0 ? 'RETARD ' . (int) $p['jours_retard'] . ' j' : 'à rendre le ' . date_fr($p['date_retour_prevue']) ?></option>
+<?php endforeach; ?>
+				</select>
+				<div class="aide">Ou, avec une douchette : <input type="text" class="code code-scan" name="code" placeholder="scanner le code-barres" autocomplete="off"></div>
 			</div>
 			<button class="btn vert" type="submit"><i class="fa-solid fa-rotate-left"></i> Enregistrer le retour</button>
+			<p class="aide" style="margin-top:10px">Si d’autres lecteurs ont réservé l’ouvrage, l’exemplaire rendu leur est automatiquement mis de côté.</p>
 		</form>
 	</section>
 </div>
@@ -81,7 +121,7 @@ $duree = reglage_int('pret_duree_jours', 14);
 <?php foreach ($reservationsLecteur as $r): ?>
 		<tr><td><?= e($r['titre']) ?></td>
 			<td><?= $r['statut'] === 'disponible' ? '<span class="badge vert">Exemplaire ' . e($r['exemplaire_code']) . ' prêt à retirer</span>' : '<span class="badge">En attente — rang ' . (int) $r['rang'] . '</span>' ?></td>
-			<td class="actions"><?php if ($r['statut'] === 'disponible'): ?><a class="btn petit" href="<?= e(admin_url('guichet', ['lecteur' => $lecteur['id'], 'code' => $r['exemplaire_code']])) ?>">Remettre</a><?php endif; ?></td></tr>
+			<td class="actions"><?php if ($r['statut'] === 'disponible'): ?><?= bouton_remettre($r) ?><?php endif; ?></td></tr>
 <?php endforeach; ?>
 	</tbody></table></div>
 <?php endif; ?>

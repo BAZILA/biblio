@@ -4,7 +4,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
+DROP TABLE IF EXISTS mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
   auteurs, types, domaines, slides, citations, blocs, reglages, messages, utilisateurs;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -15,10 +15,12 @@ CREATE TABLE utilisateurs (
   role          ENUM('admin','bibliothecaire','lecteur') NOT NULL DEFAULT 'lecteur',
   nom           VARCHAR(100) NOT NULL,
   prenom        VARCHAR(100) NOT NULL DEFAULT '',
-  email         VARCHAR(190) NOT NULL,
-  mot_de_passe  VARCHAR(255) NOT NULL DEFAULT '',
+  email         VARCHAR(190) NULL,               -- facultatif pour un lecteur sans accès en ligne
+  mot_de_passe  VARCHAR(255) NOT NULL DEFAULT '',  -- vide = pas d'accès à l'espace lecteur
   matricule     VARCHAR(50)  NULL,
   categorie     ENUM('etudiant','enseignant','personnel','externe') NULL,
+  faculte       VARCHAR(150) NOT NULL DEFAULT '',  -- étudiants
+  departement   VARCHAR(150) NOT NULL DEFAULT '',
   telephone     VARCHAR(50)  NOT NULL DEFAULT '',
   actif         TINYINT(1)   NOT NULL DEFAULT 1,
   en_attente    TINYINT(1)   NOT NULL DEFAULT 0,   -- inscription en ligne pas encore validée
@@ -116,6 +118,8 @@ CREATE TABLE prets (
   date_retour        DATE NULL,               -- NULL = en cours
   prolongations      TINYINT UNSIGNED NOT NULL DEFAULT 0,
   notes              VARCHAR(255) NOT NULL DEFAULT '',
+  rappel_envoye_le   DATE NULL,               -- rappel « à rendre bientôt » déjà envoyé
+  relance_envoyee_le DATE NULL,               -- dernière relance de retard envoyée
   KEY ix_encours (date_retour, date_retour_prevue),
   KEY ix_lecteur (lecteur_id),
   CONSTRAINT fk_pret_exemplaire FOREIGN KEY (exemplaire_id) REFERENCES exemplaires(id),
@@ -178,6 +182,19 @@ CREATE TABLE reglages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Échecs de connexion (limite anti-force brute par e-mail et par IP)
+-- Journal des e-mails (envoyés, en échec, ou seulement journalisés si l'envoi est désactivé)
+CREATE TABLE mails (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  destinataire VARCHAR(190) NOT NULL,
+  sujet        VARCHAR(255) NOT NULL,
+  corps        TEXT NOT NULL,
+  motif        VARCHAR(40)  NOT NULL DEFAULT '',   -- pret, rappel, retard, reservation, compte…
+  statut       ENUM('envoye','echec','journal') NOT NULL,
+  erreur       VARCHAR(255) NOT NULL DEFAULT '',
+  cree_le      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY ix_date (cree_le)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE tentatives_connexion (
   id    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL,
@@ -209,4 +226,18 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('pret_max_externe', '1'),
   ('pret_max_prolongations', '1'),
   ('reservation_delai_jours', '3'),
-  ('par_page', '12');
+  ('par_page', '12'),
+  ('couverture_defaut', ''),
+  ('photo_apropos', 'images/biblio/apropos-rayonnages.jpg'),
+  ('site_adresse', 'http://localhost/biblio/'),
+  ('rappel_jours_avant', '2'),
+  ('relance_tous_les_jours', '7'),
+  ('mail_mode', 'journal'),
+  ('mail_expediteur', ''),
+  ('mail_expediteur_nom', 'Bibliothèque universitaire'),
+  ('smtp_hote', ''),
+  ('smtp_port', '587'),
+  ('smtp_securite', 'tls'),
+  ('smtp_utilisateur', ''),
+  ('smtp_mot_de_passe', ''),
+  ('taches_dernier_jour', '');

@@ -40,69 +40,216 @@
         img.src = URL.createObjectURL(input.files[0]);
         img.style.display = 'block';
       }
+      var nom = document.querySelector('.nom-fichier[data-pour="' + input.id + '"]');
+      if (nom) { nom.textContent = input.files && input.files[0] ? 'Image choisie : ' + input.files[0].name : ''; }
+      var etiquette = img && img.parentNode.querySelector('.etiquette-defaut');
+      if (etiquette) { etiquette.remove(); }
     });
   });
 
-  // Choix d'un lecteur par recherche (guichet de prêt)
-  document.querySelectorAll('.choix-lecteur').forEach(function (bloc) {
-    var saisie = bloc.querySelector('input[type=search]');
-    var cache = bloc.querySelector('input[type=hidden]');
-    var liste = bloc.querySelector('.suggestions');
-    var choisi = bloc.parentNode.querySelector('.lecteur-choisi');
-    var minuterie;
+  // Petit utilitaire : interroge une adresse JSON de l'admin
+  function chercherJson(url, q) {
+    return fetch(url + (url.indexOf('?') < 0 ? '?' : '&') + 'q=' + encodeURIComponent(q), { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); });
+  }
 
-    function choisir(l) {
-      cache.value = l.id;
-      saisie.value = l.nom;
+  // Auteurs d'un ouvrage : puces + recherche dans l'index des auteurs (le textarea caché reste la valeur envoyée)
+  document.querySelectorAll('.champ-auteurs').forEach(function (bloc) {
+    var zone = bloc.querySelector('textarea');
+    var noms = zone.value.split(/\r?\n/).map(function (n) { return n.trim(); }).filter(Boolean);
+    var connus = {};
+    zone.style.display = 'none';
+
+    var puces = document.createElement('div');
+    puces.className = 'puces';
+    var saisie = document.createElement('input');
+    saisie.type = 'text';
+    saisie.id = 'auteurs-saisie';
+    saisie.placeholder = 'Rechercher ou ajouter un auteur…';
+    saisie.autocomplete = 'off';
+    var liste = document.createElement('div');
+    liste.className = 'suggestions';
+    bloc.appendChild(puces);
+    var minuterie, propositions = [], actif = -1;
+
+    function synchroniser() { zone.value = noms.join('\n'); }
+    function dessiner() {
+      puces.innerHTML = '';
+      noms.forEach(function (nom, i) {
+        var p = document.createElement('span');
+        p.className = 'puce' + (connus[nom] === false ? ' nouveau' : '');
+        p.title = connus[nom] === false ? 'Nouvel auteur : il sera ajouté à l’index' : '';
+        p.appendChild(document.createTextNode(nom));
+        var x = document.createElement('button');
+        x.type = 'button';
+        x.setAttribute('aria-label', 'Retirer ' + nom);
+        x.textContent = '×';
+        x.addEventListener('click', function () { noms.splice(i, 1); synchroniser(); dessiner(); saisie.focus(); });
+        p.appendChild(x);
+        puces.appendChild(p);
+      });
+      puces.appendChild(saisie);
+      puces.appendChild(liste);
+    }
+    function ajouter(nom, existe) {
+      nom = nom.trim();
+      if (!nom) { return; }
+      if (noms.some(function (n) { return n.toLowerCase() === nom.toLowerCase(); })) { return; }
+      connus[nom] = existe;
+      noms.push(nom);
+      saisie.value = '';
       liste.classList.remove('ouvert');
-      if (choisi) {
-        choisi.innerHTML = '';
-        var titre = document.createElement('strong');
-        titre.textContent = l.nom;
-        choisi.appendChild(titre);
-        var detail = document.createElement('div');
-        detail.className = 'doux';
-        detail.textContent = l.detail;
-        choisi.appendChild(detail);
-        choisi.classList.add('ouvert');
-      }
-      var suivant = document.querySelector(bloc.getAttribute('data-focus-ensuite'));
-      if (suivant) { suivant.focus(); }
+      synchroniser();
+      dessiner();
+      saisie.focus();
+    }
+    function afficher(q, resultats) {
+      liste.innerHTML = '';
+      propositions = [];
+      resultats.forEach(function (a) {
+        if (noms.indexOf(a.nom) < 0) { propositions.push({ nom: a.nom, existe: true, detail: a.nb + ' ouvrage(s)' }); }
+      });
+      var exact = resultats.some(function (a) { return a.nom.toLowerCase() === q.toLowerCase(); });
+      if (!exact) { propositions.push({ nom: q, existe: false, detail: 'nouvel auteur' }); }
+      propositions.forEach(function (p, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        if (!p.existe) { b.className = 'proposition-nouveau'; }
+        b.innerHTML = '<strong></strong> <small></small>';
+        b.querySelector('strong').textContent = p.existe ? p.nom : '+ Ajouter « ' + p.nom + ' »';
+        b.querySelector('small').textContent = p.detail;
+        b.addEventListener('mousedown', function (ev) { ev.preventDefault(); ajouter(p.nom, p.existe); });
+        liste.appendChild(b);
+      });
+      actif = propositions.length ? 0 : -1;
+      surligner();
+      liste.classList.toggle('ouvert', propositions.length > 0);
+    }
+    function surligner() {
+      Array.prototype.forEach.call(liste.children, function (el, i) { el.classList.toggle('actif', i === actif); });
     }
 
     saisie.addEventListener('input', function () {
-      cache.value = '';
-      if (choisi) { choisi.classList.remove('ouvert'); }
       clearTimeout(minuterie);
       var q = saisie.value.trim();
       if (q.length < 2) { liste.classList.remove('ouvert'); return; }
-      minuterie = setTimeout(function () {
-        fetch(bloc.getAttribute('data-url') + '?q=' + encodeURIComponent(q), { credentials: 'same-origin' })
-          .then(function (r) { return r.json(); })
-          .then(function (lecteurs) {
-            liste.innerHTML = '';
-            if (!lecteurs.length) {
-              var vide = document.createElement('div');
-              vide.className = 'vide';
-              vide.textContent = 'Aucun lecteur actif trouvé.';
-              liste.appendChild(vide);
-            }
-            lecteurs.forEach(function (l) {
-              var b = document.createElement('button');
-              b.type = 'button';
-              b.innerHTML = '<strong></strong><br><small></small>';
-              b.querySelector('strong').textContent = l.nom;
-              b.querySelector('small').textContent = l.detail;
-              b.addEventListener('click', function () { choisir(l); });
-              liste.appendChild(b);
-            });
-            liste.classList.add('ouvert');
-          });
-      }, 200);
+      minuterie = setTimeout(function () { chercherJson(bloc.getAttribute('data-url'), q).then(function (r) { afficher(q, r); }); }, 180);
     });
+    saisie.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        if (!propositions.length) { return; }
+        ev.preventDefault();
+        actif = (actif + (ev.key === 'ArrowDown' ? 1 : propositions.length - 1)) % propositions.length;
+        surligner();
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        if (actif >= 0 && propositions[actif] && liste.classList.contains('ouvert')) { ajouter(propositions[actif].nom, propositions[actif].existe); }
+        else if (saisie.value.trim()) { ajouter(saisie.value, undefined); }
+      } else if (ev.key === 'Backspace' && saisie.value === '' && noms.length) {
+        noms.pop(); synchroniser(); dessiner();
+      } else if (ev.key === 'Escape') {
+        liste.classList.remove('ouvert');
+      }
+    });
+    saisie.addEventListener('blur', function () { setTimeout(function () { liste.classList.remove('ouvert'); }, 150); });
+    puces.addEventListener('click', function (ev) { if (ev.target === puces) { saisie.focus(); } });
+    dessiner();
+  });
 
-    document.addEventListener('click', function (ev) {
-      if (!bloc.contains(ev.target)) { liste.classList.remove('ouvert'); }
+  // Choix d'une icône dans une grille (domaines) : le champ texte reste la valeur envoyée
+  document.querySelectorAll('.champ-icone').forEach(function (bloc) {
+    var champ = bloc.querySelector('input[type=text]');
+    var apercu = bloc.querySelector('.tuile .fa');
+    var filtre = bloc.querySelector('input[type=search]');
+    var boutons = bloc.querySelectorAll('.choix-icones button');
+    function choisir(nom) {
+      champ.value = nom;
+      apercu.className = 'fa ' + nom;
+      boutons.forEach(function (b) { b.classList.toggle('choisi', b.getAttribute('data-icone') === nom); });
+    }
+    boutons.forEach(function (b) {
+      b.addEventListener('click', function () { choisir(b.getAttribute('data-icone')); });
+    });
+    champ.addEventListener('input', function () { apercu.className = 'fa ' + champ.value.trim(); });
+    if (filtre) {
+      filtre.addEventListener('input', function () {
+        var q = filtre.value.trim().toLowerCase();
+        boutons.forEach(function (b) { b.style.display = !q || b.getAttribute('data-mots').indexOf(q) >= 0 ? '' : 'none'; });
+      });
+    }
+  });
+
+  // Faculté / département : visibles seulement pour un étudiant
+  document.querySelectorAll('select[data-montre-etudiant]').forEach(function (choix) {
+    var formulaire = choix.closest('form');
+    function maj() {
+      formulaire.querySelectorAll('.bloc-etudiant').forEach(function (b) { b.style.display = choix.value === 'etudiant' ? '' : 'none'; });
+    }
+    choix.addEventListener('change', maj);
+    maj();
+  });
+
+  // Listes de sélection : champ de filtre au-dessus (data-liste="#id-du-select")
+  function sansAccents(t) { return t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  document.querySelectorAll('input.filtre-liste').forEach(function (filtre) {
+    var liste = document.querySelector(filtre.getAttribute('data-liste'));
+    if (!liste) { return; }
+    // Pendant le filtrage, la liste se déplie et ne montre que les correspondances ; un clic choisit
+    filtre.addEventListener('input', function () {
+      var mots = sansAccents(filtre.value.trim()).split(/\s+/).filter(Boolean);
+      var visibles = 0;
+      Array.prototype.forEach.call(liste.options, function (o) {
+        if (!o.value) { o.hidden = mots.length > 0; return; }
+        var texte = sansAccents(o.textContent + ' ' + (o.getAttribute('data-recherche') || ''));
+        o.hidden = !mots.every(function (m) { return texte.indexOf(m) >= 0; });
+        if (!o.hidden) { visibles++; }
+      });
+      liste.size = mots.length ? Math.min(8, Math.max(2, visibles)) : 0;
+      liste.classList.toggle('liste-depliee', mots.length > 0);
+    });
+    filtre.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === 'ArrowDown') { ev.preventDefault(); liste.focus(); } });
+    liste.addEventListener('change', function () {
+      liste.size = 0;
+      liste.classList.remove('liste-depliee');
+      Array.prototype.forEach.call(liste.options, function (o) { o.hidden = false; });
+      filtre.value = '';
     });
   });
+
+  // Guichet : exemplaires de l'ouvrage choisi (ceux mis de côté pour le lecteur en premier)
+  var choixOuvrage = document.getElementById('choix-ouvrage');
+  var choixExemplaire = document.getElementById('choix-exemplaire');
+  var choixLecteur = document.getElementById('choix-lecteur');
+  function chargerExemplaires() {
+    if (!choixOuvrage || !choixExemplaire) { return; }
+    choixExemplaire.length = 1; // garde « Automatique »
+    if (!choixOuvrage.value) { return; }
+    var url = choixOuvrage.getAttribute('data-url-exemplaires') + '?ouvrage=' + choixOuvrage.value + '&lecteur=' + (choixLecteur ? choixLecteur.value : '');
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (liste) {
+      var etats = { neuf: 'neuf', bon: 'bon état', use: 'usé', abime: 'abîmé' };
+      liste.forEach(function (x) {
+        var o = document.createElement('option');
+        o.value = x.code;
+        o.textContent = x.code + ' — ' + (etats[x.etat] || x.etat) + (Number(x.pour_lui) ? ' (mis de côté pour ce lecteur)' : '');
+        choixExemplaire.appendChild(o);
+      });
+      if (!liste.length) {
+        var o = document.createElement('option');
+        o.disabled = true;
+        o.textContent = 'Aucun exemplaire disponible';
+        choixExemplaire.appendChild(o);
+      }
+    });
+  }
+  if (choixOuvrage) { choixOuvrage.addEventListener('change', chargerExemplaires); chargerExemplaires(); }
+  if (choixLecteur) {
+    // Changer de lecteur recharge la page : ses prêts, réservations et ouvrages mis de côté s'affichent
+    choixLecteur.addEventListener('change', function () {
+      if (!choixLecteur.value) { return; }
+      var u = new URL(window.location.href);
+      u.searchParams.set('lecteur', choixLecteur.value);
+      if (choixOuvrage && choixOuvrage.value) { u.searchParams.set('ouvrage', choixOuvrage.value); }
+      window.location.href = u.toString();
+    });
+  }
 })();

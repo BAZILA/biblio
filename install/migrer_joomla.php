@@ -217,7 +217,9 @@ if (preg_match('#^(.*?)<div>\s*<ul class="biblio-types">#s', $module(333), $mm))
 $contact = $srcRows("SELECT * FROM {$t('contact_details')} WHERE published = 1 ORDER BY id LIMIT 1")[0] ?? [];
 $blocs['contact_infos'][1] = $contact['misc'] ?? '';
 foreach ($blocs as $cle => [$titre, $contenu]) {
-    insert('blocs', ['cle' => $cle, 'titre' => $titre, 'contenu' => trim($relocaliser($contenu))]);
+    // La photo « À propos » devient un réglage (modifiable dans l'admin sans toucher au HTML)
+    $contenu = str_replace('{base}/images/biblio/apropos.jpg', '{photo_apropos}', trim($relocaliser($contenu)));
+    insert('blocs', ['cle' => $cle, 'titre' => $titre, 'contenu' => $contenu]);
 }
 
 $reglages = [

@@ -32,7 +32,7 @@
 		<tbody>
 <?php foreach ($liste as $o): ?>
 			<tr>
-				<td><?php if ($o['image']): ?><img class="vignette" src="<?= e(media($o['image'])) ?>" alt=""><?php else: ?><span class="vignette"></span><?php endif; ?></td>
+				<td><img class="vignette" src="<?= e(couverture($o['image'])) ?>" alt=""></td>
 				<td><a href="<?= e(admin_url('ouvrages/modifier/' . $o['id'])) ?>"><strong><?= e($o['titre']) ?></strong></a>
 					<?= $o['publie'] ? '' : ' <span class="badge orange">Non publié</span>' ?><?= $o['coup_de_coeur'] ? ' <span class="badge bleu">Coup de cœur</span>' : '' ?>
 					<br><small><?= e($o['auteurs_txt']) ?></small></td>
@@ -41,7 +41,7 @@
 				<td><code><?= e($o['cote']) ?></code></td>
 				<td class="num"><?php if ($o['consultation_sur_place']): ?><span class="badge bleu">Sur place</span> <?php endif; ?>
 					<span class="badge <?= $o['nb_dispo'] ? 'vert' : ($o['nb_ex'] ? 'orange' : '') ?>"><?= $o['nb_dispo'] ?> / <?= $o['nb_ex'] ?> dispo.</span></td>
-				<td class="actions"><a class="btn secondaire petit" href="<?= e($o['url']) ?>" target="_blank" rel="noopener" title="Voir sur le site"><i class="fa-solid fa-eye"></i></a></td>
+				<td class="actions"><?php if ($o['nb_dispo'] && !$o['consultation_sur_place']): ?><a class="btn petit" href="<?= e(admin_url('guichet', ['ouvrage' => $o['id']])) ?>" title="Prêter cet ouvrage"><i class="fa-solid fa-right-left"></i> Prêter</a> <?php endif; ?><a class="btn secondaire petit" href="<?= e($o['url']) ?>" target="_blank" rel="noopener" title="Voir sur le site"><i class="fa-solid fa-eye"></i></a></td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

@@ -1,5 +1,5 @@
 <?php /** @var string $filtre, $q @var array $liste, $pg */
-$onglets = ['en_cours' => 'En cours', 'retard' => 'En retard', 'rendus' => 'Rendus', 'tous' => 'Tous'];
+$onglets = ['tous' => 'Tous', 'en_cours' => 'En cours', 'retard' => 'En retard', 'rendus' => 'Rendus'];
 ?>
 <div class="entete">
 	<h1>Prêts</h1>

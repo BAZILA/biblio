@@ -43,10 +43,8 @@ $nb = count($resultats['ouvrages']) + count($resultats['auteurs']);
     <ul id="search-result-list" class="js-highlight com-finder__results-list">
 <?php foreach ($resultats['ouvrages'] as $o): ?>
                                     <li class="result__item">
-<?php if ($o['image']): ?>
             <figure class=" result__image">
-                            <img src="<?= e(media($o['image'])) ?>" alt="Couverture : <?= e($o['titre']) ?>">                    </figure>
-<?php endif; ?>
+                            <img src="<?= e(couverture($o['image'])) ?>" alt="Couverture : <?= e($o['titre']) ?>">                    </figure>
         <p class="result__title">
                     <a href="<?= e($o['url']) ?>" class="result__title-link"><span class="result__title-text"><?= surligner($o['titre'], $q) ?></span></a>            </p>
             <p class="result__description">

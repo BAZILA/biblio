@@ -20,13 +20,23 @@
 <?php elseif ($type === 'slug'): ?>
 	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['attrs' => 'data-slug-de="nom"' . (isset($opts['prefixe']) ? ' data-prefixe="' . e($opts['prefixe']) . '"' : '')]) ?>
 <?php elseif ($type === 'icone'): ?>
-	<div class="champ">
-		<label for="f_<?= $nom ?>"><?= e($libelle) ?></label>
-		<div class="ligne">
-			<input type="text" id="f_<?= $nom ?>" name="<?= $nom ?>" value="<?= e($valeur) ?>" placeholder="fa-book">
-			<span class="fixe" style="font-size:1.6rem;color:var(--bleu)"><i class="fa <?= e($valeur ?: 'fa-book') ?>" aria-hidden="true"></i></span>
+	<div class="champ champ-icone">
+		<label><?= e($libelle) ?></label>
+		<div class="icone-apercu">
+			<span class="tuile"><i class="fa <?= e($valeur ?: 'fa-book') ?>" aria-hidden="true"></i></span>
+			<div style="flex:1">
+				<input type="search" placeholder="Filtrer : droit, santé, informatique…" aria-label="Filtrer les icônes">
+				<div class="aide">Cliquez sur une icône. Elle apparaît sur la carte du domaine, page d’accueil du site.</div>
+			</div>
 		</div>
-		<?php if (!empty($opts['aide'])): ?><div class="aide"><?= e($opts['aide']) ?></div><?php endif; ?>
+		<div class="choix-icones">
+<?php foreach (ICONES_DOMAINES as $icone => $mots): ?>
+			<button type="button" data-icone="<?= e($icone) ?>" data-mots="<?= e(mb_strtolower($icone . ' ' . $mots)) ?>" class="<?= $icone === $valeur ? 'choisi' : '' ?>" title="<?= e($mots) ?>"><i class="fa <?= e($icone) ?>" aria-hidden="true"></i><?= e(explode(' ', $mots)[0]) ?></button>
+<?php endforeach; ?>
+		</div>
+		<details style="margin-top:8px"><summary class="doux">Autre icône (nom Font Awesome 4)</summary>
+			<input type="text" id="f_<?= $nom ?>" name="<?= $nom ?>" value="<?= e($valeur) ?>" placeholder="fa-book" style="margin-top:6px;max-width:260px">
+		</details>
 	</div>
 <?php else: ?>
 	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['type' => $type]) ?>

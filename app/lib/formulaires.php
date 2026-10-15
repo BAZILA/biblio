@@ -19,7 +19,8 @@ function champ(string $nom, string $libelle, $valeur, array $erreurs = [], array
         $html = '<div class="champ"><label class="case"><input type="checkbox" name="' . e($nom) . '" value="1"'
             . ($valeur ? ' checked' : '') . $attrs . '> ' . e($libelle) . '</label>';
     } else {
-        $html = '<div class="champ' . (isset($erreurs[$nom]) ? ' en-erreur' : '') . '"><label for="' . $id . '">' . e($libelle) . '</label>';
+        $html = '<div class="champ' . (isset($erreurs[$nom]) ? ' en-erreur' : '') . '"><label for="' . $id . '">' . e($libelle)
+            . (($o['required'] ?? false) ? ' <span class="requis" title="Obligatoire">*</span>' : '') . '</label>';
         if ($type === 'textarea' || $type === 'code') {
             $html .= '<textarea id="' . $id . '" name="' . e($nom) . '"' . ($type === 'code' ? ' class="code"' : '') . $attrs . '>' . e($valeur) . '</textarea>';
         } elseif ($type === 'select') {
@@ -49,6 +50,14 @@ function bouton_action(string $url, string $libelle, string $classe = 'btn secon
         $html .= '<input type="hidden" name="' . e($k) . '" value="' . e($v) . '">';
     }
     return $html . '<button type="submit" class="' . e($classe) . '">' . $libelle . '</button></form>';
+}
+
+/** « Remettre » une réservation à retirer : enregistre directement le prêt de l'exemplaire mis de côté. */
+function bouton_remettre(array $r): string
+{
+    return bouton_action(admin_url('guichet/pret'), '<i class="fa-solid fa-hand-holding"></i> Remettre', 'btn petit',
+        'Enregistrer le prêt de « ' . $r['titre'] . ' » (' . $r['exemplaire_code'] . ') à ' . trim($r['prenom'] . ' ' . $r['nom']) . ' ?',
+        ['lecteur_id' => $r['lecteur_id'], 'code' => $r['exemplaire_code'], 'retour' => $_SERVER['REQUEST_URI'] ?? '']);
 }
 
 /** Pagination de l'admin (?page=N), en conservant les autres paramètres. */

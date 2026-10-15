@@ -7,6 +7,8 @@
 require dirname(__DIR__) . '/app/bootstrap.php';
 require ROOT_DIR . '/app/lib/upload.php';
 require ROOT_DIR . '/app/lib/formulaires.php';
+require ROOT_DIR . '/app/lib/icones.php';
+require ROOT_DIR . '/app/lib/import.php';
 
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
@@ -47,7 +49,7 @@ if ($section === 'connexion' || $section === 'deconnexion') {
 }
 
 $moi = exiger_personnel();
-expirer_reservations();
+taches_quotidiennes();
 
 $controleurs = [
     ''             => 'tableau',
@@ -65,6 +67,8 @@ $controleurs = [
     'personnel'    => 'personnel',
     'blocs'        => 'blocs',
     'messages'     => 'messages',
+    'import'       => 'import',
+    'mails'        => 'mails',
     'reglages'     => 'reglages',
     'mon-compte'   => 'connexion',
 ];

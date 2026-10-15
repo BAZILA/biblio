@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#243c9c"/>
+      <stop offset="1" stop-color="#0b1f4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#fond)"/>
+  <rect x="0" y="0" width="14" height="600" fill="#000" opacity=".18"/>
+  <circle cx="330" cy="120" r="150" fill="#fff" opacity=".05"/>
+  <circle cx="60" cy="560" r="120" fill="#fff" opacity=".04"/>
+  <rect x="40" y="60" width="36" height="4" fill="#f5b400"/>
+  <g transform="translate(200 270)" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round" opacity=".85">
+    <path d="M-70 -48 Q-35 -62 0 -44 Q35 -62 70 -48 L70 48 Q35 34 0 52 Q-35 34 -70 48 Z"/>
+    <path d="M0 -44 L0 52"/>
+  </g>
+  <text x="200" y="380" text-anchor="middle" font-family="Poppins, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#fff">Couverture</text>
+  <text x="200" y="410" text-anchor="middle" font-family="Poppins, Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#fff">non disponible</text>
+  <text x="200" y="540" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" letter-spacing="3" fill="#c9d3ea">BIBLIOTHÈQUE · UNIVERSITÉ DE KARA</text>
+</svg>

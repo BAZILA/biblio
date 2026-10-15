@@ -40,10 +40,8 @@ $lecteur = user();
 
 <?= render(__DIR__ . '/_champs.php', ['o' => $o]) ?>
 
-<?php if ($o['image']): ?>
 					<figure class="pull-left item-image">
-    <img src="<?= e(media($o['image'])) ?>" alt="Couverture : <?= e($o['titre']) ?>">    </figure>
-<?php endif; ?>
+    <img src="<?= e(couverture($o['image'])) ?>" alt="Couverture : <?= e($o['titre']) ?>">    </figure>
 
 			<section class="article-content clearfix" itemprop="articleBody">
 				<?= $o['resume'] ?>
