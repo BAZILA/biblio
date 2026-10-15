@@ -1,0 +1,80 @@
+/*
+ * Styles des éléments ajoutés au thème d'origine : messages, panneau de prêt,
+ * espace lecteur. Couleurs reprises des variables du thème (--uk-*, custom.css).
+ */
+
+/* Messages */
+.biblio-alert { margin: 20px 0; padding: 14px 18px; border-left: 4px solid var(--uk-blue); background: var(--uk-soft); color: var(--uk-navy); border-radius: 4px; }
+.biblio-alert-succes { border-color: var(--uk-green); background: #e7f7ec; }
+.biblio-alert-erreur { border-color: #d0342c; background: #fdecea; color: #7a1d17; }
+.biblio-alert-info { border-color: var(--uk-gold); background: #fff7e0; }
+.biblio-vide { color: #5f6b7a; font-style: italic; }
+.biblio-aide { color: #5f6b7a; font-size: 14px; }
+.biblio-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Disponibilité : vert (défaut du thème), orange si emprunté, gris si sur place */
+.fields-container .field-entry.f-disponibilite .biblio-dispo-emprunte,
+.fields-container .field-entry.f-disponibilite .biblio-dispo-indisponible { color: #b85c00; }
+.fields-container .field-entry.f-disponibilite .biblio-dispo-consultation-sur-place { color: var(--uk-blue); }
+.biblio-dispo-disponible { color: var(--uk-green); font-weight: 700; }
+.biblio-dispo-emprunte { color: #b85c00; font-weight: 700; }
+
+/* Panneau « Emprunter cet ouvrage » sur la fiche */
+.biblio-pret { clear: both; margin: 30px 0; padding: 22px 26px; background: #fff; border-top: 4px solid var(--uk-green); border-radius: 4px; }
+.biblio-pret h3 { margin-top: 0; font-size: 20px; }
+.biblio-pret h3 .fa { color: var(--uk-green); margin-right: 6px; }
+.biblio-pret form { display: inline-block; margin: 0 0 10px; }
+
+/* Espace lecteur */
+.biblio-compte { padding: 20px 0 40px; }
+.biblio-compte-etroit { max-width: 620px; margin: 0 auto; }
+.biblio-compte-boite { padding: 25px 30px; background: #fff; margin-top: 20px; }
+.biblio-compte-boite .control-group { margin-bottom: 15px; }
+.biblio-compte-boite .help-inline, .contact-form .help-inline { display: block; color: #d0342c; font-size: 13px; margin-top: 4px; }
+.biblio-compte-entete { display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; border-bottom: 1px solid #e3e7ef; padding-bottom: 15px; margin-bottom: 10px; }
+.biblio-compte-entete h1 { margin: 0 0 5px; }
+.biblio-compte-section { margin-top: 35px; }
+.biblio-compte-section h2 { font-size: 22px; margin-bottom: 15px; }
+.biblio-compte-section h2 .fa { color: var(--uk-blue); margin-right: 6px; }
+.biblio-form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+.biblio-form-ligne { display: flex; flex-wrap: wrap; gap: 10px; max-width: 760px; }
+.biblio-form-ligne .form-control { flex: 1 1 200px; width: auto; }
+@media (max-width: 600px) { .biblio-form-2col { grid-template-columns: 1fr; } }
+
+.biblio-table-wrap { overflow-x: auto; }
+.biblio-table { width: 100%; border-collapse: collapse; background: #fff; }
+.biblio-table th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #5f6b7a; border-bottom: 2px solid #e3e7ef; padding: 10px 12px; }
+.biblio-table td { border-bottom: 1px solid #eceff2; padding: 12px; vertical-align: top; }
+.biblio-table tr.biblio-retard td { background: #fff5f4; }
+.biblio-actions { text-align: right; white-space: nowrap; }
+.biblio-actions form { display: inline; margin: 0; }
+
+.biblio-badge { display: inline-block; margin-top: 4px; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: var(--uk-soft); color: var(--uk-blue); }
+.biblio-badge-vert { background: #e7f7ec; color: var(--uk-green); }
+.biblio-badge-orange { background: #fff3dc; color: #b85c00; }
+.biblio-badge-rouge { background: #fdecea; color: #b3261e; }
+
+/* Lien « Mon compte » dans le menu */
+@media (min-width: 992px) {
+  /* Resserre légèrement le menu pour loger l'icône de l'espace lecteur sur la même ligne */
+  #t3-mainnav.navbar-default .navbar-nav > li > a { padding-left: 7px; padding-right: 7px; }
+}
+#t3-mainnav .biblio-nav-compte > a .fa { font-size: 22px; vertical-align: -2px; }
+#t3-mainnav .biblio-nav-compte .biblio-nav-libelle { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 991px) {
+  /* Menu replié (mobile) : on affiche le libellé à côté de l'icône */
+  #t3-mainnav .biblio-nav-compte .biblio-nav-libelle { position: static; width: auto; height: auto; clip: auto; margin-left: 8px; }
+}
+
+/* Page d'erreur */
+.biblio-erreur { text-align: center; padding: 60px 0; }
+.biblio-erreur .biblio-search { max-width: 520px; margin: 25px auto; }
+
+/* Mobile : rien ne doit élargir la page (flèche du carrousel « Coups de cœur », ligne des auteurs sur la fiche) */
+.wrap.bottomspot-3 { overflow-x: clip; }
+@media (max-width: 767px) {
+  .article-info dd { white-space: normal; }
+}
+
+/* Carrousels : couvertures recadrées comme les vignettes 400×600 d'origine */
+.jt-cs .jt-imagecover img.jtcs-image { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
