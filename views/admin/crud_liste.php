@@ -4,8 +4,8 @@ $colonneLien = array_key_first(array_diff_key($res['liste'], ['image' => 1])); /
 <div class="entete">
 	<h1><?= e($res['titre']) ?></h1>
 	<div class="actions">
-		<?php if (!empty($res['importer'])): ?><a class="btn secondaire" href="<?= e(admin_url('import', ['quoi' => $res['importer']])) ?>"><i class="fa-solid fa-file-import"></i> Importer un fichier</a><?php endif; ?>
-		<?php if ($res['nouveau']): ?><a class="btn" href="<?= e(admin_url($section . '/nouveau')) ?>"><i class="fa-solid fa-plus"></i> <?= e($res['nouveau']) ?></a><?php endif; ?>
+		<?php if (!empty($res['importer']) && peut('import.' . $res['importer'])): ?><a class="btn secondaire" href="<?= e(admin_url('import', ['quoi' => $res['importer']])) ?>"><i class="fa-solid fa-file-import"></i> Importer un fichier</a><?php endif; ?>
+		<?php if ($res['nouveau'] && peut($section . '.ajouter')): ?><a class="btn" href="<?= e(admin_url($section . '/nouveau')) ?>"><i class="fa-solid fa-plus"></i> <?= e($res['nouveau']) ?></a><?php endif; ?>
 	</div>
 </div>
 <?php if (!empty($res['intro'])): ?><p class="doux"><?= e($res['intro']) ?></p><?php endif; ?>
@@ -34,7 +34,7 @@ $colonneLien = array_key_first(array_diff_key($res['liste'], ['image' => 1])); /
 <?php endforeach; ?>
 				<td class="actions">
 					<?php if (isset($res['voir'])): ?><a class="btn secondaire petit" href="<?= e(($res['voir'])($r)) ?>" target="_blank" rel="noopener" title="Voir sur le site"><i class="fa-solid fa-eye"></i></a><?php endif; ?>
-					<a class="btn secondaire petit" href="<?= e(admin_url($section . '/modifier/' . $r['id'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
+					<a class="btn secondaire petit" href="<?= e(admin_url($section . '/modifier/' . $r['id'])) ?>"><?= peut($section . '.modifier') ? '<i class="fa-solid fa-pen"></i> Modifier' : '<i class="fa-solid fa-eye"></i> Consulter' ?></a>
 				</td>
 			</tr>
 <?php endforeach; ?>

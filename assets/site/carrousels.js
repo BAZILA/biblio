@@ -64,6 +64,9 @@
         }
         lignesPrec = lignes;
         colsPrec = cols;
+        // Boucle seulement s'il y a plus de colonnes que l'écran n'en montre : sinon Owl répète les mêmes cartes
+        options.loop = nbCols > cols;
+        options.nav = options.dots = nbCols > cols;
         if (reinit) { carrousel = el.owlCarousel(options); }
       }
 

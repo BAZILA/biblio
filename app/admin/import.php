@@ -5,6 +5,11 @@
  */
 
 $quoi = in_array(get_str('quoi') ?: post_str('quoi'), ['auteurs', 'ouvrages'], true) ? (get_str('quoi') ?: post_str('quoi')) : 'ouvrages';
+// Chaque type d'import a son droit : on bascule sur celui qui est permis
+if (!peut("import.$quoi") && peut('import.' . ($quoi === 'auteurs' ? 'ouvrages' : 'auteurs'))) {
+    $quoi = $quoi === 'auteurs' ? 'ouvrages' : 'auteurs';
+}
+exiger("import.$quoi");
 
 if ($action === 'modele') {
     header('Content-Type: text/csv; charset=utf-8');
@@ -34,6 +39,7 @@ if ($action === 'confirmer') {
         flash('erreur', 'Aucun import en attente : envoyez de nouveau le fichier.');
         redirect(admin_url('import'));
     }
+    exiger('import.' . $import['quoi']);
     if ($import['quoi'] === 'auteurs') {
         $n = importer_auteurs($import['analyse']);
         flash('succes', pluriel($n, 'auteur importé', 'auteurs importés') . '.');

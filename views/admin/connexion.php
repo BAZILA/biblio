@@ -7,9 +7,11 @@
 	<meta name="robots" content="noindex, nofollow">
 	<title>Connexion — Administration</title>
 	<link rel="icon" href="<?= e(media('images/biblio/favicon.png')) ?>">
+	<link rel="stylesheet" href="<?= asset('vendor/fontawesome/css/fontawesome.min.css') ?>">
 	<link rel="stylesheet" href="<?= asset('admin/admin.css') ?>">
 </head>
 <body class="page-connexion">
+<a class="retour-maison" href="<?= e(url()) ?>" title="Retour au site" aria-label="Retour au site"><i class="fa-solid fa-house" aria-hidden="true"></i></a>
 <div class="connexion">
 	<form class="boite" method="post" action="<?= e(admin_url('connexion')) ?>">
 		<img src="<?= e(media('images/biblio/logo-uk-original.png')) ?>" alt="<?= e(reglage('site_nom')) ?>">
@@ -27,7 +29,6 @@
 			<input type="password" id="mdp" name="mot_de_passe" required autocomplete="current-password">
 		</div>
 		<button class="btn" type="submit">Se connecter</button>
-		<p class="doux" style="text-align:center;margin:16px 0 0"><a href="<?= e(url()) ?>">← Retour au site</a></p>
 	</form>
 </div>
 </body>

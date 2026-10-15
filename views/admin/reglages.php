@@ -1,10 +1,12 @@
-<?php /** @var array $groupes  [titre => [clé => [libellé, type, minimum|options]]] */ ?>
+<?php /** @var array $groupes  [titre => [clé => [libellé, type, minimum|options]]] @var Closure $modifiable */
+$auMoinsUn = (bool) array_filter(array_keys($groupes), $modifiable); ?>
 <div class="entete"><h1>Réglages</h1></div>
 <form method="post" class="grille grille-2" enctype="multipart/form-data" autocomplete="off">
 	<?= csrf_field() ?>
 <?php foreach ($groupes as $titre => $champs): ?>
 	<section class="carte">
-		<h2><?= e($titre) ?></h2>
+		<h2><?= e($titre) ?><?= $modifiable($titre) ? '' : ' <span class="badge">Lecture seule</span>' ?></h2>
+		<fieldset class="sans-cadre"<?= $modifiable($titre) ? '' : ' disabled' ?>>
 <?php if ($titre === 'E-mails aux lecteurs'): ?>
 		<p class="doux">Les lecteurs qui ont une adresse e-mail reçoivent : la confirmation de chaque prêt, un rappel avant l’échéance, des relances en cas de retard, l’avis « réservation disponible » et la validation de leur compte. Tant que l’envoi est désactivé, ces messages sont seulement consignés dans <a href="<?= e(admin_url('mails')) ?>">E-mails envoyés</a>.</p>
 <?php endif; ?>
@@ -35,7 +37,10 @@
 		<?= champ($cle, $libelle, reglage($cle), [], ['type' => $type, 'attrs' => $type === 'number' ? 'min="' . (int) ($def[2] ?? 0) . '"' : '']) ?>
 		<?php endif; ?>
 	<?php endforeach; ?>
+		</fieldset>
 	</section>
 <?php endforeach; ?>
+<?php if ($auMoinsUn): ?>
 	<div class="form-actions pleine-largeur"><button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer les réglages</button></div>
+<?php endif; ?>
 </form>

@@ -1,23 +1,54 @@
 <?php
-/** Comptes du personnel (administrateurs et bibliothécaires) — réservé aux administrateurs. */
+/**
+ * Comptes du personnel : chacun reçoit un rôle (Rôles et permissions).
+ * Garde-fous : on n'attribue qu'un rôle dont on possède soi-même tous les droits ; on ne touche pas
+ * à un compte plus puissant que soi ; on ne peut ni changer son propre rôle ni se désactiver ;
+ * il reste toujours au moins un administrateur actif.
+ */
 
-exiger_admin();
-const LIBELLES_ROLE = ['bibliothecaire' => 'Bibliothécaire', 'admin' => 'Administrateur'];
+/** Rôles que l'utilisateur connecté a le droit d'attribuer. */
+function roles_attribuables(): array
+{
+    $mesDroits = role_de()['permissions'] ?? [];
+    $roles = [];
+    // Le rôle Système n'est attribuable (et visible) que par le compte Système
+    foreach (rows('SELECT * FROM roles' . (is_systeme() ? '' : ' WHERE systeme = 0') . ' ORDER BY systeme DESC, tous_droits DESC, nom') as $r) {
+        $droits = array_intersect(permissions_du_role((int) $r['id']), permissions_visibles());
+        if (tous_droits() || (!$r['tous_droits'] && !array_diff($droits, $mesDroits))) {
+            $roles[$r['id']] = $r;
+        }
+    }
+    return $roles;
+}
+
+$attribuables = roles_attribuables();
 
 if ($action === 'nouveau' || $action === 'modifier') {
+    exiger($action === 'nouveau' ? 'personnel.ajouter' : 'personnel.modifier');
     $p = $action === 'modifier'
-        ? (row("SELECT * FROM utilisateurs WHERE id = ? AND role IN ('admin','bibliothecaire')", [$id]) ?? admin_introuvable('Compte'))
-        : ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'role' => 'bibliothecaire', 'actif' => 1];
+        ? (row("SELECT u.* FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id WHERE u.id = ? AND u.role = 'personnel'"
+              . (is_systeme() ? '' : ' AND COALESCE(r.systeme, 0) = 0'), [$id]) ?? admin_introuvable('Compte'))
+        : ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'role_id' => (int) (array_key_last($attribuables) ?? 0), 'actif' => 1];
+    $estMoi = (int) $p['id'] === (int) $moi['id'];
+    // Un compte dont le rôle dépasse mes droits n'est modifiable que par un administrateur (sauf le mien, pour mes coordonnées)
+    if ($p['id'] && !$estMoi && $p['role_id'] && !isset($attribuables[$p['role_id']])) {
+        http_response_code(403);
+        admin_page('message', ['message' => 'Ce compte a un rôle plus étendu que le vôtre : seul un administrateur peut le modifier.'], 'Accès refusé', 'personnel');
+    }
     $erreurs = [];
     if (is_post()) {
         csrf_verify();
-        foreach (['prenom', 'nom', 'email', 'role'] as $k) {
+        foreach (['prenom', 'nom', 'email'] as $k) {
             $p[$k] = post_str($k, '');
         }
         $p['email'] = mb_strtolower($p['email']);
-        $p['actif'] = isset($_POST['actif']) ? 1 : 0;
+        $ancienRole = (int) $p['role_id'];
+        $ancienActif = (int) $p['actif'];
+        if (!$estMoi) {
+            $p['role_id'] = (int) post_str('role_id', '0');
+            $p['actif'] = isset($_POST['actif']) ? 1 : 0;
+        }
         $mdp = post_str('mot_de_passe', '', false);
-        $estMoi = (int) $p['id'] === (int) $moi['id'];
 
         if ($p['nom'] === '') {
             $erreurs['nom'] = 'Champ requis.';
@@ -27,11 +58,16 @@ if ($action === 'nouveau' || $action === 'modifier') {
         } elseif (val('SELECT 1 FROM utilisateurs WHERE email = ? AND id <> ?', [$p['email'], $p['id']])) {
             $erreurs['email'] = 'Adresse déjà utilisée.';
         }
-        if (!isset(LIBELLES_ROLE[$p['role']])) {
-            $erreurs['role'] = 'Rôle invalide.';
+        if (!$estMoi && !isset($attribuables[$p['role_id']])) {
+            $erreurs['role_id'] = 'Choisissez un rôle que vous pouvez attribuer.';
         }
-        if ($estMoi && ($p['role'] !== 'admin' || !$p['actif'])) {
-            $erreurs['role'] = 'Vous ne pouvez pas retirer vos propres droits d’administrateur.';
+        // Toujours au moins un administrateur actif
+        // (le compte Système ne compte pas : l'établissement doit toujours garder son propre administrateur)
+        $etaitAdmin = $p['id'] && $ancienActif && (int) val('SELECT tous_droits AND NOT systeme FROM roles WHERE id = ?', [$ancienRole]);
+        $resteAdmin = $p['actif'] && (int) val('SELECT tous_droits AND NOT systeme FROM roles WHERE id = ?', [$p['role_id']]);
+        if ($etaitAdmin && !$resteAdmin && !val("SELECT COUNT(*) FROM utilisateurs u JOIN roles r ON r.id = u.role_id
+                WHERE u.role = 'personnel' AND u.actif = 1 AND r.tous_droits = 1 AND r.systeme = 0 AND u.id <> ?", [$p['id']])) {
+            $erreurs['role_id'] = 'C’est le dernier administrateur actif : nommez-en un autre avant de changer ce compte.';
         }
         if (!$p['id'] && $mdp === '') {
             $erreurs['mot_de_passe'] = 'Définissez un mot de passe initial.';
@@ -39,7 +75,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
             $erreurs['mot_de_passe'] = 'Au moins 10 caractères.';
         }
         if (!$erreurs) {
-            $data = ['prenom' => $p['prenom'], 'nom' => $p['nom'], 'email' => $p['email'], 'role' => $p['role'], 'actif' => $p['actif']];
+            $data = ['prenom' => $p['prenom'], 'nom' => $p['nom'], 'email' => $p['email'], 'role' => 'personnel',
+                'role_id' => $p['role_id'], 'actif' => $p['actif']];
             if ($mdp !== '') {
                 $data['mot_de_passe'] = password_hash($mdp, PASSWORD_DEFAULT);
             }
@@ -52,9 +89,13 @@ if ($action === 'nouveau' || $action === 'modifier') {
             redirect(admin_url('personnel'));
         }
     }
-    admin_page('personnel_form', ['p' => $p, 'erreurs' => $erreurs], $p['id'] ? 'Modifier un compte' : 'Nouveau compte', 'personnel');
+    admin_page('personnel_form', ['p' => $p, 'erreurs' => $erreurs, 'roles' => $attribuables, 'estMoi' => $estMoi,
+        'roleActuel' => $p['role_id'] ? row('SELECT * FROM roles WHERE id = ?', [$p['role_id']]) : null],
+        $p['id'] ? 'Modifier un compte' : 'Nouveau compte', 'personnel');
 }
 
 admin_page('personnel', [
-    'liste' => rows("SELECT * FROM utilisateurs WHERE role IN ('admin','bibliothecaire') ORDER BY role, nom"),
+    'liste' => rows("SELECT u.*, r.nom AS role_nom, r.tous_droits, r.systeme FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id
+                     WHERE u.role = 'personnel'" . (is_systeme() ? '' : ' AND COALESCE(r.systeme, 0) = 0') . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.nom, u.nom'),
+    'attribuables' => $attribuables,
 ], 'Comptes du personnel', 'personnel');

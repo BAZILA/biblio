@@ -6,40 +6,52 @@
  * @var string $section  Entrée de menu active
  */
 $u = user();
+// Compteurs des pastilles, calculés seulement pour les rubriques visibles
+$compte = fn(string $perm, string $sql) => peut($perm) ? (int) val($sql) : 0;
 $compteurs = [
-    'retards'      => (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()'),
-    'reservations' => (int) val("SELECT COUNT(*) FROM reservations WHERE statut IN ('en_attente','disponible')"),
-    'inscriptions' => (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND en_attente = 1"),
-    'messages'     => (int) val('SELECT COUNT(*) FROM messages WHERE lu = 0'),
+    'retards'      => $compte('prets.voir', 'SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()'),
+    'demandes'     => $compte('demandes.voir', "SELECT COUNT(*) FROM demandes_prolongation WHERE statut = 'en_attente'"),
+    'reservations' => $compte('reservations.voir', "SELECT COUNT(*) FROM reservations WHERE statut IN ('en_attente','disponible')"),
+    'inscriptions' => $compte('lecteurs.voir', "SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND en_attente = 1"),
+    'messages'     => $compte('messages.voir', 'SELECT COUNT(*) FROM messages WHERE lu = 0'),
 ];
+$pastille = fn(string $cle, string $classe = '') => $compteurs[$cle] ? [$compteurs[$cle], $classe] : null;
+// [clé active, chemin, icône, libellé, pastille, permission(s) requise(s)] : une entrée n'apparaît que si le rôle le permet
 $menu = [
     'Bibliothèque' => [
-        ['tableau', '', 'fa-gauge', 'Tableau de bord', null],
-        ['guichet', 'guichet', 'fa-right-left', 'Guichet prêt / retour', null],
-        ['prets', 'prets', 'fa-book-open', 'Prêts', $compteurs['retards'] ? [$compteurs['retards'], 'rouge'] : null],
-        ['reservations', 'reservations', 'fa-bookmark', 'Réservations', $compteurs['reservations'] ? [$compteurs['reservations'], ''] : null],
-        ['lecteurs', 'lecteurs', 'fa-users', 'Lecteurs', $compteurs['inscriptions'] ? [$compteurs['inscriptions'], ''] : null],
+        ['tableau', '', 'fa-gauge', 'Tableau de bord', null, ['tableau.voir']],
+        ['guichet', 'guichet', 'fa-right-left', 'Guichet prêt / retour', null, ['guichet.voir']],
+        ['prets', 'prets', 'fa-book-open', 'Prêts', $pastille('retards', 'rouge'), ['prets.voir']],
+        ['demandes', 'prets/demandes', 'fa-calendar-plus', 'Demandes de prolongation', $pastille('demandes'), ['demandes.voir']],
+        ['reservations', 'reservations', 'fa-bookmark', 'Réservations', $pastille('reservations'), ['reservations.voir']],
+        ['lecteurs', 'lecteurs', 'fa-users', 'Lecteurs', $pastille('inscriptions'), ['lecteurs.voir']],
+        ['rapports', 'rapports', 'fa-chart-column', 'Statistiques et rapports', null, ['rapports.voir']],
     ],
     'Catalogue' => [
-        ['ouvrages', 'ouvrages', 'fa-book', 'Ouvrages', null],
-        ['auteurs', 'auteurs', 'fa-feather', 'Auteurs', null],
-        ['domaines', 'domaines', 'fa-layer-group', 'Domaines', null],
-        ['types', 'types', 'fa-tags', 'Types de documents', null],
-        ['import', 'import', 'fa-file-import', 'Importer un fichier', null],
+        ['ouvrages', 'ouvrages', 'fa-book', 'Ouvrages', null, ['ouvrages.voir']],
+        ['auteurs', 'auteurs', 'fa-feather', 'Auteurs', null, ['auteurs.voir']],
+        ['domaines', 'domaines', 'fa-layer-group', 'Domaines', null, ['domaines.voir']],
+        ['types', 'types', 'fa-tags', 'Types de documents', null, ['types.voir']],
+        ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages']],
     ],
-    'Site' => array_merge(
-        [
-            ['slides', 'slides', 'fa-images', 'Diaporama d’accueil', null],
-            ['citations', 'citations', 'fa-quote-left', 'Citations', null],
-        ],
-        is_admin() ? [['blocs', 'blocs', 'fa-pen-to-square', 'Textes du site', null]] : [],
-        [['messages', 'messages', 'fa-envelope', 'Messages', $compteurs['messages'] ? [$compteurs['messages'], ''] : null]]
-    ),
-    'Configuration' => array_merge(
-        [['reglages', 'reglages', 'fa-sliders', 'Réglages', null], ['mails', 'mails', 'fa-paper-plane', 'E-mails envoyés', null]],
-        is_admin() ? [['personnel', 'personnel', 'fa-user-shield', 'Comptes du personnel', null]] : []
-    ),
+    'Site' => [
+        ['slides', 'slides', 'fa-images', 'Diaporama d’accueil', null, ['slides.voir']],
+        ['citations', 'citations', 'fa-quote-left', 'Citations', null, ['citations.voir']],
+        ['blocs', 'blocs', 'fa-pen-to-square', 'Textes du site', null, ['blocs.voir']],
+        ['messages', 'messages', 'fa-envelope', 'Messages', $pastille('messages'), ['messages.voir']],
+    ],
+    'Configuration' => [
+        ['reglages', 'reglages', 'fa-sliders', 'Réglages', null, ['reglages.voir']],
+        ['mails', 'mails', 'fa-paper-plane', 'E-mails envoyés', null, ['mails.voir']],
+        ['personnel', 'personnel', 'fa-user-shield', 'Comptes du personnel', null, ['personnel.voir']],
+        ['roles', 'roles', 'fa-user-lock', 'Rôles et permissions', null, ['roles.voir']],
+        ['systeme', 'systeme', 'fa-microchip', 'Système', null, ['systeme.voir']], // seul le compte Système a ce droit
+    ],
 ];
+foreach ($menu as $groupe => $entrees) {
+    $menu[$groupe] = array_filter($entrees, fn($e) => peut(...$e[5]));
+}
+$menu = array_filter($menu);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -56,7 +68,7 @@ $menu = [
 <div class="adm">
 	<nav class="adm-nav" aria-label="Menu de l’administration">
 		<a class="adm-marque" href="<?= e(admin_url()) ?>">
-			<img src="<?= e(media('images/biblio/logo-blanc.png')) ?>" alt="<?= e(reglage('site_nom')) ?>">
+			<img src="<?= e(media('images/biblio/logo-admin.png')) ?>" alt="<?= e(reglage('site_nom')) ?>">
 			<small>Bibliothèque · Administration</small>
 		</a>
 <?php foreach ($menu as $groupe => $entrees): ?>
@@ -72,11 +84,15 @@ $menu = [
 	<div class="adm-corps">
 		<header class="adm-barre">
 			<button class="adm-burger" type="button" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+<?php if (peut('ouvrages.voir')): ?>
 			<form class="recherche-rapide" action="<?= e(admin_url('ouvrages')) ?>" method="get" role="search">
 				<input type="search" name="q" placeholder="Rechercher un ouvrage, une cote…" aria-label="Rechercher un ouvrage">
 			</form>
+<?php else: ?>
+			<div class="recherche-rapide"></div>
+<?php endif; ?>
 			<div class="compte">
-				<a href="<?= e(admin_url('mon-compte')) ?>" title="Mon compte"><i class="fa-solid fa-circle-user"></i> <span class="nom"><?= e(nom_complet($u)) ?></span></a>
+				<a href="<?= e(admin_url('mon-compte')) ?>" title="Mon compte"><i class="fa-solid fa-circle-user"></i> <span class="nom"><?= e(nom_complet($u)) ?></span><?php if ($roleMoi = role_de()): ?> <small class="role-moi"><?= e($roleMoi['nom']) ?></small><?php endif; ?></a>
 				<form method="post" action="<?= e(admin_url('deconnexion')) ?>"><?= csrf_field() ?><button class="btn secondaire petit" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> Quitter</button></form>
 			</div>
 		</header>
@@ -89,6 +105,7 @@ $menu = [
 		</main>
 	</div>
 </div>
+<?= render(ROOT_DIR . '/views/admin/_modales.php') ?>
 <script src="<?= asset('admin/admin.js') ?>"></script>
 </body>
 </html>

@@ -1,12 +1,13 @@
-<?php /** Formulaire générique. @var array $res, $ligne, $erreurs @var string $section */ ?>
+<?php /** Formulaire générique. @var array $res, $ligne, $erreurs @var string $section @var bool $lectureSeule */ ?>
 <?php if (in_array('icone', array_column($res['champs'], 1), true)): ?>
 <link rel="stylesheet" href="<?= asset('theme/fonts/font-awesome/css/font-awesome.min.css') ?>"><?php /* icônes FA4 utilisées par le site public, pour l'aperçu */ ?>
 <?php endif; ?>
 <div class="fil"><a href="<?= e(admin_url($section)) ?>"><?= e($res['titre']) ?></a> ›</div>
-<div class="entete"><h1><?= e($ligne['id'] ? $res['modifier'] : $res['nouveau']) ?></h1></div>
+<div class="entete"><h1><?= e($ligne['id'] ? $res['modifier'] : $res['nouveau']) ?></h1><?= $lectureSeule ? '<span class="badge">Lecture seule</span>' : '' ?></div>
 
 <form method="post" enctype="multipart/form-data" class="carte" style="max-width:760px">
 	<?= csrf_field() ?>
+	<fieldset class="sans-cadre"<?= $lectureSeule ? ' disabled' : '' ?>>
 <?php foreach ($res['champs'] as $nom => [$libelle, $type, $opts]):
     $valeur = $ligne[$nom] ?? '';
     if ($type === 'image'): ?>
@@ -42,13 +43,16 @@
 	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['type' => $type]) ?>
 <?php endif; ?>
 <?php endforeach; ?>
+	</fieldset>
 	<div class="form-actions">
+<?php if (!$lectureSeule): ?>
 		<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>
-		<a class="btn secondaire" href="<?= e(admin_url($section)) ?>">Annuler</a>
+<?php endif; ?>
+		<a class="btn secondaire" href="<?= e(admin_url($section)) ?>"><?= $lectureSeule ? 'Retour à la liste' : 'Annuler' ?></a>
 	</div>
 </form>
 
-<?php if ($ligne['id']): ?>
+<?php if ($ligne['id'] && peut($section . '.supprimer')): ?>
 <form method="post" action="<?= e(admin_url($section . '/supprimer/' . $ligne['id'])) ?>" data-confirmer="Supprimer définitivement cet élément ?" style="max-width:760px">
 	<?= csrf_field() ?>
 	<button class="btn danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer</button>

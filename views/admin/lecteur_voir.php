@@ -4,11 +4,11 @@
 	<h1><?= e(nom_complet($l)) ?></h1>
 	<?= $l['actif'] ? '<span class="badge vert">Actif</span>' : '<span class="badge orange">' . ($l['en_attente'] ? 'À valider' : 'Désactivé') . '</span>' ?>
 	<div class="actions">
-		<a class="btn" href="<?= e(admin_url('guichet', ['lecteur' => $l['id']])) ?>"><i class="fa-solid fa-right-left"></i> Prêt / retour</a>
-		<a class="btn secondaire" href="<?= e(admin_url('lecteurs/modifier/' . $l['id'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
-		<?= $l['actif']
+		<?php if (peut('guichet.voir')): ?><a class="btn" href="<?= e(admin_url('guichet', ['lecteur' => $l['id']])) ?>"><i class="fa-solid fa-right-left"></i> Prêt / retour</a><?php endif; ?>
+		<?php if (peut('lecteurs.modifier')): ?><a class="btn secondaire" href="<?= e(admin_url('lecteurs/modifier/' . $l['id'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a><?php endif; ?>
+		<?= !peut('lecteurs.valider') ? '' : ($l['actif']
 			? bouton_action(admin_url('lecteurs/desactiver/' . $l['id']), 'Désactiver', 'btn danger', 'Désactiver ce compte ? Le lecteur ne pourra plus emprunter ni se connecter.')
-			: bouton_action(admin_url('lecteurs/activer/' . $l['id']), '<i class="fa-solid fa-circle-check"></i> Activer', 'btn vert') ?>
+			: bouton_action(admin_url('lecteurs/activer/' . $l['id']), '<i class="fa-solid fa-circle-check"></i> Activer', 'btn vert')) ?>
 	</div>
 </div>
 
@@ -27,8 +27,8 @@
 						<td><?= e($p['titre']) ?></td><td><code><?= e($p['exemplaire_code']) ?></code></td><td><?= e(date_fr($p['date_pret'])) ?></td>
 						<td><?= e(date_fr($p['date_retour_prevue'])) ?><br><?= badge_echeance($p) ?></td>
 						<td class="actions">
-							<?= bouton_action(admin_url('prets/prolonger/' . $p['id']), 'Prolonger', 'btn secondaire petit', '', ['retour' => $_SERVER['REQUEST_URI']]) ?>
-							<?= bouton_action(admin_url('prets/rendre/' . $p['id']), 'Retour', 'btn vert petit', '', ['retour' => $_SERVER['REQUEST_URI']]) ?>
+							<?= bouton_prolonger($p) ?>
+							<?= bouton_retour($p) ?>
 						</td>
 					</tr>
 <?php endforeach; ?>
@@ -48,7 +48,7 @@
 					<td><?= $r['statut'] === 'disponible' ? '<span class="badge vert">À retirer avant le ' . e(date_fr($r['expire_le'])) . '</span>' : '<span class="badge">En attente — rang ' . (int) $r['rang'] . '</span>' ?></td>
 					<td class="actions">
 						<?php if ($r['statut'] === 'disponible'): ?><?= bouton_remettre($r) ?><?php endif; ?>
-						<?= bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') ?>
+						<?= peut('reservations.annuler') ? bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') : '' ?>
 					</td></tr>
 <?php endforeach; ?>
 			</tbody></table></div>
@@ -65,7 +65,7 @@
 				<tbody>
 <?php foreach ($historique as $p): $tard = $p['date_retour'] > $p['date_retour_prevue']; ?>
 					<tr><td><?= e($p['titre']) ?></td><td><?= e(date_fr($p['date_pret'])) ?></td><td><?= e(date_fr($p['date_retour'])) ?></td>
-						<td><?= $tard ? '<span class="badge orange">Rendu en retard</span>' : '' ?></td></tr>
+						<td><?= badge_constat($p) ?><?= $tard ? ' <span class="badge orange">Rendu en retard</span>' : '' ?></td></tr>
 <?php endforeach; ?>
 				</tbody>
 			</table></div>
@@ -93,12 +93,12 @@
 <?php endif; ?>
 <?php if ($l['mot_de_passe'] !== ''): ?>
 		<p class="doux">L’espace lecteur est ouvert.</p>
-		<?= bouton_action(admin_url('lecteurs/mot-de-passe/' . $l['id']), '<i class="fa-solid fa-key"></i> Réinitialiser le mot de passe', 'btn secondaire petit',
-			'Créer un nouveau mot de passe provisoire pour ce lecteur ? L’ancien ne fonctionnera plus.') ?>
+		<?php if (peut('lecteurs.mot_de_passe')): ?><?= bouton_action(admin_url('lecteurs/mot-de-passe/' . $l['id']), '<i class="fa-solid fa-key"></i> Réinitialiser le mot de passe', 'btn secondaire petit',
+			'Créer un nouveau mot de passe provisoire pour ce lecteur ? L’ancien ne fonctionnera plus.') ?><?php endif; ?>
 <?php else: ?>
 		<p class="doux">Pas d’accès en ligne : le lecteur emprunte au guichet uniquement. Pour l’ouvrir, cochez « Ouvrir l’espace lecteur » dans <a href="<?= e(admin_url('lecteurs/modifier/' . $l['id'])) ?>">Modifier</a>.</p>
 <?php endif; ?>
-		<?php if (!$enCours && !$historique): ?>
+		<?php if (!$enCours && !$historique && peut('lecteurs.supprimer')): ?>
 			<hr style="border:0;border-top:1px solid var(--bord);margin:16px 0">
 			<?= bouton_action(admin_url('lecteurs/supprimer/' . $l['id']), '<i class="fa-solid fa-trash"></i> Supprimer ce lecteur', 'btn danger petit', 'Supprimer définitivement ce lecteur ?') ?>
 		<?php endif; ?>

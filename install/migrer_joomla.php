@@ -240,7 +240,7 @@ foreach ($reglages as $cle => $valeur) {
 // 9. Compte administrateur initial
 $motDePasse = rtrim(strtr(base64_encode(random_bytes(12)), '+/', 'Kx'), '=');
 insert('utilisateurs', [
-    'role' => 'admin',
+    'role' => 'personnel', 'role_id' => 1, // rôle Administrateur (tous les droits)
     'nom' => 'Administrateur',
     'prenom' => '',
     'email' => 'admin@biblio.local',

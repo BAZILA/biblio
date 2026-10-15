@@ -22,6 +22,23 @@ const LIBELLES_RESERVATION = [
     'expiree'    => 'Expirée',
 ];
 
+const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'bon' => 'Bon état', 'use' => 'Usé', 'abime' => 'Abîmé'];
+
+/** Constat fait au retour d'un prêt. */
+const ETATS_RETOUR = [
+    'conforme' => 'Rendu tel quel',
+    'use'      => 'Usé (usure normale)',
+    'abime'    => 'Abîmé',
+    'perdu'    => 'Perdu / non rendu',
+];
+
+const LIBELLES_DEMANDE = [
+    'en_attente' => 'En attente',
+    'acceptee'   => 'Acceptée',
+    'refusee'    => 'Refusée',
+    'annulee'    => 'Sans objet',
+];
+
 function aujourdhui(): string
 {
     return date('Y-m-d');
@@ -51,8 +68,8 @@ function nb_retards(int $lecteurId): int
 /** Prêts avec ouvrage, exemplaire et lecteur ; $where porte sur l'alias « p ». */
 function prets(string $where = '1', array $params = [], string $ordre = 'p.date_pret DESC', ?int $limite = null, int $offset = 0): array
 {
-    $sql = "SELECT p.*, e.code AS exemplaire_code, o.id AS ouvrage_id, o.titre, o.slug, o.image,
-                   d.slug AS domaine_slug, u.nom, u.prenom, u.matricule, u.email,
+    $sql = "SELECT p.*, e.code AS exemplaire_code, e.etat AS exemplaire_etat, e.statut AS exemplaire_statut, o.id AS ouvrage_id, o.titre, o.slug, o.image,
+                   d.slug AS domaine_slug, u.nom, u.prenom, u.matricule, u.email, u.telephone,
                    DATEDIFF(CURDATE(), p.date_retour_prevue) AS jours_retard
             FROM prets p
             JOIN exemplaires e ON e.id = p.exemplaire_id
@@ -68,7 +85,7 @@ function prets(string $where = '1', array $params = [], string $ordre = 'p.date_
 
 function reservations(string $where = '1', array $params = [], string $ordre = 'r.demandee_le'): array
 {
-    return rows("SELECT r.*, o.titre, o.slug, o.image, d.slug AS domaine_slug, e.code AS exemplaire_code,
+    return rows("SELECT r.*, o.titre, o.slug, o.image, d.slug AS domaine_slug, e.code AS exemplaire_code, e.etat AS exemplaire_etat,
                         u.nom, u.prenom, u.matricule, u.email,
                         (SELECT COUNT(*) FROM reservations r2 WHERE r2.ouvrage_id = r.ouvrage_id
                            AND r2.statut = 'en_attente' AND r2.demandee_le <= r.demandee_le) AS rang
@@ -80,13 +97,38 @@ function reservations(string $where = '1', array $params = [], string $ordre = '
                  WHERE $where ORDER BY $ordre", $params);
 }
 
+/** Date de retour proposée pour un prêt fait aujourd'hui. */
+function echeance_standard(): string
+{
+    return plus_jours(aujourdhui(), reglage_int('pret_duree_jours', 14));
+}
+
+/** Contrôle une date d'échéance choisie à la main (AAAA-MM-JJ, entre demain et un an). */
+function valider_echeance(string $date): string
+{
+    $d = DateTime::createFromFormat('!Y-m-d', $date);
+    if (!$d || $d->format('Y-m-d') !== $date) {
+        throw new RuntimeException('Date de retour invalide.');
+    }
+    if ($date <= aujourdhui() || $date > plus_jours(aujourdhui(), 365)) {
+        throw new RuntimeException('La date de retour doit être comprise entre demain et dans un an.');
+    }
+    return $date;
+}
+
 /**
  * Enregistre un prêt (guichet). L'exemplaire doit être disponible,
  * ou réservé pour ce même lecteur.
+ * $options : 'echeance' (date de retour choisie), 'etat' (état constaté à la remise), 'notes' (remarque).
  */
-function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId): int
+function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId, array $options = []): int
 {
-    $ex = row('SELECT e.*, o.titre, o.consultation_sur_place FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE e.code = ?', [trim($codeExemplaire)]);
+    $echeance = ($options['echeance'] ?? '') !== '' ? valider_echeance($options['echeance']) : echeance_standard();
+    $etatSortie = $options['etat'] ?? '';
+    if ($etatSortie !== '' && !isset(ETATS_EXEMPLAIRE[$etatSortie])) {
+        throw new RuntimeException('État de l’exemplaire invalide.');
+    }
+    $ex = row('SELECT e.*, o.titre, o.consultation_sur_place, o.actif AS ouvrage_actif FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE e.code = ?', [trim($codeExemplaire)]);
     if (!$ex) {
         throw new RuntimeException("Aucun exemplaire ne porte le code « $codeExemplaire ».");
     }
@@ -96,6 +138,9 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId)
     }
     if (!$lecteur['actif']) {
         throw new RuntimeException('Le compte de ce lecteur est désactivé.');
+    }
+    if (!$ex['ouvrage_actif']) {
+        throw new RuntimeException("« {$ex['titre']} » est désactivé : réactivez-le avant de le prêter.");
     }
     if ($ex['consultation_sur_place']) {
         throw new RuntimeException("« {$ex['titre']} » est en consultation sur place uniquement.");
@@ -130,9 +175,12 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId)
             'lecteur_id'         => $lecteurId,
             'agent_id'           => $agentId,
             'date_pret'          => aujourdhui(),
-            'date_retour_prevue' => plus_jours(aujourdhui(), reglage_int('pret_duree_jours', 14)),
+            'date_retour_prevue' => $echeance,
+            'etat_sortie'        => $etatSortie ?: $ex['etat'],
+            'notes'              => mb_substr(trim($options['notes'] ?? ''), 0, 255),
         ]);
-        q("UPDATE exemplaires SET statut = 'prete' WHERE id = ?", [$ex['id']]);
+        // L'état constaté à la remise devient l'état de référence de l'exemplaire
+        q("UPDATE exemplaires SET statut = 'prete', etat = ? WHERE id = ?", [$etatSortie ?: $ex['etat'], $ex['id']]);
         if ($reservation) {
             q("UPDATE reservations SET statut = 'honoree' WHERE id = ?", [$reservation['id']]);
         } else {
@@ -155,39 +203,68 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId)
     return $id;
 }
 
-/** Enregistre le retour d'un prêt et passe l'exemplaire au lecteur suivant s'il y en a un. */
-function enregistrer_retour(int $pretId): void
+/**
+ * Enregistre le retour d'un prêt avec le constat de l'exemplaire.
+ * $constat : 'etat' (clé de ETATS_RETOUR, « conforme » par défaut), 'note', 'retirer' (abîmé : sortir l'exemplaire
+ * de la circulation pour réparation), 'agent' (id du bibliothécaire).
+ * Exemplaire perdu ou retiré : il ne revient pas en rayon ; sinon il passe au lecteur suivant de la file s'il y en a un.
+ * Renvoie 'rayon', 'reserve' ou 'retire' selon ce que devient l'exemplaire.
+ */
+function enregistrer_retour(int $pretId, array $constat = []): string
 {
-    $pret = row('SELECT * FROM prets WHERE id = ?', [$pretId]);
+    $pret = row('SELECT p.*, u.prenom, u.nom FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id WHERE p.id = ?', [$pretId]);
     if (!$pret) {
         throw new RuntimeException('Prêt introuvable.');
     }
     if ($pret['date_retour'] !== null) {
         throw new RuntimeException('Ce prêt est déjà rendu.');
     }
+    $etat = $constat['etat'] ?? 'conforme';
+    if (!isset(ETATS_RETOUR[$etat])) {
+        throw new RuntimeException('Constat de retour invalide.');
+    }
+    $note = mb_substr(trim($constat['note'] ?? ''), 0, 255);
+    if (in_array($etat, ['abime', 'perdu'], true) && $note === '') {
+        throw new RuntimeException($etat === 'perdu'
+            ? 'Exemplaire perdu : précisez les circonstances (et, le cas échéant, le remboursement convenu).'
+            : 'Exemplaire abîmé : décrivez les dégâts constatés.');
+    }
+    $retirer = $etat === 'perdu' || ($etat === 'abime' && !empty($constat['retirer']));
+
     db()->beginTransaction();
     try {
-        q('UPDATE prets SET date_retour = ? WHERE id = ?', [aujourdhui(), $pretId]);
-        liberer_exemplaire((int) $pret['exemplaire_id']);
+        q('UPDATE prets SET date_retour = ?, etat_retour = ?, note_retour = ?, agent_retour_id = ? WHERE id = ?',
+            [aujourdhui(), $etat, $note, $constat['agent'] ?? null, $pretId]);
+        // Une demande de prolongation encore ouverte n'a plus d'objet
+        q("UPDATE demandes_prolongation SET statut = 'annulee', traitee_le = NOW() WHERE pret_id = ? AND statut = 'en_attente'", [$pretId]);
+        if (in_array($etat, ['use', 'abime'], true)) {
+            q('UPDATE exemplaires SET etat = ? WHERE id = ?', [$etat, $pret['exemplaire_id']]);
+        }
+        if ($retirer) {
+            $motif = ($etat === 'perdu' ? 'Perdu' : 'Retiré pour réparation') . ' le ' . date('d/m/Y') . ' ('
+                . trim($pret['prenom'] . ' ' . $pret['nom']) . ') : ' . $note;
+            q("UPDATE exemplaires SET statut = 'retire', notes = ? WHERE id = ?", [mb_substr($motif, 0, 255), $pret['exemplaire_id']]);
+            $devenir = 'retire';
+        } else {
+            liberer_exemplaire((int) $pret['exemplaire_id']);
+            $devenir = val('SELECT statut FROM exemplaires WHERE id = ?', [$pret['exemplaire_id']]) === 'reserve' ? 'reserve' : 'rayon';
+        }
         db()->commit();
     } catch (Throwable $t) {
         db()->rollBack();
         throw $t;
     }
+    return $devenir;
 }
 
-/** Retour par code d'exemplaire (douchette au guichet). */
-function retour_par_code(string $code): array
+/** Retrouve le prêt en cours d'un exemplaire (douchette au guichet). */
+function pret_par_code(string $code): int
 {
-    $pret = row('SELECT p.id, o.titre, u.prenom, u.nom FROM prets p
-                 JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
-                 JOIN utilisateurs u ON u.id = p.lecteur_id
-                 WHERE e.code = ? AND p.date_retour IS NULL', [trim($code)]);
-    if (!$pret) {
+    $id = val('SELECT p.id FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE e.code = ? AND p.date_retour IS NULL', [trim($code)]);
+    if (!$id) {
         throw new RuntimeException("Aucun prêt en cours pour l’exemplaire « $code ».");
     }
-    enregistrer_retour((int) $pret['id']);
-    return $pret;
+    return (int) $id;
 }
 
 /**
@@ -225,38 +302,120 @@ function servir_file_attente(int $ouvrageId): void
     }
 }
 
-/**
- * Prolonge un prêt d'une durée de prêt complète à partir de la date prévue.
- * Refusé si le maximum est atteint, si le prêt est en retard ou si d'autres lecteurs attendent l'ouvrage.
- */
-function prolonger_pret(int $pretId, ?int $lecteurId = null): string
+/** Nouvelle échéance proposée pour une prolongation : une durée de prêt complète après l'échéance actuelle. */
+function echeance_prolongee(array $pret): string
 {
-    $pret = row('SELECT p.*, e.ouvrage_id FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE p.id = ?', [$pretId]);
-    if (!$pret || ($lecteurId !== null && (int) $pret['lecteur_id'] !== $lecteurId)) {
+    return plus_jours(max($pret['date_retour_prevue'], aujourdhui()), reglage_int('pret_duree_jours', 14));
+}
+
+/**
+ * Ce qui s'oppose à la prolongation d'un prêt selon les règles (liste de messages, vide si rien).
+ * Le lecteur ne peut pas demander une prolongation bloquée ; le personnel peut passer outre en connaissance de cause.
+ */
+function obstacles_prolongation(array $pret): array
+{
+    $obstacles = [];
+    $max = reglage_int('pret_max_prolongations', 1);
+    if ((int) $pret['prolongations'] >= $max) {
+        $obstacles[] = "Déjà prolongé $max fois (maximum autorisé).";
+    }
+    if ($pret['date_retour_prevue'] < aujourdhui()) {
+        $obstacles[] = 'Prêt en retard.';
+    }
+    $attente = (int) val("SELECT COUNT(*) FROM reservations r JOIN exemplaires e ON e.ouvrage_id = r.ouvrage_id
+                          WHERE e.id = ? AND r.statut = 'en_attente'", [$pret['exemplaire_id']]);
+    if ($attente) {
+        $obstacles[] = pluriel($attente, 'autre lecteur', 'autres lecteurs') . ' attend' . ($attente > 1 ? 'ent' : '') . ' cet ouvrage.';
+    }
+    return $obstacles;
+}
+
+/**
+ * Prolonge un prêt (décision du personnel). Par défaut d'une durée de prêt après l'échéance actuelle,
+ * ou jusqu'à la date choisie. Sans $forcer, les règles (maximum, retard, file d'attente) s'appliquent.
+ */
+function prolonger_pret(int $pretId, ?string $date = null, bool $forcer = false): string
+{
+    $pret = row('SELECT * FROM prets WHERE id = ?', [$pretId]);
+    if (!$pret) {
         throw new RuntimeException('Prêt introuvable.');
     }
     if ($pret['date_retour'] !== null) {
         throw new RuntimeException('Ce prêt est déjà rendu.');
     }
-    $max = reglage_int('pret_max_prolongations', 1);
-    if ((int) $pret['prolongations'] >= $max) {
-        throw new RuntimeException("Ce prêt a déjà été prolongé $max fois (maximum autorisé).");
+    if (!$forcer && ($obstacles = obstacles_prolongation($pret))) {
+        throw new RuntimeException('Prolongation impossible : ' . implode(' ', $obstacles));
     }
-    if ($pret['date_retour_prevue'] < aujourdhui()) {
-        throw new RuntimeException('Un prêt en retard ne peut pas être prolongé : rapportez l’ouvrage à la bibliothèque.');
+    $nouvelle = $date !== null && $date !== '' ? valider_echeance($date) : echeance_prolongee($pret);
+    if ($nouvelle <= $pret['date_retour_prevue']) {
+        throw new RuntimeException('La nouvelle date doit être postérieure à l’échéance actuelle (' . date_fr($pret['date_retour_prevue']) . ').');
     }
-    if (val("SELECT COUNT(*) FROM reservations WHERE ouvrage_id = ? AND statut = 'en_attente'", [$pret['ouvrage_id']]) > 0) {
-        throw new RuntimeException('D’autres lecteurs attendent cet ouvrage : la prolongation est impossible.');
-    }
-    $nouvelle = plus_jours($pret['date_retour_prevue'], reglage_int('pret_duree_jours', 14));
-    q('UPDATE prets SET date_retour_prevue = ?, prolongations = prolongations + 1 WHERE id = ?', [$nouvelle, $pretId]);
+    q('UPDATE prets SET date_retour_prevue = ?, prolongations = prolongations + 1, rappel_envoye_le = NULL WHERE id = ?', [$nouvelle, $pretId]);
     return $nouvelle;
+}
+
+/** Demandes de prolongation avec le prêt, l'ouvrage et le lecteur ; $where porte sur l'alias « dp ». */
+function demandes_prolongation(string $where = '1', array $params = [], string $ordre = 'dp.demandee_le'): array
+{
+    return rows("SELECT dp.*, p.lecteur_id, p.exemplaire_id, p.date_pret, p.date_retour_prevue, p.date_retour, p.prolongations,
+                        e.code AS exemplaire_code, o.id AS ouvrage_id, o.titre, o.slug, d.slug AS domaine_slug,
+                        u.nom, u.prenom, u.matricule, u.email
+                 FROM demandes_prolongation dp
+                 JOIN prets p ON p.id = dp.pret_id
+                 JOIN exemplaires e ON e.id = p.exemplaire_id
+                 JOIN ouvrages o ON o.id = e.ouvrage_id
+                 JOIN domaines d ON d.id = o.domaine_id
+                 JOIN utilisateurs u ON u.id = p.lecteur_id
+                 WHERE $where ORDER BY $ordre", $params);
+}
+
+/** Demande de prolongation faite par le lecteur depuis son espace ; c'est le personnel qui décide. */
+function demander_prolongation(int $pretId, int $lecteurId, string $motif): void
+{
+    $pret = row('SELECT * FROM prets WHERE id = ? AND lecteur_id = ?', [$pretId, $lecteurId]);
+    if (!$pret || $pret['date_retour'] !== null) {
+        throw new RuntimeException('Prêt introuvable.');
+    }
+    if (val("SELECT COUNT(*) FROM demandes_prolongation WHERE pret_id = ? AND statut = 'en_attente'", [$pretId])) {
+        throw new RuntimeException('Une demande est déjà en cours pour ce prêt : la bibliothèque va vous répondre.');
+    }
+    if ($obstacles = obstacles_prolongation($pret)) {
+        throw new RuntimeException('Demande impossible : ' . implode(' ', $obstacles)
+            . ($pret['date_retour_prevue'] < aujourdhui() ? ' Rapportez l’ouvrage à la bibliothèque.' : ''));
+    }
+    insert('demandes_prolongation', ['pret_id' => $pretId, 'motif' => mb_substr(trim($motif), 0, 255)]);
+}
+
+/**
+ * Décision du personnel sur une demande. Accepter : prolongation jusqu'à $date (ou la date standard) ;
+ * refuser : $reponse (motif communiqué au lecteur) est obligatoire. Le lecteur est prévenu par e-mail.
+ */
+function traiter_demande(int $demandeId, bool $accepter, int $agentId, string $reponse = '', ?string $date = null): string
+{
+    $dp = row('SELECT * FROM demandes_prolongation WHERE id = ?', [$demandeId]);
+    if (!$dp) {
+        throw new RuntimeException('Demande introuvable.');
+    }
+    if ($dp['statut'] !== 'en_attente') {
+        throw new RuntimeException('Cette demande a déjà été traitée.');
+    }
+    $reponse = mb_substr(trim($reponse), 0, 255);
+    $nouvelle = null;
+    if ($accepter) {
+        $nouvelle = prolonger_pret((int) $dp['pret_id'], $date, true); // le personnel décide en connaissance de cause
+    } elseif ($reponse === '') {
+        throw new RuntimeException('Indiquez au lecteur le motif du refus.');
+    }
+    q('UPDATE demandes_prolongation SET statut = ?, traitee_le = NOW(), agent_id = ?, reponse = ?, nouvelle_date = ? WHERE id = ?',
+        [$accepter ? 'acceptee' : 'refusee', $agentId, $reponse, $nouvelle, $demandeId]);
+    mail_decision_prolongation($demandeId);
+    return $nouvelle ?? '';
 }
 
 /** Réservation d'un ouvrage par un lecteur depuis le site. */
 function reserver(int $ouvrageId, int $lecteurId): array
 {
-    $o = row('SELECT * FROM ouvrages WHERE id = ? AND publie = 1', [$ouvrageId]);
+    $o = row('SELECT * FROM ouvrages WHERE id = ? AND publie = 1 AND actif = 1', [$ouvrageId]);
     if (!$o) {
         throw new RuntimeException('Ouvrage introuvable.');
     }
@@ -340,4 +499,38 @@ function expirer_reservations(): int
         }
     }
     return count($echues);
+}
+
+/**
+ * Désactive un ouvrage au lieu de le supprimer : il disparaît du site, ne peut plus être prêté ni réservé,
+ * mais son historique est conservé. Les réservations en cours sont annulées (lecteurs prévenus) ;
+ * les prêts en cours se terminent normalement. Renvoie le nombre de réservations annulées.
+ */
+function desactiver_ouvrage(int $ouvrageId): int
+{
+    $annulees = rows("SELECT * FROM reservations WHERE ouvrage_id = ? AND statut IN ('en_attente','disponible')", [$ouvrageId]);
+    db()->beginTransaction();
+    try {
+        q('UPDATE ouvrages SET actif = 0, publie = 0, coup_de_coeur = 0, desactive_le = NOW() WHERE id = ?', [$ouvrageId]);
+        foreach ($annulees as $r) {
+            q("UPDATE reservations SET statut = 'annulee' WHERE id = ?", [$r['id']]);
+            if ($r['statut'] === 'disponible' && $r['exemplaire_id']) {
+                q("UPDATE exemplaires SET statut = 'disponible' WHERE id = ? AND statut = 'reserve'", [$r['exemplaire_id']]);
+            }
+        }
+        db()->commit();
+    } catch (Throwable $t) {
+        db()->rollBack();
+        throw $t;
+    }
+    foreach ($annulees as $r) {
+        mail_reservation_annulee((int) $r['id']);
+    }
+    return count($annulees);
+}
+
+/** Remet un ouvrage désactivé au catalogue (publié, prêtable, réservable). */
+function reactiver_ouvrage(int $ouvrageId): void
+{
+    q('UPDATE ouvrages SET actif = 1, publie = 1, desactive_le = NULL WHERE id = ?', [$ouvrageId]);
 }

@@ -88,7 +88,7 @@ switch ($action) {
         redirect($ouvrage ? $ouvrage['url'] : url('compte'));
 
     case 'annuler':
-    case 'prolonger':
+    case 'prolongation':
         $u = exiger_lecteur();
         if (!is_post()) {
             redirect(url('compte'));
@@ -99,8 +99,9 @@ switch ($action) {
                 annuler_reservation((int) ($segments[2] ?? 0), (int) $u['id']);
                 flash('succes', 'Réservation annulée.');
             } else {
-                $date = prolonger_pret((int) ($segments[2] ?? 0), (int) $u['id']);
-                flash('succes', 'Prêt prolongé jusqu’au ' . date_fr($date) . '.');
+                // Le lecteur ne prolonge pas lui-même : il en fait la demande, la bibliothèque accepte ou refuse
+                demander_prolongation((int) ($segments[2] ?? 0), (int) $u['id'], post_str('motif', ''));
+                flash('succes', 'Demande de prolongation envoyée. La bibliothèque vous répondra ici' . ($u['email'] ? ' et par e-mail' : '') . '.');
             }
         } catch (RuntimeException $ex) {
             flash('erreur', $ex->getMessage());
@@ -126,8 +127,14 @@ switch ($action) {
     case '':
         $u = exiger_lecteur();
         expirer_reservations();
+        // Dernière demande de prolongation de chaque prêt en cours (pour afficher son état)
+        $demandes = [];
+        foreach (demandes_prolongation('p.lecteur_id = ? AND p.date_retour IS NULL', [$u['id']], 'dp.demandee_le, dp.id') as $d) {
+            $demandes[$d['pret_id']] = $d;
+        }
         page('compte/tableau', [
             'u' => $u,
+            'demandes' => $demandes,
             'prets' => prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$u['id']], 'p.date_retour_prevue'),
             'reservations' => reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$u['id']]),
             'historique' => prets('p.lecteur_id = ? AND p.date_retour IS NOT NULL', [$u['id']], 'p.date_retour DESC', 20),

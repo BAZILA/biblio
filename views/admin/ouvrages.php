@@ -1,7 +1,7 @@
 <?php /** @var array $liste, $pg, $domaines, $types @var string $q, $etat @var int $domaine, $type */ ?>
 <div class="entete">
 	<h1>Ouvrages</h1>
-	<div class="actions"><a class="btn" href="<?= e(admin_url('ouvrages/nouveau')) ?>"><i class="fa-solid fa-plus"></i> Nouvel ouvrage</a></div>
+	<div class="actions"><?php if (peut('import.ouvrages')): ?><a class="btn secondaire" href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>"><i class="fa-solid fa-file-import"></i> Importer un fichier</a><?php endif; ?><?php if (peut('ouvrages.ajouter')): ?><a class="btn" href="<?= e(admin_url('ouvrages/nouveau')) ?>"><i class="fa-solid fa-plus"></i> Nouvel ouvrage</a><?php endif; ?></div>
 </div>
 
 <form class="filtres" method="get">
@@ -18,6 +18,7 @@
 		<option value="">Tous</option>
 		<option value="brouillon"<?= $etat === 'brouillon' ? ' selected' : '' ?>>Non publiés</option>
 		<option value="coeur"<?= $etat === 'coeur' ? ' selected' : '' ?>>Coups de cœur</option>
+		<option value="desactive"<?= $etat === 'desactive' ? ' selected' : '' ?>>Désactivés</option>
 	</select>
 	<button class="btn secondaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
 	<span class="doux"><?= e(pluriel($pg['total'], 'ouvrage')) ?></span>
@@ -31,17 +32,17 @@
 		<thead><tr><th></th><th>Titre</th><th>Domaine</th><th>Type</th><th>Cote</th><th class="num">Exemplaires</th><th></th></tr></thead>
 		<tbody>
 <?php foreach ($liste as $o): ?>
-			<tr>
+			<tr<?= $o['actif'] ? '' : ' class="inactif"' ?>>
 				<td><img class="vignette" src="<?= e(couverture($o['image'])) ?>" alt=""></td>
 				<td><a href="<?= e(admin_url('ouvrages/modifier/' . $o['id'])) ?>"><strong><?= e($o['titre']) ?></strong></a>
-					<?= $o['publie'] ? '' : ' <span class="badge orange">Non publié</span>' ?><?= $o['coup_de_coeur'] ? ' <span class="badge bleu">Coup de cœur</span>' : '' ?>
+					<?= !$o['actif'] ? ' <span class="badge rouge">Désactivé</span>' : ($o['publie'] ? '' : ' <span class="badge orange">Non publié</span>') ?><?= $o['coup_de_coeur'] ? ' <span class="badge bleu">Coup de cœur</span>' : '' ?>
 					<br><small><?= e($o['auteurs_txt']) ?></small></td>
 				<td><?= e($o['domaine_nom']) ?></td>
 				<td><?= e($o['type_nom'] ?? '—') ?></td>
 				<td><code><?= e($o['cote']) ?></code></td>
 				<td class="num"><?php if ($o['consultation_sur_place']): ?><span class="badge bleu">Sur place</span> <?php endif; ?>
 					<span class="badge <?= $o['nb_dispo'] ? 'vert' : ($o['nb_ex'] ? 'orange' : '') ?>"><?= $o['nb_dispo'] ?> / <?= $o['nb_ex'] ?> dispo.</span></td>
-				<td class="actions"><?php if ($o['nb_dispo'] && !$o['consultation_sur_place']): ?><a class="btn petit" href="<?= e(admin_url('guichet', ['ouvrage' => $o['id']])) ?>" title="Prêter cet ouvrage"><i class="fa-solid fa-right-left"></i> Prêter</a> <?php endif; ?><a class="btn secondaire petit" href="<?= e($o['url']) ?>" target="_blank" rel="noopener" title="Voir sur le site"><i class="fa-solid fa-eye"></i></a></td>
+				<td class="actions"><?php if ($o['actif'] && $o['nb_dispo'] && !$o['consultation_sur_place'] && peut('prets.ajouter')): ?><a class="btn petit" href="<?= e(admin_url('guichet', ['ouvrage' => $o['id']])) ?>" title="Prêter cet ouvrage"><i class="fa-solid fa-right-left"></i> Prêter</a> <?php endif; ?><a class="btn secondaire petit" href="<?= e($o['url']) ?>" target="_blank" rel="noopener" title="Voir sur le site"><i class="fa-solid fa-eye"></i></a></td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

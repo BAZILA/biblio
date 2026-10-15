@@ -134,14 +134,14 @@ function mail_pret_enregistre(int $pretId): void
     envoyer_mail($p['email'], 'Prêt enregistré : ' . $p['titre'],
         bonjour($p) . "\n\nVous avez emprunté « {$p['titre']} » (exemplaire {$p['exemplaire_code']}) le " . date_fr($p['date_pret']) . ".\n"
         . 'À rendre au plus tard le ' . date_fr($p['date_retour_prevue']) . ".\n\n"
-        . "Vous pouvez suivre et prolonger vos prêts dans votre espace lecteur :\n" . site_url_absolue() . 'index.php/compte', 'pret');
+        . "Vous pouvez suivre vos prêts et demander une prolongation depuis votre espace lecteur :\n" . site_url_absolue() . 'index.php/compte', 'pret');
 }
 
 function mail_rappel(array $p): void
 {
     envoyer_mail($p['email'], 'Rappel : « ' . $p['titre'] . ' » à rendre le ' . date_fr($p['date_retour_prevue']),
         bonjour($p) . "\n\nPetit rappel : l’ouvrage « {$p['titre']} » est à rendre le " . date_fr($p['date_retour_prevue']) . ".\n"
-        . "Si personne ne l’a réservé, vous pouvez le prolonger depuis votre espace lecteur :\n" . site_url_absolue() . 'index.php/compte', 'rappel');
+        . "Besoin de plus de temps ? Faites une demande de prolongation depuis votre espace lecteur :\n" . site_url_absolue() . 'index.php/compte', 'rappel');
 }
 
 function mail_retard(array $p): void
@@ -161,6 +161,36 @@ function mail_reservation_disponible(int $reservationId): void
     envoyer_mail($r['email'], 'Votre réservation est disponible : ' . $r['titre'],
         bonjour($r) . "\n\nL’ouvrage « {$r['titre']} » que vous avez réservé vous attend à l’accueil de la bibliothèque"
         . ' jusqu’au ' . date_fr($r['expire_le']) . ".\nPassé ce délai, la réservation sera annulée et l’ouvrage proposé au lecteur suivant.", 'reservation');
+}
+
+function mail_reservation_annulee(int $reservationId): void
+{
+    $r = reservations('r.id = ?', [$reservationId])[0] ?? null;
+    if (!$r) {
+        return;
+    }
+    envoyer_mail($r['email'], 'Réservation annulée : ' . $r['titre'],
+        bonjour($r) . "\n\nL’ouvrage « {$r['titre']} » n’est plus proposé au prêt par la bibliothèque : votre réservation est donc annulée.\n"
+        . 'Nous vous prions de nous excuser pour ce désagrément.', 'reservation');
+}
+
+function mail_decision_prolongation(int $demandeId): void
+{
+    $d = demandes_prolongation('dp.id = ?', [$demandeId])[0] ?? null;
+    if (!$d || !in_array($d['statut'], ['acceptee', 'refusee'], true)) {
+        return;
+    }
+    if ($d['statut'] === 'acceptee') {
+        $texte = "Votre demande de prolongation pour « {$d['titre']} » est acceptée.\nNouvelle date de retour : " . date_fr($d['nouvelle_date']) . '.';
+        if ($d['reponse'] !== '') {
+            $texte .= "\nMessage de la bibliothèque : {$d['reponse']}";
+        }
+    } else {
+        $texte = "Votre demande de prolongation pour « {$d['titre']} » n’a pas pu être acceptée.\nMotif : {$d['reponse']}\n"
+            . 'L’ouvrage reste à rendre le ' . date_fr($d['date_retour_prevue']) . '.';
+    }
+    envoyer_mail($d['email'], 'Prolongation ' . ($d['statut'] === 'acceptee' ? 'acceptée' : 'refusée') . ' : ' . $d['titre'],
+        bonjour($d) . "\n\n" . $texte, 'prolongation');
 }
 
 function mail_compte_valide(array $u): void

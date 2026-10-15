@@ -14,7 +14,7 @@
 					<br><small><?= e(tronquer($m['message'], 100, '…')) ?></small></td>
 				<td><?= e($m['nom']) ?><br><small><?= e($m['email']) ?></small></td>
 				<td><?= e(date_fr($m['recu_le'], true)) ?></td>
-				<td class="actions"><?= bouton_action(admin_url('messages/supprimer/' . $m['id']), '<i class="fa-solid fa-trash"></i>', 'btn danger petit', 'Supprimer ce message ?') ?></td>
+				<td class="actions"><?= peut('messages.supprimer') ? bouton_action(admin_url('messages/supprimer/' . $m['id']), '<i class="fa-solid fa-trash"></i>', 'btn danger petit', 'Supprimer ce message ?') : '' ?></td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

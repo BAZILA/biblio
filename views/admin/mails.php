@@ -1,14 +1,14 @@
 <?php /** @var array $liste, $pg */
-$motifs = ['pret' => 'Prêt', 'rappel' => 'Rappel', 'retard' => 'Retard', 'reservation' => 'Réservation', 'compte' => 'Compte', 'test' => 'Test'];
+$motifs = ['pret' => 'Prêt', 'rappel' => 'Rappel', 'retard' => 'Retard', 'reservation' => 'Réservation', 'compte' => 'Compte', 'test' => 'Test', 'prolongation' => 'Prolongation'];
 $statuts = ['envoye' => ['vert', 'Envoyé'], 'echec' => ['rouge', 'Échec'], 'journal' => ['', 'Non envoyé (journal)']];
 $actif = reglage('mail_mode') === 'smtp';
 ?>
 <div class="entete">
 	<h1>E-mails envoyés</h1>
 	<div class="actions">
-		<?= bouton_action(admin_url('mails/taches'), '<i class="fa-solid fa-paper-plane"></i> Envoyer les rappels maintenant', 'btn secondaire',
-			'Envoyer maintenant les rappels d’échéance et les relances de retard dus ?') ?>
-		<a class="btn secondaire" href="<?= e(admin_url('reglages')) ?>"><i class="fa-solid fa-sliders"></i> Réglages des e-mails</a>
+		<?php if (peut('mails.envoyer')): ?><?= bouton_action(admin_url('mails/taches'), '<i class="fa-solid fa-paper-plane"></i> Envoyer les rappels maintenant', 'btn secondaire',
+			'Envoyer maintenant les rappels d’échéance et les relances de retard dus ?') ?><?php endif; ?>
+		<?php if (peut('reglages.voir')): ?><a class="btn secondaire" href="<?= e(admin_url('reglages')) ?>"><i class="fa-solid fa-sliders"></i> Réglages des e-mails</a><?php endif; ?>
 	</div>
 </div>
 
@@ -39,12 +39,14 @@ $actif = reglage('mail_mode') === 'smtp';
 			<p><?= $actif ? '<span class="badge vert">Activé</span> par ' . e(reglage('smtp_hote')) : '<span class="badge orange">Désactivé</span> : les messages sont seulement consignés ici.' ?></p>
 			<p class="doux">Les rappels et relances partent chaque jour, au premier passage dans l’administration. Pour un envoi à heure fixe, même sans connexion, planifiez la commande <code>php app/taches.php</code> (voir le README).</p>
 		</section>
+<?php if (peut('mails.envoyer')): ?>
 		<form class="carte" method="post" action="<?= e(admin_url('mails/test')) ?>">
 			<?= csrf_field() ?>
 			<h2>Envoyer un test</h2>
 			<?= champ('destinataire', 'Adresse', user()['email'] ?? '', [], ['type' => 'email', 'required' => true]) ?>
 			<button class="btn secondaire" type="submit"><i class="fa-solid fa-paper-plane"></i> Envoyer</button>
 		</form>
+<?php endif; ?>
 	</aside>
 </div>
 <?= liens_pagination($pg) ?>

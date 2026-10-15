@@ -1,6 +1,7 @@
 # Identifiants / config locale (ne pas versionner)
 /app/config.php
 /install/IDENTIFIANTS.txt
+/install/SYSTEME.txt
 /php.ini
 
 # Journaux

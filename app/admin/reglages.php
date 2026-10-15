@@ -46,10 +46,17 @@ $groupes = [
     ],
 ];
 
+// Groupes modifiables selon le rôle : les e-mails (SMTP) ont leur propre droit
+$modifiable = fn(string $titre) => $titre === 'E-mails aux lecteurs' ? peut('reglages.mails') : peut('reglages.modifier');
+
 if (is_post()) {
     csrf_verify();
+    exiger('reglages.modifier', 'reglages.mails');
     $erreur = null;
-    foreach ($groupes as $champs) {
+    foreach ($groupes as $titreGroupe => $champs) {
+        if (!$modifiable($titreGroupe)) {
+            continue; // groupe en lecture seule pour ce rôle : rien n'est modifié
+        }
         foreach ($champs as $cle => $def) {
             [$libelle, $type] = $def;
             if ($type === 'image') {
@@ -85,4 +92,4 @@ if (is_post()) {
     redirect(admin_url('reglages'));
 }
 
-admin_page('reglages', ['groupes' => $groupes], 'Réglages', 'reglages');
+admin_page('reglages', ['groupes' => $groupes, 'modifiable' => $modifiable], 'Réglages', 'reglages');

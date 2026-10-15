@@ -10,7 +10,7 @@
 				<td><a href="<?= e(admin_url('blocs/modifier/' . $b['cle'])) ?>"><strong><?= e($b['titre']) ?></strong></a></td>
 				<td class="doux"><?= e(tronquer($b['contenu'], 120, '…')) ?></td>
 				<td><?= $b['modifie_le'] ? e(date_fr($b['modifie_le'], true)) : '—' ?></td>
-				<td class="actions"><a class="btn secondaire petit" href="<?= e(admin_url('blocs/modifier/' . $b['cle'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a></td>
+				<td class="actions"><a class="btn secondaire petit" href="<?= e(admin_url('blocs/modifier/' . $b['cle'])) ?>"><?= peut('blocs.modifier') ? '<i class="fa-solid fa-pen"></i> Modifier' : '<i class="fa-solid fa-eye"></i> Consulter' ?></a></td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

@@ -1,7 +1,10 @@
 <?php
-/** Authentification : personnel (admin, bibliothécaire) et lecteurs partagent la table utilisateurs. */
+/**
+ * Authentification : personnel et lecteurs partagent la table utilisateurs.
+ * Les droits du personnel dépendent de son rôle (voir permissions.php).
+ */
 
-const ROLES_PERSONNEL = ['admin', 'bibliothecaire'];
+const ROLES_PERSONNEL = ['personnel'];
 
 function user(): ?array
 {
@@ -22,9 +25,10 @@ function is_personnel(): bool
     return $u !== null && in_array($u['role'], ROLES_PERSONNEL, true);
 }
 
+/** Rôle « tous les droits » (Administrateur). */
 function is_admin(): bool
 {
-    return (user()['role'] ?? '') === 'admin';
+    return is_personnel() && tous_droits();
 }
 
 /** Échecs tolérés sur 15 minutes avant blocage : par adresse e-mail, et par adresse IP. */
@@ -90,7 +94,7 @@ function exiger_personnel(): array
 function exiger_admin(): array
 {
     $u = exiger_personnel();
-    if ($u['role'] !== 'admin') {
+    if (!is_admin()) {
         http_response_code(403);
         if (function_exists('admin_page')) {
             admin_page('message', ['message' => 'Cette page est réservée aux administrateurs.'], 'Accès refusé', '');

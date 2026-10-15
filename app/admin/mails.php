@@ -3,6 +3,7 @@
 
 if ($action === 'test') {
     exiger_post();
+    exiger('mails.envoyer');
     $a = post_str('destinataire');
     if (!filter_var($a, FILTER_VALIDATE_EMAIL)) {
         flash('erreur', 'Adresse e-mail invalide.');
@@ -17,6 +18,7 @@ if ($action === 'test') {
 
 if ($action === 'taches') {
     exiger_post();
+    exiger('mails.envoyer');
     $b = taches_quotidiennes(true);
     flash('succes', "Rappels envoyés : {$b['rappels']} · relances de retard : {$b['relances']} · réservations expirées : {$b['reservations_expirees']}.");
     redirect(admin_url('mails'));

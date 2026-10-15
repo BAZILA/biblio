@@ -3,6 +3,7 @@
 
 if ($action === 'annuler') {
     exiger_post();
+    exiger('reservations.annuler');
     try {
         annuler_reservation($id);
         flash('succes', 'Réservation annulée.');

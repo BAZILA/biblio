@@ -1,14 +1,16 @@
-<?php /** @var array $bloc */ ?>
+<?php /** @var array $bloc */ $lectureSeule = !peut('blocs.modifier'); ?>
 <div class="fil"><a href="<?= e(admin_url('blocs')) ?>">Textes du site</a> ›</div>
 <div class="entete"><h1><?= e($bloc['titre']) ?></h1></div>
 
 <div class="grille grille-form">
 	<form method="post" class="carte">
 		<?= csrf_field() ?>
-		<?= champ('contenu', 'Contenu (HTML)', $bloc['contenu'], [], ['type' => 'code', 'attrs' => 'rows="22" spellcheck="false"']) ?>
+		<?= champ('contenu', 'Contenu (HTML)', $bloc['contenu'], [], ['type' => 'code', 'attrs' => 'rows="22" spellcheck="false"' . ($lectureSeule ? ' readonly' : '')]) ?>
 		<div class="form-actions">
+<?php if (!$lectureSeule): ?>
 			<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>
-			<a class="btn secondaire" href="<?= e(admin_url('blocs')) ?>">Annuler</a>
+<?php endif; ?>
+			<a class="btn secondaire" href="<?= e(admin_url('blocs')) ?>"><?= $lectureSeule ? 'Retour à la liste' : 'Annuler' ?></a>
 			<a class="btn lien" href="<?= e(url()) ?>" target="_blank" rel="noopener">Voir le site ↗</a>
 		</div>
 	</form>

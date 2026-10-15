@@ -24,6 +24,7 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
 }
+[hidden] { display: none !important; }
 a { color: var(--bleu); text-decoration: none; }
 a:hover { text-decoration: underline; }
 h1, h2, h3 { line-height: 1.25; margin: 0 0 .6em; }
@@ -61,7 +62,7 @@ code { background: #eef1f7; padding: 1px 6px; border-radius: 4px; font-size: .9e
 /* Logo long de l'université, rendu en blanc pour se fondre dans la barre */
 .adm-nav a.adm-marque { display: block; padding: 0 22px 18px; margin-bottom: 4px; border-left: 0; border-bottom: 1px solid rgba(255, 255, 255, .08); text-decoration: none; }
 .adm-nav a.adm-marque:hover { background: none; }
-.adm-marque img { display: block; width: 100%; max-width: 200px; height: auto; padding: 8px 10px; background: #fff; border-radius: 6px; box-sizing: border-box; } /* couleurs du logo conservées, sur une plaque blanche */
+.adm-marque img { display: block; width: 100%; max-width: 200px; height: auto; } /* emblème en couleurs, texte blanc (logo-admin.png) */
 .adm-marque small { display: block; margin-top: 8px; color: #8fa0c6; font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
 .adm-nav h4 { margin: 18px 20px 6px; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: #7d8fbb; }
 .adm-nav a { display: flex; align-items: center; gap: 10px; padding: 8px 20px; color: #d7def0; border-left: 3px solid transparent; }
@@ -323,3 +324,134 @@ details.panneau-rapide > form { padding: 14px; }
 .option-interrupteur strong { display: block; font-size: .9rem; }
 .option-interrupteur small { display: block; color: var(--doux); font-size: .8rem; }
 .aide { font-size: .8rem; color: var(--doux); }
+
+/* ---------- Fenêtres (remise, retour, prolongation, demandes) ---------- */
+dialog.modale { width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 40px); padding: 0; border: 0; border-radius: 12px;
+  background: var(--surface); color: var(--texte); box-shadow: 0 24px 70px rgba(11, 31, 74, .35); overflow: auto; }
+dialog.modale::backdrop { background: rgba(11, 31, 74, .55); backdrop-filter: blur(2px); }
+dialog.modale[open] { animation: modale-entree .18s ease-out; }
+@keyframes modale-entree { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+.modale header { display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--bord); }
+.modale header h2 { margin: 0; font-size: 1.1rem; flex: 1; display: flex; align-items: center; gap: 10px; }
+.modale header h2 i { color: var(--bleu); }
+.modale .fermer { border: 0; background: none; font-size: 1.6rem; line-height: 1; color: var(--doux); cursor: pointer; padding: 0 4px; }
+.modale .fermer:hover { color: var(--texte); }
+.modale-corps { padding: 18px 20px 6px; }
+.modale footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--bord); background: #f8f9fc; }
+.modale footer .btn.secondaire:first-child { margin-right: auto; }
+.recap { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0 0 16px; padding: 12px 14px; background: var(--fond); border-radius: 8px; font-size: .92rem; }
+.recap dt { color: var(--doux); }
+.recap dd { margin: 0; font-weight: 600; }
+.grille-2-champs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 560px) { .grille-2-champs { grid-template-columns: 1fr; } }
+
+/* Constat au retour : choix en tuiles */
+.constat-retour { border: 0; padding: 0; margin: 4px 0 12px; min-width: 0; }
+.constat-retour legend { font-weight: 600; margin-bottom: 8px; padding: 0; }
+.choix-etat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.choix-etat label { position: relative; cursor: pointer; }
+.choix-etat input { position: absolute; opacity: 0; pointer-events: none; }
+.choix-etat span { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--bord); border-radius: 8px; font-size: .9rem; font-weight: 500; background: #fff; transition: border-color .15s, background .15s; }
+.choix-etat label:hover span { border-color: #b9c3da; }
+.choix-etat input:focus-visible + span { outline: 2px solid rgba(36, 60, 156, .35); }
+.choix-etat .etat-conforme input:checked + span { border-color: var(--vert); background: #e3f6ea; color: #005f29; }
+.choix-etat .etat-use input:checked + span { border-color: var(--bleu); background: #e6ebfa; color: var(--bleu); }
+.choix-etat .etat-abime input:checked + span { border-color: var(--orange); background: #fff1df; color: var(--orange); }
+.choix-etat .etat-perdu input:checked + span { border-color: var(--rouge); background: #fde8e6; color: var(--rouge); }
+.constat-retour textarea, .constat-retour input[type=text] { width: 100%; }
+
+/* Fiche ouvrage : exemplaires et désactivation sur toute la largeur, sous les deux colonnes */
+.fiche-ouvrage > .pleine { grid-column: 1 / -1; margin: 0; }
+.tableau-exemplaires td { vertical-align: middle; }
+.tableau-exemplaires th:nth-child(1), .tableau-exemplaires td:nth-child(1) { width: 190px; }
+.tableau-exemplaires th:nth-child(2), .tableau-exemplaires td:nth-child(2) { width: 160px; }
+.tableau-exemplaires th:nth-child(3), .tableau-exemplaires td:nth-child(3) { width: 200px; }
+.tableau-exemplaires td input, .tableau-exemplaires td select { width: 100%; min-width: 0; }
+.tableau-exemplaires td:nth-child(4) { min-width: 220px; }
+.tableau-exemplaires td.actions { width: 1%; white-space: nowrap; }
+.btn.lien-danger { background: none; border: 0; color: var(--rouge); padding: 0 4px; text-decoration: underline; font-weight: 500; box-shadow: none; }
+.btn.lien-danger:hover { background: none; color: #8f231b; }
+tr.inactif td { opacity: .6; }
+tr.inactif td.actions { opacity: 1; }
+
+/* ---------- Tableau de bord ---------- */
+.titre-zone { display: flex; align-items: center; gap: 10px; font-size: .82rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--doux); margin: 26px 0 12px; }
+.titre-zone i { color: var(--bleu); }
+.bloc-large { margin-bottom: 20px; }
+.carte-titre h2 { display: flex; align-items: center; gap: 10px; }
+.carte-titre h2 > i { color: var(--bleu); font-size: .95em; }
+.compteur { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 11px; font-size: .78rem; font-weight: 700; background: #e6ebfa; color: var(--bleu); }
+.compteur.rouge { background: #fde8e6; color: var(--rouge); }
+.compteur.orange { background: #fff1df; color: var(--orange); }
+.rien { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--doux); }
+.rien i { color: var(--vert); }
+.tableau-large td { vertical-align: middle; }
+.tableau-large th:last-child, .tableau-large td.actions { width: 1%; white-space: nowrap; text-align: right; }
+.cellule-ouvrage { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+.cellule-ouvrage .vignette { flex: 0 0 auto; }
+.liste-simple { list-style: none; margin: 0; padding: 0; }
+.liste-simple li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bord); }
+.liste-simple li:last-child { border-bottom: 0; }
+.liste-simple li form { margin: 0; flex: 0 0 auto; }
+
+/* ---------- Rôles et permissions ---------- */
+fieldset.sans-cadre { border: 0; padding: 0; margin: 0; min-width: 0; }
+fieldset.contenu-transparent { display: contents; }
+.cartes-roles { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.carte-role { display: flex; flex-direction: column; margin: 0; }
+.carte-role .carte-titre h2 > i { color: var(--bleu); }
+.carte-role.admin .carte-titre h2 > i { color: var(--or); }
+.carte-role > .doux { flex: 1; margin: 0 0 12px; }
+.carte-role .form-actions { margin-top: 12px; }
+.carte-role .form-actions form { margin: 0; }
+.jauge { height: 6px; background: #edf0f7; border-radius: 3px; overflow: hidden; }
+.jauge span { display: block; height: 100%; background: var(--bleu); }
+.carte-role.admin .jauge span { background: var(--or); }
+.chiffres-role { display: flex; justify-content: space-between; font-size: .88rem; color: var(--doux); margin: 8px 0 0; }
+.chiffres-role strong { color: var(--texte); }
+.raccourcis-droits { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; }
+.grille-droits th, .grille-droits td { vertical-align: middle; }
+.grille-droits .col-std, .grille-droits .col-tout { width: 92px; text-align: center; }
+.grille-droits tr.groupe-droits th { background: #f1f4fa; color: var(--marine); font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; padding: 8px 12px; text-align: left; }
+.grille-droits tbody tr:not(.groupe-droits):hover td { background: #fafbfe; }
+.case-droit { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: .86rem; font-weight: 500; }
+.case-droit input { width: 18px; height: 18px; accent-color: var(--bleu); cursor: pointer; }
+.case-droit.standard span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } /* libellé lu par les lecteurs d'écran, la colonne suffit à l'œil */
+.case-droit input:disabled { cursor: not-allowed; }
+.particulieres { display: flex; flex-direction: column; gap: 6px; }
+.particulieres .case-droit { align-items: flex-start; }
+.particulieres .case-droit input { margin-top: 1px; flex: 0 0 auto; }
+.sans-objet { color: #c3cad8; }
+.role-moi { display: inline-block; margin-left: 4px; padding: 1px 8px; border-radius: 10px; background: #eef1f9; color: var(--doux); font-size: .74rem; font-weight: 600; }
+.carte-role.systeme { border-color: #1c2433; background: linear-gradient(160deg, #fff 60%, #f1f3f8); }
+.carte-role.systeme .carte-titre h2 > i { color: #1c2433; }
+.carte-role.systeme .jauge span { background: #1c2433; }
+.case-masque input { accent-color: var(--rouge); }
+.grille-masquage .nb-roles { display: block; font-size: .72rem; color: var(--doux); }
+
+/* Connexion : retour au site par une icône maison, en haut à gauche */
+.retour-maison { position: fixed; top: 18px; left: 18px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--bord); background: #fff; color: var(--bleu); font-size: 1.1rem; transition: background .15s, color .15s, border-color .15s; }
+.retour-maison:hover, .retour-maison:focus-visible { background: var(--bleu); border-color: var(--bleu); color: #fff; text-decoration: none; }
+
+/* ---------- Statistiques et rapports ---------- */
+.filtre-periode { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.filtre-periode .champ { margin: 0; }
+.filtre-periode input[type=date] { width: auto; }
+.periodes-rapides { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.periodes-rapides a { padding: 6px 12px; border: 1px solid var(--bord); border-radius: 16px; font-size: .84rem; color: var(--texte); background: #fff; }
+.periodes-rapides a:hover { border-color: var(--bleu); text-decoration: none; }
+.periodes-rapides a.actif { background: var(--bleu); border-color: var(--bleu); color: #fff; }
+.barres-stat { list-style: none; margin: 0; padding: 0; }
+.barres-stat li { display: grid; grid-template-columns: minmax(0, 38%) 1fr 44px; align-items: center; gap: 10px; padding: 5px 0; font-size: .88rem; }
+.barres-stat .lib { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.barres-stat .piste { height: 10px; background: #eef1f7; border-radius: 5px; overflow: hidden; }
+.barres-stat .piste span { display: block; height: 100%; background: var(--bleu); border-radius: 5px; }
+.barres-stat strong { text-align: right; }
+.liste-rapports { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.carte.rapport { display: flex; align-items: center; gap: 16px; margin: 0; }
+.carte.rapport > div { flex: 1; }
+.carte.rapport h3 { margin: 0 0 4px; font-size: 1rem; }
+.carte.rapport p { margin: 0 0 6px; font-size: .86rem; }
+.stat:not(a) { cursor: default; }
+.stat:not(a):hover { border-color: var(--bord); }

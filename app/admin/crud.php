@@ -90,6 +90,7 @@ $table = $res['table'];
 
 if ($action === 'supprimer') {
     exiger_post();
+    exiger("$section.supprimer");
     $ligne = row("SELECT * FROM $table WHERE id = ?", [$id]) ?? admin_introuvable();
     $motif = $res['bloquer'] ? ($res['bloquer'])($id) : null;
     if ($motif) {
@@ -105,6 +106,9 @@ if ($action === 'nouveau' || $action === 'modifier') {
     if ($action === 'nouveau' && !$res['nouveau']) {
         admin_introuvable('Page');
     }
+    // Créer exige « ajouter » ; une fiche existante s'ouvre en lecture seule sans « modifier »
+    exiger($action === 'nouveau' ? "$section.ajouter" : "$section.voir");
+    $lectureSeule = $action === 'modifier' && !peut("$section.modifier");
     $ligne = $action === 'modifier'
         ? (row("SELECT * FROM $table WHERE id = ?", [$id]) ?? admin_introuvable())
         : array_fill_keys(array_keys($res['champs']), '') + ['id' => 0, 'publie' => 1]
@@ -113,6 +117,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
 
     if (is_post()) {
         csrf_verify();
+        exiger($action === 'nouveau' ? "$section.ajouter" : "$section.modifier");
         $data = [];
         foreach ($res['champs'] as $nom => [$libelle, $type, $opts]) {
             if ($type === 'image') {
@@ -164,7 +169,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
             redirect(admin_url($section));
         }
     }
-    admin_page('crud_form', ['res' => $res, 'section' => $section, 'ligne' => $ligne, 'erreurs' => $erreurs],
+    admin_page('crud_form', ['res' => $res, 'section' => $section, 'ligne' => $ligne, 'erreurs' => $erreurs, 'lectureSeule' => $lectureSeule],
         $ligne['id'] ? $res['modifier'] : $res['nouveau'], $section);
 }
 

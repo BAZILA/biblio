@@ -4,15 +4,68 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
+DROP TABLE IF EXISTS role_permissions, roles, demandes_prolongation, mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
   auteurs, types, domaines, slides, citations, blocs, reglages, messages, utilisateurs;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Comptes : personnel (admin, bibliothécaire) et lecteurs (espace lecteur + prêts)
+-- Rôles du personnel ; leurs droits sont dans role_permissions (« module.action », voir app/lib/permissions.php)
+CREATE TABLE roles (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nom         VARCHAR(100) NOT NULL,
+  description VARCHAR(255) NOT NULL DEFAULT '',
+  tous_droits TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = toutes les permissions visibles, présentes et futures (Administrateur)
+  systeme     TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = compte Système (super admin) : tout, invisible des autres comptes
+  cree_le     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_nom (nom)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE role_permissions (
+  role_id    INT UNSIGNED NOT NULL,
+  permission VARCHAR(60) NOT NULL,
+  PRIMARY KEY (role_id, permission),
+  CONSTRAINT fk_rp_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO roles (id, nom, description, tous_droits, systeme) VALUES
+  (1, 'Administrateur', 'Tous les droits, y compris la gestion du personnel et des rôles.', 1, 0),
+  (2, 'Bibliothécaire', 'Catalogue, lecteurs, prêts, réservations, contenus du site et réglages.', 0, 0),
+  (3, 'Agent de prêt', 'Guichet : prêts, retours et remises de réservations ; consultation du catalogue et des lecteurs.', 0, 0),
+  (4, 'Éditeur du site', 'Contenus de la page d’accueil : diaporama, citations et textes du site.', 0, 0),
+  (5, 'Système', 'Compte technique lié au système : tous les droits, masque des permissions, invisible des autres comptes.', 1, 1);
+
+INSERT INTO role_permissions (role_id, permission) VALUES
+  (2, 'tableau.voir'), (2, 'guichet.voir'),
+  (2, 'prets.voir'), (2, 'prets.ajouter'), (2, 'prets.retour'), (2, 'prets.prolonger'), (2, 'prets.forcer'),
+  (2, 'demandes.voir'), (2, 'demandes.traiter'),
+  (2, 'reservations.voir'), (2, 'reservations.remettre'), (2, 'reservations.annuler'),
+  (2, 'lecteurs.voir'), (2, 'lecteurs.ajouter'), (2, 'lecteurs.modifier'), (2, 'lecteurs.supprimer'), (2, 'lecteurs.valider'), (2, 'lecteurs.mot_de_passe'),
+  (2, 'ouvrages.voir'), (2, 'ouvrages.ajouter'), (2, 'ouvrages.modifier'), (2, 'ouvrages.supprimer'), (2, 'ouvrages.desactiver'),
+  (2, 'exemplaires.ajouter'), (2, 'exemplaires.modifier'), (2, 'exemplaires.supprimer'), (2, 'exemplaires.retirer'),
+  (2, 'auteurs.voir'), (2, 'auteurs.ajouter'), (2, 'auteurs.modifier'), (2, 'auteurs.supprimer'),
+  (2, 'domaines.voir'), (2, 'domaines.ajouter'), (2, 'domaines.modifier'), (2, 'domaines.supprimer'),
+  (2, 'types.voir'), (2, 'types.ajouter'), (2, 'types.modifier'), (2, 'types.supprimer'),
+  (2, 'import.auteurs'), (2, 'import.ouvrages'),
+  (2, 'slides.voir'), (2, 'slides.ajouter'), (2, 'slides.modifier'), (2, 'slides.supprimer'),
+  (2, 'citations.voir'), (2, 'citations.ajouter'), (2, 'citations.modifier'), (2, 'citations.supprimer'),
+  (2, 'messages.voir'), (2, 'messages.supprimer'),
+  (2, 'reglages.voir'), (2, 'reglages.modifier'), (2, 'reglages.mails'),
+  (2, 'mails.voir'), (2, 'mails.envoyer'),
+  (2, 'rapports.voir'), (2, 'rapports.exporter'),
+  (3, 'tableau.voir'), (3, 'guichet.voir'),
+  (3, 'prets.voir'), (3, 'prets.ajouter'), (3, 'prets.retour'), (3, 'prets.prolonger'),
+  (3, 'demandes.voir'), (3, 'reservations.voir'), (3, 'reservations.remettre'),
+  (3, 'lecteurs.voir'), (3, 'lecteurs.ajouter'), (3, 'ouvrages.voir'),
+  (4, 'tableau.voir'),
+  (4, 'slides.voir'), (4, 'slides.ajouter'), (4, 'slides.modifier'), (4, 'slides.supprimer'),
+  (4, 'citations.voir'), (4, 'citations.ajouter'), (4, 'citations.modifier'), (4, 'citations.supprimer'),
+  (4, 'blocs.voir'), (4, 'blocs.modifier'), (4, 'messages.voir');
+
+-- Comptes : personnel (avec un rôle) et lecteurs (espace lecteur + prêts)
 CREATE TABLE utilisateurs (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  role          ENUM('admin','bibliothecaire','lecteur') NOT NULL DEFAULT 'lecteur',
+  role          ENUM('personnel','lecteur') NOT NULL DEFAULT 'lecteur',
+  role_id       INT UNSIGNED NULL,               -- personnel : rôle et permissions (table roles)
   nom           VARCHAR(100) NOT NULL,
   prenom        VARCHAR(100) NOT NULL DEFAULT '',
   email         VARCHAR(190) NULL,               -- facultatif pour un lecteur sans accès en ligne
@@ -27,7 +80,8 @@ CREATE TABLE utilisateurs (
   derniere_connexion DATETIME NULL,
   cree_le       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_email (email),
-  UNIQUE KEY uq_matricule (matricule)
+  UNIQUE KEY uq_matricule (matricule),
+  CONSTRAINT fk_utilisateur_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE domaines (
@@ -75,6 +129,8 @@ CREATE TABLE ouvrages (
   consultation_sur_place TINYINT(1) NOT NULL DEFAULT 0,  -- exclu du prêt
   coup_de_coeur TINYINT(1) NOT NULL DEFAULT 0,
   publie       TINYINT(1) NOT NULL DEFAULT 1,
+  actif        TINYINT(1) NOT NULL DEFAULT 1,   -- 0 = ouvrage désactivé : retiré du site, du prêt et des réservations
+  desactive_le DATETIME NULL,
   cree_le      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modifie_le   DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_slug (domaine_id, slug),
@@ -117,7 +173,11 @@ CREATE TABLE prets (
   date_retour_prevue DATE NOT NULL,
   date_retour        DATE NULL,               -- NULL = en cours
   prolongations      TINYINT UNSIGNED NOT NULL DEFAULT 0,
-  notes              VARCHAR(255) NOT NULL DEFAULT '',
+  notes              VARCHAR(255) NOT NULL DEFAULT '',   -- remarque à la remise
+  etat_sortie        ENUM('neuf','bon','use','abime') NULL,      -- état de l'exemplaire remis au lecteur
+  etat_retour        ENUM('conforme','use','abime','perdu') NULL, -- constat au retour
+  note_retour        VARCHAR(255) NOT NULL DEFAULT '',
+  agent_retour_id    INT UNSIGNED NULL,       -- bibliothécaire qui a enregistré le retour
   rappel_envoye_le   DATE NULL,               -- rappel « à rendre bientôt » déjà envoyé
   relance_envoyee_le DATE NULL,               -- dernière relance de retard envoyée
   KEY ix_encours (date_retour, date_retour_prevue),
@@ -125,6 +185,23 @@ CREATE TABLE prets (
   CONSTRAINT fk_pret_exemplaire FOREIGN KEY (exemplaire_id) REFERENCES exemplaires(id),
   CONSTRAINT fk_pret_lecteur    FOREIGN KEY (lecteur_id)    REFERENCES utilisateurs(id),
   CONSTRAINT fk_pret_agent      FOREIGN KEY (agent_id)      REFERENCES utilisateurs(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Demandes de prolongation faites par les lecteurs ; le personnel accepte ou refuse
+CREATE TABLE demandes_prolongation (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  pret_id      INT UNSIGNED NOT NULL,
+  motif        VARCHAR(255) NOT NULL DEFAULT '',
+  statut       ENUM('en_attente','acceptee','refusee','annulee') NOT NULL DEFAULT 'en_attente',
+  demandee_le  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  traitee_le   DATETIME NULL,
+  agent_id     INT UNSIGNED NULL,
+  reponse      VARCHAR(255) NOT NULL DEFAULT '',      -- motif du refus ou message au lecteur
+  nouvelle_date DATE NULL,
+  KEY ix_statut (statut),
+  KEY ix_pret (pret_id),
+  CONSTRAINT fk_dp_pret  FOREIGN KEY (pret_id)  REFERENCES prets(id) ON DELETE CASCADE,
+  CONSTRAINT fk_dp_agent FOREIGN KEY (agent_id) REFERENCES utilisateurs(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Réservations faites par les lecteurs depuis le site
@@ -240,4 +317,5 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('smtp_securite', 'tls'),
   ('smtp_utilisateur', ''),
   ('smtp_mot_de_passe', ''),
-  ('taches_dernier_jour', '');
+  ('taches_dernier_jour', ''),
+  ('permissions_masquees', '');

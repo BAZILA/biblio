@@ -9,6 +9,8 @@ require ROOT_DIR . '/app/lib/upload.php';
 require ROOT_DIR . '/app/lib/formulaires.php';
 require ROOT_DIR . '/app/lib/icones.php';
 require ROOT_DIR . '/app/lib/import.php';
+require ROOT_DIR . '/app/lib/pdf.php';
+require ROOT_DIR . '/app/lib/rapports.php';
 
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
@@ -70,10 +72,43 @@ $controleurs = [
     'import'       => 'import',
     'mails'        => 'mails',
     'reglages'     => 'reglages',
+    'roles'        => 'roles',
+    'systeme'      => 'systeme',
+    'rapports'     => 'rapports',
     'mon-compte'   => 'connexion',
 ];
 
 if (!isset($controleurs[$section])) {
     admin_introuvable('Page');
+}
+
+// Droit minimal pour ouvrir chaque section ; chaque contrôleur vérifie ensuite l'action demandée
+$acces = [
+    'guichet' => ['guichet.voir'], 'prets' => ['prets.voir', 'demandes.voir'], 'reservations' => ['reservations.voir'],
+    'lecteurs' => ['lecteurs.voir'], 'ouvrages' => ['ouvrages.voir'], 'exemplaires' => ['ouvrages.voir'],
+    'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'],
+    'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],
+    'import' => ['import.auteurs', 'import.ouvrages'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
+    'personnel' => ['personnel.voir'], 'roles' => ['roles.voir'], 'rapports' => ['rapports.voir'],
+];
+// Page réservée au compte Système : pour les autres, elle n'existe pas
+if ($section === 'systeme' && !is_systeme()) {
+    admin_introuvable('Page');
+}
+if ($section === '' && !peut('tableau.voir')) {
+    $page = premiere_page_autorisee();
+    if ($page === null) {
+        admin_page('message', ['message' => 'Votre compte n’a encore aucun droit dans l’administration. Demandez à un administrateur de vous attribuer un rôle.'], 'Aucun accès', '');
+    }
+    redirect(admin_url($page));
+}
+if ($section === 'auteurs' && $action === 'chercher') {
+    exiger('auteurs.voir', 'ouvrages.ajouter', 'ouvrages.modifier'); // suggestions d'auteurs dans la fiche ouvrage
+} elseif ($section === 'lecteurs' && $action === 'rapide') {
+    exiger('lecteurs.ajouter');
+} elseif ($section === 'guichet' && in_array($action, ['pret', 'retour', 'exemplaires'], true)) {
+    // Actions du guichet appelées aussi depuis d'autres pages (Remettre, Retour) : le contrôleur vérifie le droit précis
+} elseif (isset($acces[$section])) {
+    exiger(...$acces[$section]);
 }
 require ROOT_DIR . '/app/admin/' . $controleurs[$section] . '.php';

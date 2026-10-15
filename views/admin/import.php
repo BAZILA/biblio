@@ -2,8 +2,8 @@
 <div class="entete"><h1>Importer depuis un fichier</h1></div>
 
 <nav class="onglets">
-	<a href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>" class="<?= $quoi === 'ouvrages' ? 'actif' : '' ?>">Ouvrages</a>
-	<a href="<?= e(admin_url('import', ['quoi' => 'auteurs'])) ?>" class="<?= $quoi === 'auteurs' ? 'actif' : '' ?>">Auteurs</a>
+<?php if (peut('import.ouvrages')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>" class="<?= $quoi === 'ouvrages' ? 'actif' : '' ?>">Ouvrages</a><?php endif; ?>
+<?php if (peut('import.auteurs')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'auteurs'])) ?>" class="<?= $quoi === 'auteurs' ? 'actif' : '' ?>">Auteurs</a><?php endif; ?>
 </nav>
 
 <div class="grille grille-form">

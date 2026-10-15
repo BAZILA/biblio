@@ -1,11 +1,10 @@
 <?php
 /** Gestion des ouvrages et de leurs exemplaires. */
 
-const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'bon' => 'Bon état', 'use' => 'Usé', 'abime' => 'Abîmé'];
-
 // ---------- Exemplaires (section « exemplaires ») ----------
 if ($section === 'exemplaires') {
     exiger_post();
+    exiger('exemplaires.' . ($action === 'remettre' ? 'retirer' : $action));
     if ($action === 'ajouter') {
         $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
         $n = max(1, min(50, (int) ($_POST['nombre'] ?? 1)));
@@ -86,11 +85,31 @@ if ($section === 'exemplaires') {
 }
 
 // ---------- Ouvrages ----------
+// Désactiver plutôt que supprimer : l'ouvrage quitte le site et le prêt, son historique reste
+if ($action === 'desactiver' || $action === 'reactiver') {
+    exiger_post();
+    exiger('ouvrages.desactiver');
+    $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
+    if ($action === 'desactiver') {
+        $n = desactiver_ouvrage($id);
+        $enCours = (int) val('SELECT COUNT(*) FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE e.ouvrage_id = ? AND p.date_retour IS NULL', [$id]);
+        flash('succes', "« {$o['titre']} » est désactivé : il n’apparaît plus sur le site et ne peut plus être prêté ni réservé."
+            . ($n ? ' ' . pluriel($n, 'réservation annulée', 'réservations annulées') . ' (lecteurs prévenus).' : '')
+            . ($enCours ? ' ' . pluriel($enCours, 'prêt en cours', 'prêts en cours') . ' : les retours s’enregistrent normalement.' : ''));
+    } else {
+        reactiver_ouvrage($id);
+        flash('succes', "« {$o['titre']} » est réactivé et de nouveau visible sur le site.");
+    }
+    redirect(admin_url('ouvrages/modifier/' . $id));
+}
+
+// Suppression définitive : seulement pour une fiche jamais prêtée (créée par erreur, doublon)
 if ($action === 'supprimer') {
     exiger_post();
+    exiger('ouvrages.supprimer');
     $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
     if (val('SELECT COUNT(*) FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE e.ouvrage_id = ?', [$id])) {
-        flash('erreur', 'Cet ouvrage a un historique de prêts : dépubliez-le plutôt que de le supprimer.');
+        flash('erreur', 'Cet ouvrage a un historique de prêts : désactivez-le plutôt que de le supprimer.');
         redirect(admin_url('ouvrages/modifier/' . $id));
     }
     q('DELETE FROM ouvrages WHERE id = ?', [$id]);
@@ -101,10 +120,12 @@ if ($action === 'supprimer') {
 }
 
 if ($action === 'nouveau' || $action === 'modifier') {
+    exiger($action === 'nouveau' ? 'ouvrages.ajouter' : 'ouvrages.voir');
+    $lectureSeule = $action === 'modifier' && !peut('ouvrages.modifier');
     $vide = [
         'id' => 0, 'titre' => '', 'slug' => '', 'domaine_id' => '', 'type_id' => '', 'resume' => '', 'description' => '',
         'editeur' => '', 'annee' => '', 'isbn' => '', 'cote' => '', 'pages' => '', 'langue' => 'Français', 'image' => '',
-        'consultation_sur_place' => 0, 'coup_de_coeur' => 0, 'publie' => 1, 'auteurs_txt' => '',
+        'consultation_sur_place' => 0, 'coup_de_coeur' => 0, 'publie' => 1, 'actif' => 1, 'auteurs_txt' => '',
     ];
     if ($action === 'modifier') {
         $o = ouvrage_par_id($id) ?? admin_introuvable('Ouvrage');
@@ -120,11 +141,15 @@ if ($action === 'nouveau' || $action === 'modifier') {
 
     if (is_post()) {
         csrf_verify();
+        exiger($action === 'nouveau' ? 'ouvrages.ajouter' : 'ouvrages.modifier');
         foreach (['titre', 'slug', 'domaine_id', 'type_id', 'resume', 'description', 'editeur', 'annee', 'isbn', 'cote', 'pages', 'langue', 'auteurs_txt'] as $k) {
             $o[$k] = post_str($k, '');
         }
         foreach (['consultation_sur_place', 'coup_de_coeur', 'publie'] as $k) {
             $o[$k] = isset($_POST[$k]) ? 1 : 0;
+        }
+        if (!$o['actif']) {
+            $o['publie'] = $o['coup_de_coeur'] = 0; // un ouvrage désactivé reste hors du site
         }
         $o['slug'] = slugify($o['slug'] !== '' ? $o['slug'] : $o['titre']);
 
@@ -135,6 +160,12 @@ if ($action === 'nouveau' || $action === 'modifier') {
             $erreurs['domaine_id'] = 'Choisissez un domaine.';
         } elseif (val('SELECT 1 FROM ouvrages WHERE domaine_id = ? AND slug = ? AND id <> ?', [(int) $o['domaine_id'], $o['slug'], (int) $o['id']])) {
             $erreurs['slug'] = 'Un autre ouvrage de ce domaine utilise déjà cette adresse.';
+        }
+        // Un auteur absent de la liste est créé avec l'ouvrage : il faut alors le droit d'ajouter des auteurs
+        $nouveaux = array_filter(array_map('trim', preg_split('/[\r\n]+|\s*;\s*/', $o['auteurs_txt'])),
+            fn($nom) => $nom !== '' && !val('SELECT 1 FROM auteurs WHERE nom = ?', [$nom]));
+        if ($nouveaux && !peut('auteurs.ajouter')) {
+            $erreurs['auteurs_txt'] = 'Votre rôle ne permet pas de créer des auteurs : ' . implode(', ', $nouveaux) . '. Choisissez des auteurs existants.';
         }
         if ($o['pages'] !== '' && !ctype_digit($o['pages'])) {
             $erreurs['pages'] = 'Nombre entier attendu.';
@@ -176,7 +207,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
                 supprimer_couverture($o['image']); // ancienne couverture remplacée ou retirée
             }
 
-            if ($action === 'nouveau' && ($n = (int) ($_POST['nb_exemplaires'] ?? 0)) > 0) {
+            if ($action === 'nouveau' && peut('exemplaires.ajouter') && ($n = (int) ($_POST['nb_exemplaires'] ?? 0)) > 0) {
                 $prefixe = $o['cote'] !== '' ? $o['cote'] : sprintf('EX%04d', $o['id']);
                 for ($i = 1, $num = 1; $i <= min($n, 50); $i++, $num++) {
                     while (val('SELECT 1 FROM exemplaires WHERE code = ?', ["$prefixe-$num"])) {
@@ -197,6 +228,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
     admin_page('ouvrage_form', [
         'o' => $o,
         'erreurs' => $erreurs,
+        'lectureSeule' => $lectureSeule,
         'exemplaires' => $exemplaires,
         'domaines' => rows('SELECT id, nom FROM domaines ORDER BY ordre, nom'),
         'types' => rows('SELECT id, nom FROM types ORDER BY ordre, nom'),
@@ -226,7 +258,9 @@ if ($type) {
     $params[] = $type;
 }
 if ($etat === 'brouillon') {
-    $where[] = 'o.publie = 0';
+    $where[] = 'o.publie = 0 AND o.actif = 1';
+} elseif ($etat === 'desactive') {
+    $where[] = 'o.actif = 0';
 } elseif ($etat === 'coeur') {
     $where[] = 'o.coup_de_coeur = 1';
 }

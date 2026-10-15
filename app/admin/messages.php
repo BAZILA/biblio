@@ -12,6 +12,7 @@ if ($action === 'voir') {
 if ($action === 'supprimer' || $action === 'non-lu') {
     exiger_post();
     if ($action === 'supprimer') {
+        exiger('messages.supprimer');
         q('DELETE FROM messages WHERE id = ?', [$id]);
         flash('succes', 'Message supprimé.');
     } else {

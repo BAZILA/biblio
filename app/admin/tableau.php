@@ -13,6 +13,7 @@ admin_page('tableau', [
         'prets_mois'  => (int) val("SELECT COUNT(*) FROM prets WHERE date_pret >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
     ],
     'retards'   => prets('p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()', [], 'p.date_retour_prevue', 8),
+    'demandes'  => demandes_prolongation("dp.statut = 'en_attente'", [], 'dp.demandee_le LIMIT 5'),
     'aRetirer'  => reservations("r.statut = 'disponible'", [], 'r.expire_le'),
     'enAttente' => (int) val("SELECT COUNT(*) FROM reservations WHERE statut = 'en_attente'"),
     'echeances' => prets('p.date_retour IS NULL AND p.date_retour_prevue BETWEEN CURDATE() AND CURDATE() + INTERVAL 2 DAY', [], 'p.date_retour_prevue', 8),

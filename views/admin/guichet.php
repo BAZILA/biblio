@@ -12,6 +12,7 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 <div class="entete"><h1>Guichet prêt / retour</h1></div>
 
 <div class="guichet">
+<?php if (peut('prets.ajouter', 'reservations.remettre')): ?>
 	<section class="carte">
 		<h2><i class="fa-solid fa-book-open"></i> Nouveau prêt</h2>
 		<form method="post" action="<?= e(admin_url('guichet/pret')) ?>" id="form-pret">
@@ -53,12 +54,18 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 				<div class="aide">Ou, avec une douchette : <input type="text" class="code code-scan" name="code_scan" placeholder="scanner le code-barres" autocomplete="off"></div>
 			</div>
 
+			<div class="champ">
+				<label for="echeance-pret"><span class="etape-num">4</span> À rendre le</label>
+				<input type="date" id="echeance-pret" name="echeance" value="<?= e(echeance_standard()) ?>" min="<?= e(plus_jours(aujourdhui(), 1)) ?>" max="<?= e(plus_jours(aujourdhui(), 365)) ?>" required style="max-width:220px">
+				<div class="aide">Durée habituelle : <?= $duree ?> jours. L’état de l’exemplaire remis est enregistré comme référence pour le retour.</div>
+			</div>
+
 			<div class="form-actions">
 				<button class="btn" type="submit"<?= $lecteurInactif ? ' disabled' : '' ?>><i class="fa-solid fa-circle-check"></i> Enregistrer le prêt</button>
-				<span class="doux">Durée : <?= $duree ?> jours</span>
 			</div>
 		</form>
 
+<?php if (peut('lecteurs.ajouter')): ?>
 		<details class="panneau-rapide"<?= $nouveauLecteur ? ' open' : '' ?>>
 			<summary><i class="fa-solid fa-user-plus"></i> Le lecteur n’est pas dans la liste ? Créer un lecteur (sans compte en ligne)</summary>
 			<form method="post" action="<?= e(admin_url('lecteurs/rapide')) ?>">
@@ -69,8 +76,11 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 				<button class="btn" type="submit"><i class="fa-solid fa-user-plus"></i> Créer et sélectionner</button>
 			</form>
 		</details>
+<?php endif; ?>
+<?php endif; ?>
 	</section>
 
+<?php if (peut('prets.retour')): ?>
 	<section class="carte">
 		<h2><i class="fa-solid fa-rotate-left"></i> Retour</h2>
 		<form method="post" action="<?= e(admin_url('guichet/retour')) ?>">
@@ -87,16 +97,18 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 				</select>
 				<div class="aide">Ou, avec une douchette : <input type="text" class="code code-scan" name="code" placeholder="scanner le code-barres" autocomplete="off"></div>
 			</div>
+			<?= render(ROOT_DIR . '/views/admin/_champs_retour.php', ['prefixe' => 'guichet-retour']) ?>
 			<button class="btn vert" type="submit"><i class="fa-solid fa-rotate-left"></i> Enregistrer le retour</button>
 			<p class="aide" style="margin-top:10px">Si d’autres lecteurs ont réservé l’ouvrage, l’exemplaire rendu leur est automatiquement mis de côté.</p>
 		</form>
 	</section>
+<?php endif; ?>
 </div>
 
 <?php if ($lecteur): ?>
 <section class="carte">
 	<div class="carte-titre"><h2>Situation de <?= e(nom_complet($lecteur)) ?></h2>
-		<a class="lien" href="<?= e(admin_url('lecteurs/voir/' . $lecteur['id'])) ?>">Fiche du lecteur</a></div>
+		<?php if (peut('lecteurs.voir')): ?><a class="lien" href="<?= e(admin_url('lecteurs/voir/' . $lecteur['id'])) ?>">Fiche du lecteur</a><?php endif; ?></div>
 	<p class="doux"><?= count($pretsLecteur) ?> prêt(s) en cours sur <?= quota_prets($lecteur) ?> autorisé(s)<?= nb_retards((int) $lecteur['id']) ? ' — <strong style="color:var(--rouge)">retard en cours</strong>' : '' ?></p>
 <?php if ($pretsLecteur): ?>
 	<div class="tableau-wrap"><table class="tableau">
@@ -107,8 +119,8 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 				<td><?= e($p['titre']) ?></td><td><code><?= e($p['exemplaire_code']) ?></code></td>
 				<td><?= e(date_fr($p['date_pret'])) ?></td><td><?= e(date_fr($p['date_retour_prevue'])) ?> <?= badge_echeance($p) ?></td>
 				<td class="actions">
-					<?= bouton_action(admin_url('prets/prolonger/' . $p['id']), 'Prolonger', 'btn secondaire petit', '', ['retour' => admin_url('guichet', ['lecteur' => $lecteur['id']])]) ?>
-					<?= bouton_action(admin_url('prets/rendre/' . $p['id']), 'Retour', 'btn vert petit', '', ['retour' => admin_url('guichet', ['lecteur' => $lecteur['id']])]) ?>
+					<?= bouton_prolonger($p) ?>
+					<?= bouton_retour($p) ?>
 				</td>
 			</tr>
 <?php endforeach; ?>
@@ -134,11 +146,11 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 	<p class="doux">Aucun prêt enregistré pour l’instant.</p>
 <?php else: ?>
 	<div class="tableau-wrap"><table class="tableau">
-		<thead><tr><th>Date</th><th>Lecteur</th><th>Ouvrage</th><th>État</th></tr></thead>
+		<thead><tr><th>Date</th><th>Lecteur</th><th>Ouvrage</th><th>Enregistré par</th><th>État</th></tr></thead>
 		<tbody>
 <?php foreach ($derniers as $p): ?>
 			<tr><td><?= e(date_fr($p['date_pret'])) ?></td><td><?= e(trim($p['prenom'] . ' ' . $p['nom'])) ?></td>
-				<td><?= e($p['titre']) ?> <small><code><?= e($p['exemplaire_code']) ?></code></small></td><td><?= badge_echeance($p) ?></td></tr>
+				<td><?= e($p['titre']) ?> <small><code><?= e($p['exemplaire_code']) ?></code></small></td><td><?= e(nom_acteur((int) $p['agent_id']) ?: '—') ?></td><td><?= badge_echeance($p) ?></td></tr>
 <?php endforeach; ?>
 		</tbody>
 	</table></div>

@@ -252,4 +252,143 @@
       window.location.href = u.toString();
     });
   }
+
+  // Masque un bloc et neutralise ses champs (un champ masqué n'est ni envoyé ni exigé)
+  function afficher(bloc, oui) {
+    bloc.hidden = !oui;
+    bloc.querySelectorAll('input, select, textarea').forEach(function (c) { c.disabled = !oui; });
+    if (bloc.matches('input, select, textarea')) { bloc.disabled = !oui; }
+  }
+
+  // Constat de retour : la note devient obligatoire pour « abîmé » ou « perdu »
+  function majConstat(fs) {
+    var choix = fs.querySelector('input[name="etat_retour"]:checked');
+    var etat = choix ? choix.value : 'conforme';
+    fs.querySelectorAll('[data-si-etat]').forEach(function (b) {
+      afficher(b, b.getAttribute('data-si-etat').split(' ').indexOf(etat) !== -1);
+    });
+    var note = fs.querySelector('textarea[name="note_retour"]');
+    if (note) { note.required = etat === 'abime' || etat === 'perdu'; }
+  }
+  document.querySelectorAll('[data-constat]').forEach(function (fs) {
+    fs.addEventListener('change', function () { majConstat(fs); });
+    majConstat(fs);
+  });
+
+  // Fenêtres (views/admin/_modales.php) : <button data-modale="#id" data-valeurs='{"clé": "valeur"}'>
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-modale]');
+    if (!b) { return; }
+    var d = document.querySelector(b.getAttribute('data-modale'));
+    if (!d || typeof d.showModal !== 'function') { return; }
+    var v = JSON.parse(b.getAttribute('data-valeurs') || '{}');
+    var form = d.querySelector('form');
+    form.reset();
+    if (form.hasAttribute('data-remplir-action') && v.action) { form.action = v.action; }
+    d.querySelectorAll('[data-remplir]').forEach(function (el) {
+      var val = v[el.getAttribute('data-remplir')];
+      val = val === undefined || val === null ? '' : String(val);
+      if (el.matches('input, select, textarea')) { el.value = val; } else { el.textContent = val; }
+    });
+    // [data-masquer-si-vide] : masqué si son propre texte est vide, ou si la valeur nommée est vide
+    d.querySelectorAll('[data-masquer-si-vide]').forEach(function (el) {
+      var cle = el.getAttribute('data-masquer-si-vide');
+      afficher(el, cle ? !!v[cle] : el.textContent.trim() !== '');
+    });
+    d.querySelectorAll('[data-constat]').forEach(majConstat);
+    d.showModal();
+    var premier = d.querySelector('.modale-corps input:not([type=hidden]):not([disabled]), .modale-corps select, .modale-corps textarea:not([disabled])');
+    if (premier) { premier.focus(); }
+  });
+  document.addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-fermer]')) { ev.target.closest('dialog').close(); return; }
+    // Clic sur le fond assombri : on ferme
+    if (ev.target.tagName === 'DIALOG' && ev.target.classList.contains('modale')) { ev.target.close(); }
+  });
+  // Bouton qui exige un champ précis (ex. « Refuser » exige un message, « Accepter » une date)
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button[data-exige]');
+    if (!b) { return; }
+    var form = b.form;
+    form.querySelectorAll('[data-exige-actif]').forEach(function (c) { c.required = false; c.removeAttribute('data-exige-actif'); });
+    var champ = form.querySelector(b.getAttribute('data-exige'));
+    if (champ) { champ.required = true; champ.setAttribute('data-exige-actif', ''); }
+  });
+
+  // Grille des permissions d'un rôle (views/admin/role_form.php)
+  var formRole = document.getElementById('form-role');
+  if (formRole) {
+    var cases = function (sel) { return Array.prototype.slice.call(formRole.querySelectorAll(sel)); };
+    var droit = function (module, action) { return formRole.querySelector('input[data-module="' + module + '"][data-action="' + action + '"]'); };
+    var cocher = function (c, oui) { if (c && !c.disabled) { c.checked = oui; } };
+    var majLignes = function () {
+      cases('input[data-tout-ligne]').forEach(function (t) {
+        var ligne = cases('input[data-module="' + t.getAttribute('data-tout-ligne') + '"]');
+        var n = ligne.filter(function (c) { return c.checked; }).length;
+        t.checked = n === ligne.length && n > 0;
+        t.indeterminate = n > 0 && n < ligne.length;
+      });
+      var compteur = document.getElementById('nb-droits');
+      if (compteur) { compteur.textContent = cases('input[name="permissions[]"]:checked').length; }
+    };
+    // Une action implique « Voir » de sa rubrique ; les exemplaires se gèrent depuis la fiche ouvrage
+    var dependances = function (c) {
+      var m = c.getAttribute('data-module'), a = c.getAttribute('data-action');
+      if (c.checked && a !== 'voir') { cocher(droit(m, 'voir'), true); }
+      if (c.checked && m === 'exemplaires') { cocher(droit('ouvrages', 'voir'), true); }
+      if (!c.checked && a === 'voir') {
+        cases('input[data-module="' + m + '"]').forEach(function (x) { cocher(x, false); });
+        if (m === 'ouvrages') { cases('input[data-module="exemplaires"]').forEach(function (x) { cocher(x, false); }); }
+      }
+    };
+    formRole.addEventListener('change', function (ev) {
+      var c = ev.target;
+      if (c.hasAttribute('data-tout-ligne')) {
+        cases('input[data-module="' + c.getAttribute('data-tout-ligne') + '"]').forEach(function (x) { cocher(x, c.checked); dependances(x); });
+      } else if (c.hasAttribute('data-module')) {
+        dependances(c);
+      }
+      majLignes();
+    });
+    formRole.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-droits]');
+      if (!b) { return; }
+      var mode = b.getAttribute('data-droits');
+      cases('input[name="permissions[]"]').forEach(function (c) {
+        cocher(c, mode === 'tout' || (mode === 'lecture' && c.getAttribute('data-action') === 'voir'));
+      });
+      majLignes();
+    });
+    majLignes();
+  }
+
+  // Page Système : masquer « Voir » masque toute la rubrique
+  var formMasque = document.getElementById('form-masquage');
+  if (formMasque) {
+    var ligneDe = function (m) { return Array.prototype.slice.call(formMasque.querySelectorAll('input[data-module="' + m + '"]')); };
+    var majMasque = function () {
+      Array.prototype.forEach.call(formMasque.querySelectorAll('input[data-tout-ligne]'), function (t) {
+        var l = ligneDe(t.getAttribute('data-tout-ligne'));
+        var n = l.filter(function (c) { return c.checked; }).length;
+        t.checked = n === l.length;
+        t.indeterminate = n > 0 && n < l.length;
+      });
+      document.getElementById('nb-masquees').textContent = formMasque.querySelectorAll('input[name="masquees[]"]:checked').length;
+    };
+    formMasque.addEventListener('change', function (ev) {
+      var c = ev.target;
+      if (c.hasAttribute('data-tout-ligne')) {
+        ligneDe(c.getAttribute('data-tout-ligne')).forEach(function (x) { x.checked = c.checked; });
+      } else if (c.hasAttribute('data-module')) {
+        var voir = formMasque.querySelector('input[data-module="' + c.getAttribute('data-module') + '"][data-action="voir"]');
+        if (c.getAttribute('data-action') === 'voir' && c.checked) {
+          ligneDe(c.getAttribute('data-module')).forEach(function (x) { x.checked = true; });
+        } else if (!c.checked && voir && voir !== c) {
+          voir.checked = false; // une action visible suppose que la rubrique l'est
+        }
+      }
+      majMasque();
+    });
+    majMasque();
+  }
 })();

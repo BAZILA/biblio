@@ -5,6 +5,7 @@ $lecteurParId = fn(int $id) => row("SELECT * FROM utilisateurs WHERE id = ? AND 
 
 if ($action === 'activer' || $action === 'desactiver') {
     exiger_post();
+    exiger('lecteurs.valider');
     $l = $lecteurParId($id);
     q('UPDATE utilisateurs SET actif = ?, en_attente = 0 WHERE id = ?', [$action === 'activer' ? 1 : 0, $id]);
     if ($action === 'activer' && $l['en_attente']) {
@@ -16,6 +17,7 @@ if ($action === 'activer' || $action === 'desactiver') {
 
 if ($action === 'supprimer') {
     exiger_post();
+    exiger('lecteurs.supprimer');
     $l = $lecteurParId($id);
     if (val('SELECT COUNT(*) FROM prets WHERE lecteur_id = ?', [$id])) {
         flash('erreur', 'Ce lecteur a un historique de prêts : désactivez son compte plutôt que de le supprimer.');
@@ -29,6 +31,7 @@ if ($action === 'supprimer') {
 // Réinitialisation du mot de passe : un mot de passe provisoire est affiché une fois et envoyé par e-mail
 if ($action === 'mot-de-passe') {
     exiger_post();
+    exiger('lecteurs.mot_de_passe');
     $l = $lecteurParId($id);
     if (!$l['email']) {
         flash('erreur', 'Ce lecteur n’a pas d’adresse e-mail : ajoutez-en une pour lui ouvrir un accès en ligne.');
@@ -46,6 +49,7 @@ if ($action === 'mot-de-passe') {
 // Création rapide au guichet : lecteur sans accès en ligne, qui peut emprunter immédiatement
 if ($action === 'rapide') {
     exiger_post();
+    exiger('lecteurs.ajouter');
     $l = lecteur_depuis_post(['id' => 0]);
     $erreurs = valider_lecteur($l, false);
     if ($erreurs) {
@@ -59,6 +63,7 @@ if ($action === 'rapide') {
 }
 
 if ($action === 'nouveau' || $action === 'modifier') {
+    exiger($action === 'nouveau' ? 'lecteurs.ajouter' : 'lecteurs.modifier');
     $l = $action === 'modifier' ? $lecteurParId($id) : [
         'id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'matricule' => '', 'categorie' => 'etudiant', 'telephone' => '',
         'faculte' => '', 'departement' => '', 'actif' => 1, 'en_attente' => 0, 'mot_de_passe' => '',
@@ -70,7 +75,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
     if (is_post()) {
         csrf_verify();
         $l = lecteur_depuis_post($l);
-        $l['actif'] = isset($_POST['actif']) ? 1 : 0;
+        // Activer ou désactiver le compte relève du droit « valider » : sans lui, l'état actuel est conservé
+        $l['actif'] = peut('lecteurs.valider') ? (isset($_POST['actif']) ? 1 : 0) : (int) ($l['actif'] ?? 1);
         $accesEnLigne = isset($_POST['acces_en_ligne']);
         $erreurs = valider_lecteur($l, $accesEnLigne);
 

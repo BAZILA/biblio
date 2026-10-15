@@ -32,7 +32,7 @@ $badges = ['en_attente' => '', 'disponible' => 'vert', 'honoree' => 'bleu', 'ann
 					<?= bouton_remettre($r) ?>
 <?php endif; ?>
 <?php if (in_array($r['statut'], ['disponible', 'en_attente'], true)): ?>
-					<?= bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') ?>
+					<?= peut('reservations.annuler') ? bouton_action(admin_url('reservations/annuler/' . $r['id']), 'Annuler', 'btn danger petit', 'Annuler cette réservation ?') : '' ?>
 <?php endif; ?>
 				</td>
 			</tr>
