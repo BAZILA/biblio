@@ -22,14 +22,14 @@ $carte = function (array $o, int $index, bool $avecResume): string {
 				<a href="<?= e(url('domaines/' . $o['domaine_slug'])) ?>" class="cat-link"><i class="far fa-folder-open"></i><?= e($o['domaine_nom']) ?></a>
 				</span>
 				<h3>
-				<a class="jt-title" href="<?= e($o['url']) ?>" itemprop="url">
-					<?= e(tronquer($o['titre'], 60, ' ')) ?>				</a></h3>
+				<a class="jt-title" href="<?= e($o['url']) ?>" itemprop="url" title="<?= e($o['titre']) ?>">
+					<?= e($o['titre']) ?>				</a></h3>
 <?php if ($avecResume): ?>
 				    <div class="jt-introtext">
         <?= e(tronquer($o['resume'], 110)) ?>    </div>
 <?php endif; ?>
 				<div class="jt-author-date">
-				<span class="jt-author"><i class="fas fa-user"></i>
+				<span class="jt-author" title="<?= e($o['auteurs_txt']) ?>"><i class="fas fa-user"></i>
 				<?= e($o['auteurs_txt']) ?>								</span>
 								</div>
 					<p class="jt-readmore">

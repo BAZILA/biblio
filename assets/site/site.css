@@ -233,3 +233,22 @@
 	.cpt-chiffre { padding: 12px; column-gap: 8px; }
 	.cpt-chiffre .fa { width: 34px; height: 34px; font-size: 15px; }
 }
+
+/* Cartes des carrousels : titre sur 3 lignes maximum et auteur entier, sans rien masquer
+   (le thème impose display:flow-root, une hauteur fixe et un séparateur à droite de l'auteur) */
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 {
+	display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+	height: 72px !important; line-height: 24px !important; padding: 0 !important; margin: 0 0 4px !important; overflow: hidden !important; }
+.jtcs-nouveautes .jt-introtitle-container h3 a, .jtcs-coeur .jt-introtitle-container h3 a { display: inline !important; line-height: 24px !important; }
+.jtcs-nouveautes .jt-introtext, .jtcs-coeur .jt-introtext {
+	display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+	height: 67px !important; text-align: left !important; overflow: hidden !important; }
+.jtcs-nouveautes .jt-author-date, .jtcs-coeur .jt-author-date { display: block !important; height: auto !important; min-height: 22px; overflow: visible !important; margin: 10px 0 !important; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author {
+	display: block !important; width: 100%; height: auto !important; line-height: 22px !important; margin: 0 !important; padding: 0 !important;
+	border: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jtcs-nouveautes .jt-author .fas, .jtcs-coeur .jt-author .fas { margin-right: 6px; }
+/* Titres longs : 4 lignes ; auteurs longs : 2 lignes (hauteurs fixes pour garder l'alignement) */
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 { -webkit-line-clamp: 4; height: 88px !important; line-height: 22px !important; font-size: 18px !important; }
+.jtcs-nouveautes .jt-introtitle-container h3 a, .jtcs-coeur .jt-introtitle-container h3 a { line-height: 22px !important; font-size: 18px !important; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author { white-space: normal; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; height: 44px !important; }

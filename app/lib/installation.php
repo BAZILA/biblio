@@ -29,7 +29,7 @@ function installer_base(string $url = ''): void
     }
     foreach (['images/ouvrages', 'images/biblio'] as $dossier) {
         if (!is_dir(ROOT_DIR . '/' . $dossier)) {
-            @mkdir(ROOT_DIR . '/' . $dossier, 0775, true);
+            @mkdir(ROOT_DIR . '/' . $dossier, 0755, true); // 775 et 777 sont refusés par suPHP (o2switch)
         }
     }
 }

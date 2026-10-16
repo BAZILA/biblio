@@ -51,7 +51,7 @@ function televerser_image(string $champ, string $dossier, string $nomBase): ?str
 
     $dossier = trim(preg_replace('/[^a-z0-9_-]/', '', $dossier), '/');
     $repertoire = ROOT_DIR . '/images/' . $dossier;
-    if (!is_dir($repertoire) && !mkdir($repertoire, 0775, true)) {
+    if (!is_dir($repertoire) && !mkdir($repertoire, 0755, true)) {
         throw new RuntimeException('Dossier d’images inaccessible.');
     }
     $base = slugify($nomBase);
