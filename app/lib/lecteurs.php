@@ -4,10 +4,10 @@
  * à la création dans l'admin et à la création rapide au guichet.
  *
  * Obligatoires : prénom, nom, téléphone, catégorie ; matricule (sauf lecteur externe) ;
- * faculté et département pour un étudiant ; e-mail seulement si le lecteur a un accès en ligne.
+ * faculté et parcours pour un étudiant ; e-mail seulement si le lecteur a un accès en ligne.
  */
 
-const CHAMPS_LECTEUR = ['prenom', 'nom', 'email', 'telephone', 'categorie', 'matricule', 'faculte', 'departement'];
+const CHAMPS_LECTEUR = ['prenom', 'nom', 'email', 'telephone', 'categorie', 'matricule', 'faculte', 'parcours'];
 
 /** Lit les champs lecteur envoyés en POST par-dessus les valeurs existantes. */
 function lecteur_depuis_post(array $base): array
@@ -17,7 +17,9 @@ function lecteur_depuis_post(array $base): array
     }
     $base['email'] = mb_strtolower($base['email']);
     if ($base['categorie'] !== 'etudiant') {
-        $base['faculte'] = $base['departement'] = '';
+        $base['faculte'] = $base['parcours'] = '';
+    } else {
+        $base['matricule'] = normaliser_suivi($base['matricule']); // n° de suivi : même forme que la liste des étudiants
     }
     return $base;
 }
@@ -36,11 +38,14 @@ function valider_lecteur(array $l, bool $accesEnLigne): array
     }
     if ($l['categorie'] !== 'externe' && $l['matricule'] === '') {
         $erreurs['matricule'] = 'Champ requis (sauf pour un lecteur externe).';
+    } elseif ($l['categorie'] === 'etudiant' && !suivi_valide($l['matricule'])
+        && $l['matricule'] !== (string) val('SELECT matricule FROM utilisateurs WHERE id = ?', [(int) ($l['id'] ?? 0)])) {
+        $erreurs['matricule'] = 'Pour un étudiant : son n° de suivi, chiffres uniquement.';
     } elseif ($l['matricule'] !== '' && val('SELECT 1 FROM utilisateurs WHERE matricule = ? AND id <> ?', [$l['matricule'], (int) ($l['id'] ?? 0)])) {
         $erreurs['matricule'] = 'Matricule déjà attribué à un autre lecteur.';
     }
     if ($l['categorie'] === 'etudiant') {
-        foreach (['faculte' => 'Faculté', 'departement' => 'Département'] as $k => $lib) {
+        foreach (['faculte' => 'Faculté', 'parcours' => 'Parcours'] as $k => $lib) {
             if ($l[$k] === '') {
                 $erreurs[$k] = 'Champ requis pour un étudiant.';
             }
@@ -66,7 +71,7 @@ function lecteur_donnees(array $l): array
         'prenom' => $l['prenom'], 'nom' => $l['nom'], 'telephone' => $l['telephone'], 'categorie' => $l['categorie'],
         'email' => $l['email'] !== '' ? $l['email'] : null,
         'matricule' => $l['matricule'] !== '' ? $l['matricule'] : null,
-        'faculte' => $l['faculte'], 'departement' => $l['departement'],
+        'faculte' => $l['faculte'], 'parcours' => $l['parcours'],
     ];
 }
 
@@ -81,10 +86,10 @@ function mot_de_passe_provisoire(): string
     return $mdp;
 }
 
-/** Valeurs déjà saisies (facultés, départements) pour les suggestions des formulaires. */
+/** Valeurs déjà saisies (facultés, parcours) pour les suggestions des formulaires. */
 function valeurs_existantes(string $colonne): array
 {
-    if (!in_array($colonne, ['faculte', 'departement'], true)) {
+    if (!in_array($colonne, ['faculte', 'parcours'], true)) {
         return [];
     }
     return array_column(rows("SELECT DISTINCT $colonne AS v FROM utilisateurs WHERE $colonne <> '' ORDER BY $colonne"), 'v');

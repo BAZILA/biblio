@@ -78,9 +78,9 @@
 		<p><strong>Catégorie :</strong> <?= e(LIBELLES_CATEGORIE[$l['categorie']] ?? '—') ?><br>
 <?php if ($l['categorie'] === 'etudiant'): ?>
 		<strong>Faculté :</strong> <?= e($l['faculte'] ?: '—') ?><br>
-		<strong>Département :</strong> <?= e($l['departement'] ?: '—') ?><br>
+		<strong>Parcours :</strong> <?= e($l['parcours'] ?: '—') ?><br>
 <?php endif; ?>
-		<strong>Matricule :</strong> <?= e($l['matricule'] ?? '—') ?><br>
+		<strong><?= $l['categorie'] === 'etudiant' ? 'N° de suivi' : 'Matricule' ?> :</strong> <?= e($l['matricule'] ?? '—') ?><br>
 		<strong>E-mail :</strong> <?= $l['email'] ? '<a href="mailto:' . e($l['email']) . '">' . e($l['email']) . '</a>' : '—' ?><br>
 		<strong>Téléphone :</strong> <?= e($l['telephone'] ?: '—') ?></p>
 		<p class="doux">Inscrit le <?= e(date_fr($l['cree_le'])) ?><br>

@@ -107,4 +107,37 @@ if (!val("SELECT COUNT(*) FROM reglages WHERE cle = 'photo_apropos'")) {
     $etapes++;
 }
 
+// Liste des étudiants de l'université (inscription en ligne vérifiée, prêt au guichet sans compte)
+if (!table_existe('etudiants')) {
+    preg_match('/CREATE TABLE etudiants \(.*?\) ENGINE=[^;]+;/s', file_get_contents(__DIR__ . '/schema.sql'), $m);
+    db()->exec(rtrim($m[0], ';'));
+    foreach (['Bibliothécaire' => ['etudiants.voir', 'import.etudiants'], 'Agent de prêt' => ['etudiants.voir']] as $role => $droits) {
+        $roleId = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', [$role]);
+        foreach ($roleId ? $droits : [] as $p) {
+            q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$roleId, $p]);
+        }
+    }
+    echo "table etudiants créée (droits ajoutés aux rôles Bibliothécaire et Agent de prêt)\n";
+    $etapes++;
+} elseif (colonne_existe('etudiants', 'numero_carte')) {
+    // Première version de la liste (n° de carte, faculté…) : n° de suivi, et seulement l'identité
+    db()->exec('ALTER TABLE etudiants DROP INDEX uq_carte, CHANGE numero_carte numero_suivi VARCHAR(50) NOT NULL,
+        CHANGE inscrit actif TINYINT(1) NOT NULL DEFAULT 1, DROP faculte, DROP departement, DROP niveau, DROP email, DROP telephone,
+        ADD UNIQUE KEY uq_suivi (numero_suivi)');
+    echo "liste des étudiants : n° de suivi\n";
+    $etapes++;
+}
+if (colonne_existe('utilisateurs', 'departement')) {
+    db()->exec("ALTER TABLE utilisateurs CHANGE departement parcours VARCHAR(150) NOT NULL DEFAULT ''");
+    echo "lecteurs : « département » devient « parcours »\n";
+    $etapes++;
+}
+// Activer / désactiver des étudiants de la liste : accordé au rôle Bibliothécaire fourni par défaut
+$biblio = val("SELECT id FROM roles WHERE nom = 'Bibliothécaire' AND tous_droits = 0");
+if ($biblio && !val("SELECT COUNT(*) FROM role_permissions WHERE permission = 'etudiants.activer'")) {
+    q("INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, 'etudiants.activer')", [$biblio]);
+    echo "droit « Étudiants : activer / désactiver » ajouté au rôle Bibliothécaire\n";
+    $etapes++;
+}
+
 echo $etapes ? "Mise à jour terminée ($etapes étape(s)).\n" : "La base est déjà à jour.\n";

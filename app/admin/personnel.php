@@ -46,7 +46,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
         $ancienActif = (int) $p['actif'];
         if (!$estMoi) {
             $p['role_id'] = (int) post_str('role_id', '0');
-            $p['actif'] = isset($_POST['actif']) ? 1 : 0;
+            // Désactiver ou réactiver relève du droit « desactiver » : sans lui, l'état actuel est conservé (actif pour un nouveau compte)
+            $p['actif'] = peut('personnel.desactiver') ? (isset($_POST['actif']) ? 1 : 0) : (int) $p['actif'];
         }
         $mdp = post_str('mot_de_passe', '', false);
 

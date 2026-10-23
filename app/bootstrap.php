@@ -44,3 +44,4 @@ require APP_DIR . '/lib/catalogue.php';
 require APP_DIR . '/lib/prets.php';
 require APP_DIR . '/lib/mail.php';
 require APP_DIR . '/lib/lecteurs.php';
+require APP_DIR . '/lib/etudiants.php';

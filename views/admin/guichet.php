@@ -2,7 +2,7 @@
 /**
  * Guichet prêt / retour, par listes de sélection.
  * @var array|null $lecteur, $rapide @var int $ouvrageChoisi
- * @var array $lecteurs, $ouvrages, $pretsEnCours, $pretsLecteur, $reservationsLecteur, $derniers @var bool $nouveauLecteur
+ * @var array $lecteurs, $ouvrages, $pretsEnCours, $pretsLecteur, $reservationsLecteur, $derniers @var bool $nouveauLecteur, $etudiantsCharges
  */
 $duree = reglage_int('pret_duree_jours', 14);
 $lecteurInactif = $lecteur && !$lecteur['actif'];
@@ -20,13 +20,19 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 
 			<div class="champ">
 				<label for="choix-lecteur"><span class="etape-num">1</span> Lecteur</label>
-				<input type="search" class="filtre-liste" data-liste="#choix-lecteur" placeholder="Filtrer la liste : nom ou matricule…" aria-label="Filtrer les lecteurs">
-				<select name="lecteur_id" id="choix-lecteur" required data-recharger-exemplaires>
+				<input type="search" class="filtre-liste" data-liste="#choix-lecteur" placeholder="<?= $etudiantsCharges ? 'Tapez un nom ou un n° de suivi (lecteurs et étudiants de l’université)…' : 'Filtrer la liste : nom ou matricule…' ?>" aria-label="Filtrer les lecteurs">
+				<select name="lecteur_id" id="choix-lecteur" required data-recharger-exemplaires<?php if ($etudiantsCharges): ?> data-url-etudiants="<?= e(admin_url('guichet/etudiants')) ?>" data-url-etudiant="<?= e(admin_url('guichet/etudiant')) ?>"<?php endif; ?>>
 					<option value="">— Choisir un lecteur (<?= count($lecteurs) ?>) —</option>
 <?php foreach ($lecteurs as $l): ?>
 					<option value="<?= (int) $l['id'] ?>"<?= $lecteur && (int) $lecteur['id'] === (int) $l['id'] ? ' selected' : '' ?>><?= e($l['nom'] . ' ' . $l['prenom']) ?> — <?= e(LIBELLES_CATEGORIE[$l['categorie']] ?? '') ?><?= $l['matricule'] ? ' · ' . e($l['matricule']) : '' ?><?= $l['actif'] ? '' : ' (inactif)' ?></option>
 <?php endforeach; ?>
+<?php if ($etudiantsCharges): ?>
+					<optgroup label="Étudiants de l’université (pas encore lecteurs)" data-etudiants hidden></optgroup>
+<?php endif; ?>
 				</select>
+<?php if ($etudiantsCharges): ?>
+				<div class="aide">Les étudiants de la liste de l’université apparaissent aussi quand vous tapez leur nom, même sans compte : leur fiche lecteur est créée à la sélection.</div>
+<?php endif; ?>
 <?php if ($lecteurInactif): ?>
 				<div class="flash erreur" style="margin:8px 0 0">Compte <?= $lecteur['en_attente'] ? 'en attente de validation' : 'désactivé' ?> : prêt impossible.
 					<a href="<?= e(admin_url('lecteurs/voir/' . $lecteur['id'])) ?>">Ouvrir la fiche</a></div>
@@ -72,7 +78,12 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 				<?= csrf_field() ?>
 				<?php if ($ouvrageChoisi): ?><input type="hidden" name="ouvrage" value="<?= $ouvrageChoisi ?>"><?php endif; ?>
 				<p class="doux">Il pourra emprunter tout de suite. L’e-mail est facultatif : s’il est renseigné, le lecteur reçoit les rappels.</p>
-				<?= render(ROOT_DIR . '/views/admin/_champs_lecteur.php', ['l' => $rapide['saisie'] ?? ['categorie' => 'etudiant'], 'erreurs' => $rapide['erreurs'] ?? []]) ?>
+<?php if ($etudiantsCharges): ?>
+				<p class="aide"><i class="fa-solid fa-circle-info"></i> Étudiant de l’université ? Tapez d’abord son nom ou son n° de suivi dans le choix du lecteur ci-dessus :
+					s’il figure dans la liste, sa fiche est créée automatiquement. Ce formulaire sert aux enseignants, au personnel, aux visiteurs
+					et aux étudiants pas encore dans la liste (n° de suivi comme matricule).</p>
+<?php endif; ?>
+				<?= render(ROOT_DIR . '/views/admin/_champs_lecteur.php', ['l' => $rapide['saisie'] ?? ['categorie' => $etudiantsCharges ? 'enseignant' : 'etudiant'], 'erreurs' => $rapide['erreurs'] ?? []]) ?>
 				<button class="btn" type="submit"><i class="fa-solid fa-user-plus"></i> Créer et sélectionner</button>
 			</form>
 		</details>

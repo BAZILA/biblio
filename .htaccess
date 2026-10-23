@@ -18,7 +18,7 @@ Options -Indexes
 </FilesMatch>
 
 # Fichiers sensibles : jamais servis
-<FilesMatch "(^\.|\.(sql|md|log|bak|ini|txt|ps1|sh)$|^composer\.(json|lock)$)">
+<FilesMatch "(^\.|\.(sql|md|log|bak|ini|txt|ps1|sh)$|^composer\.(json|lock)$|^error_log$)">
   Require all denied
 </FilesMatch>
 <FilesMatch "^robots\.txt$">

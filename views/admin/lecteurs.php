@@ -24,7 +24,7 @@ $onglets = ['tous' => 'Tous', 'actifs' => 'Actifs', 'a_valider' => 'À valider',
 	<div class="vide">Aucun lecteur.</div>
 <?php else: ?>
 	<div class="tableau-wrap"><table class="tableau">
-		<thead><tr><th>Nom</th><th>Catégorie</th><th>Matricule</th><th>E-mail</th><th class="num">Prêts</th><th>Compte</th><th></th></tr></thead>
+		<thead><tr><th>Nom</th><th>Catégorie</th><th>Matricule / n° de suivi</th><th>E-mail</th><th class="num">Prêts</th><th>Compte</th><th></th></tr></thead>
 		<tbody>
 <?php foreach ($liste as $l): ?>
 			<tr>

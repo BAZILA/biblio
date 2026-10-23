@@ -16,7 +16,7 @@ $initiales = mb_strtoupper(mb_substr($u['prenom'] ?: $u['nom'], 0, 1) . mb_subst
 		<div class="cpt-avatar" aria-hidden="true"><?= e($initiales) ?></div>
 		<div class="cpt-identite">
 			<h1>Bonjour <?= e($u['prenom'] ?: $u['nom']) ?></h1>
-			<p><?= e(LIBELLES_CATEGORIE[$u['categorie']] ?? 'Lecteur') ?><?= $u['matricule'] ? ' · Matricule ' . e($u['matricule']) : '' ?><?= ($u['faculte'] ?? '') !== '' ? ' · ' . e($u['faculte']) : '' ?></p>
+			<p><?= e(LIBELLES_CATEGORIE[$u['categorie']] ?? 'Lecteur') ?><?= $u['matricule'] ? ($u['categorie'] === 'etudiant' ? ' · N° de suivi ' : ' · Matricule ') . e($u['matricule']) : '' ?><?= ($u['faculte'] ?? '') !== '' ? ' · ' . e($u['faculte']) : '' ?></p>
 		</div>
 		<form method="post" action="<?= e(url('compte/deconnexion')) ?>"><?= csrf_field() ?><button class="btn btn-default" type="submit"><i class="fa fa-sign-out" aria-hidden="true"></i> Se déconnecter</button></form>
 	</header>
@@ -41,7 +41,7 @@ $initiales = mb_strtoupper(mb_substr($u['prenom'] ?: $u['nom'], 0, 1) . mb_subst
 				<dt>Téléphone</dt><dd><?= e($u['telephone'] ?: '—') ?></dd>
 <?php if ($u['categorie'] === 'etudiant'): ?>
 				<dt>Faculté</dt><dd><?= e($u['faculte'] ?: '—') ?></dd>
-				<dt>Département</dt><dd><?= e($u['departement'] ?: '—') ?></dd>
+				<dt>Parcours</dt><dd><?= e($u['parcours'] ?: '—') ?></dd>
 <?php endif; ?>
 			</dl>
 			<p class="cpt-aide">Une information à corriger ? Adressez-vous à l’accueil de la bibliothèque.</p>

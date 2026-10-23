@@ -187,10 +187,10 @@ function rapport_pdf(string $type, string $du, string $au): never
                               (SELECT COUNT(*) FROM prets p WHERE p.lecteur_id = u.id) AS total
                        FROM utilisateurs u WHERE u.role = 'lecteur' ORDER BY u.nom, u.prenom");
             $pdf->paragraphe(pluriel(count($l), 'lecteur inscrit', 'lecteurs inscrits') . ', dont ' . count(array_filter($l, fn($u) => $u['actif'])) . ' actif(s).', 10, true);
-            $pdf->tableau([['Nom', 4, 'G'], ['Catégorie', 2.2, 'G'], ['Matricule', 2, 'G'], ['Faculté / département', 4, 'G'], ['Téléphone', 2.2, 'G'],
+            $pdf->tableau([['Nom', 4, 'G'], ['Catégorie', 2.2, 'G'], ['Matricule', 2, 'G'], ['Faculté / parcours', 4, 'G'], ['Téléphone', 2.2, 'G'],
                            ['E-mail', 4, 'G'], ['État', 1.6, 'G'], ['En cours', 1.4, 'D'], ['Total prêts', 1.6, 'D']],
                 array_map(fn($u) => [trim($u['nom'] . ' ' . $u['prenom']), LIBELLES_CATEGORIE[$u['categorie']] ?? '', $u['matricule'],
-                    trim($u['faculte'] . ($u['departement'] ? ' / ' . $u['departement'] : '')), $u['telephone'], $u['email'],
+                    trim($u['faculte'] . ($u['parcours'] ? ' / ' . $u['parcours'] : '')), $u['telephone'], $u['email'],
                     $u['actif'] ? 'Actif' : ($u['en_attente'] ? 'À valider' : 'Désactivé'), (int) $u['en_cours'], (int) $u['total']], $l));
             break;
 

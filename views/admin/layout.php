@@ -25,6 +25,7 @@ $menu = [
         ['demandes', 'prets/demandes', 'fa-calendar-plus', 'Demandes de prolongation', $pastille('demandes'), ['demandes.voir']],
         ['reservations', 'reservations', 'fa-bookmark', 'Réservations', $pastille('reservations'), ['reservations.voir']],
         ['lecteurs', 'lecteurs', 'fa-users', 'Lecteurs', $pastille('inscriptions'), ['lecteurs.voir']],
+        ['etudiants', 'etudiants', 'fa-id-card', 'Étudiants de l’université', null, ['etudiants.voir']],
         ['rapports', 'rapports', 'fa-chart-column', 'Statistiques et rapports', null, ['rapports.voir']],
     ],
     'Catalogue' => [
@@ -32,7 +33,7 @@ $menu = [
         ['auteurs', 'auteurs', 'fa-feather', 'Auteurs', null, ['auteurs.voir']],
         ['domaines', 'domaines', 'fa-layer-group', 'Domaines', null, ['domaines.voir']],
         ['types', 'types', 'fa-tags', 'Types de documents', null, ['types.voir']],
-        ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages']],
+        ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages', 'import.etudiants']],
     ],
     'Site' => [
         ['slides', 'slides', 'fa-images', 'Diaporama d’accueil', null, ['slides.voir']],

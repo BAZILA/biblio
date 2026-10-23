@@ -252,3 +252,13 @@
 .jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 { -webkit-line-clamp: 4; height: 88px !important; line-height: 22px !important; font-size: 18px !important; }
 .jtcs-nouveautes .jt-introtitle-container h3 a, .jtcs-coeur .jt-introtitle-container h3 a { line-height: 22px !important; font-size: 18px !important; }
 .jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author { white-space: normal; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; height: 44px !important; }
+
+/* Création de compte : choix du profil (étudiant de la liste de l'université ou autre lecteur) */
+.biblio-profils { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 15px 0 20px; border: 1px solid #e3e7ef; background: #fff; }
+.biblio-profils a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 12px; font-weight: 600; text-align: center; color: #3b4656; text-decoration: none; border-bottom: 3px solid transparent; }
+.biblio-profils a + a { border-left: 1px solid #e3e7ef; }
+.biblio-profils a:hover, .biblio-profils a:focus { color: var(--uk-blue); background: #f6f8fc; }
+.biblio-profils a.actif { color: var(--uk-blue); border-bottom-color: var(--uk-blue); background: #f6f8fc; }
+.biblio-compte-boite .biblio-aide { display: block; margin-top: 4px; }
+@media (max-width: 480px) { .biblio-profils { grid-template-columns: 1fr; } .biblio-profils a + a { border-left: 0; border-top: 1px solid #e3e7ef; } }
+.biblio-compte-boite .form-control { width: 100%; max-width: 100%; box-sizing: border-box; }

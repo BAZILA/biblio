@@ -22,6 +22,8 @@ $extensions = array(
     'openssl'   => 'envoi des e-mails sécurisés',
     'iconv'     => 'rapports PDF',
     'session'   => 'connexion à l’administration',
+    'dom'       => 'nettoyage des textes mis en forme',
+    'ctype'     => 'contrôle des formulaires',
 );
 foreach ($extensions as $ext => $usage) {
     if (!extension_loaded($ext)) {

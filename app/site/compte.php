@@ -36,31 +36,102 @@ switch ($action) {
         page('compte/connexion', compact('email', 'erreur', 'retour'), $gabarit + ['titre' => 'Connexion — Espace lecteur']);
 
     case 'inscription':
-        $saisie = ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'categorie' => 'etudiant', 'matricule' => '', 'telephone' => '',
-            'faculte' => '', 'departement' => ''];
+        // Deux parcours : étudiant de la liste de l'université (compte créé tout de suite, identité vérifiée, il complète
+        // faculté et parcours) ou enseignant / personnel / visiteur (demande validée ensuite par la bibliothèque).
+        $profil = (post_str('profil') ?: get_str('profil')) === 'autre' ? 'autre' : 'etudiant';
+        $listeEtudiants = (bool) val('SELECT 1 FROM etudiants WHERE actif = 1 LIMIT 1');
+        $saisie = ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'categorie' => 'enseignant', 'matricule' => '', 'telephone' => '',
+            'faculte' => '', 'parcours' => '', 'numero_suivi' => '', 'date_naissance' => '', 'lieu_naissance' => ''];
         $erreurs = [];
         if (is_post()) {
             csrf_verify();
-            // Tous les champs sont obligatoires (faculté et département pour un étudiant), e-mail compris
-            $saisie = lecteur_depuis_post($saisie);
-            $erreurs = valider_lecteur($saisie, true);
             $mdp = post_str('mot_de_passe', '', false);
             if (mb_strlen($mdp) < 8) {
                 $erreurs['mot_de_passe'] = 'Au moins 8 caractères.';
             } elseif ($mdp !== ($_POST['mot_de_passe2'] ?? '')) {
                 $erreurs['mot_de_passe2'] = 'Les deux mots de passe ne correspondent pas.';
             }
-            if (!$erreurs) {
-                if (($_POST['site_web'] ?? '') === '') {
-                    insert('utilisateurs', lecteur_donnees($saisie) + [
-                        'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1, 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
-                    ]);
+            $robot = ($_POST['site_web'] ?? '') !== '';
+
+            if ($profil === 'etudiant') {
+                foreach (['nom', 'prenom', 'numero_suivi', 'date_naissance', 'lieu_naissance', 'faculte', 'parcours', 'email', 'telephone'] as $k) {
+                    $saisie[$k] = mb_substr(post_str($k, ''), 0, $k === 'email' ? 190 : 150);
+                    if ($saisie[$k] === '' && $k !== 'telephone') {
+                        $erreurs[$k] = 'Champ requis.';
+                    }
                 }
-                flash('succes', 'Votre demande est enregistrée. Votre compte sera activé par la bibliothèque après vérification ; vous pourrez alors vous connecter.');
-                redirect(url('compte/connexion'));
+                $saisie['email'] = mb_strtolower($saisie['email']);
+                if ($saisie['email'] !== '' && !filter_var($saisie['email'], FILTER_VALIDATE_EMAIL)) {
+                    $erreurs['email'] = 'Adresse e-mail invalide.';
+                }
+                if ($saisie['date_naissance'] !== '' && !date_naissance_iso($saisie['date_naissance'])) {
+                    $erreurs['date_naissance'] = 'Date invalide.';
+                }
+                if ($saisie['numero_suivi'] !== '' && !suivi_valide($saisie['numero_suivi'])) {
+                    $erreurs['numero_suivi'] = 'Le n° de suivi ne contient que des chiffres.';
+                }
+                // Limite les essais d'identité (même règle que la connexion : par n° de suivi et par adresse IP)
+                $cleEssai = 'inscription:' . normaliser_suivi($saisie['numero_suivi']);
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+                if (!$erreurs && ((int) val('SELECT COUNT(*) FROM tentatives_connexion WHERE email = ? AND le > NOW() - INTERVAL 15 MINUTE', [$cleEssai]) >= ECHECS_MAX_EMAIL
+                    || (int) val("SELECT COUNT(*) FROM tentatives_connexion WHERE ip = ? AND email LIKE 'inscription:%' AND le > NOW() - INTERVAL 15 MINUTE", [$ip]) >= ECHECS_MAX_IP)) {
+                    $erreurs['identite'] = 'Trop d’essais. Réessayez dans un quart d’heure, ou présentez-vous à l’accueil de la bibliothèque.';
+                }
+                if (!$erreurs) {
+                    $etudiant = verifier_etudiant($saisie);
+                    if (is_string($etudiant)) {
+                        $erreurs['identite'] = $etudiant;
+                        insert('tentatives_connexion', ['email' => mb_substr($cleEssai, 0, 190), 'ip' => mb_substr($ip, 0, 45)]);
+                    }
+                }
+                if (!$erreurs) {
+                    $fiche = lecteur_par_suivi($etudiant['numero_suivi']); // fiche créée au guichet lors d'un prêt, s'il y en a une
+                    if ($fiche && $fiche['mot_de_passe'] !== '') {
+                        $erreurs['identite'] = 'Un compte existe déjà pour ce n° de suivi' . ($fiche['email'] ? ' (identifiant : ' . masquer_email($fiche['email']) . ')' : '')
+                            . '. Connectez-vous, ou adressez-vous à l’accueil si vous avez oublié votre mot de passe.';
+                    } elseif ($fiche && !$fiche['actif']) {
+                        $erreurs['identite'] = 'Votre fiche lecteur a été désactivée par la bibliothèque : présentez-vous à l’accueil.';
+                    } elseif (val('SELECT 1 FROM utilisateurs WHERE email = ? AND id <> ?', [$saisie['email'], (int) ($fiche['id'] ?? 0)])) {
+                        $erreurs['email'] = 'Un autre compte utilise déjà cette adresse.';
+                    }
+                }
+                if (!$erreurs) {
+                    if ($robot) {
+                        redirect(url('compte/connexion'));
+                    }
+                    $donnees = ['email' => $saisie['email'], 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT), 'actif' => 1, 'en_attente' => 0,
+                        'faculte' => $saisie['faculte'], 'parcours' => $saisie['parcours'], 'telephone' => $saisie['telephone']];
+                    if ($fiche) {
+                        update('utilisateurs', (int) $fiche['id'], $donnees);
+                    } else {
+                        insert('utilisateurs', lecteur_depuis_etudiant($etudiant) + $donnees);
+                    }
+                    q('DELETE FROM tentatives_connexion WHERE email = ?', [$cleEssai]);
+                    mail_compte_etudiant_cree(lecteur_par_suivi($etudiant['numero_suivi']));
+                    tenter_connexion($saisie['email'], $mdp);
+                    flash('succes', 'Bienvenue ! Votre compte lecteur est créé. Votre identifiant de connexion est votre adresse e-mail : ' . $saisie['email'] . '.');
+                    redirect(url('compte'));
+                }
+            } else {
+                // Enseignant, personnel ou visiteur : tous les champs obligatoires, e-mail compris (les étudiants ont leur propre parcours)
+                $saisie = lecteur_depuis_post($saisie);
+                if (!isset(CATEGORIES_HORS_ETUDIANT[$saisie['categorie']])) {
+                    $erreurs['categorie'] = 'Choisissez une catégorie.';
+                }
+                $erreurs += valider_lecteur($saisie, true);
+                if (!$erreurs) {
+                    if (!$robot) {
+                        insert('utilisateurs', lecteur_donnees($saisie) + [
+                            'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1, 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
+                        ]);
+                    }
+                    flash('succes', 'Votre demande est enregistrée. Votre compte sera activé par la bibliothèque après vérification : '
+                        . 'vous recevrez alors un e-mail, et votre identifiant de connexion sera votre adresse e-mail.');
+                    redirect(url('compte/connexion'));
+                }
             }
         }
-        page('compte/inscription', compact('saisie', 'erreurs'), $gabarit + ['titre' => 'Créer un compte lecteur']);
+        page('compte/inscription', compact('saisie', 'erreurs', 'profil', 'listeEtudiants'), $gabarit + ['titre' => 'Créer un compte lecteur']);
 
     case 'deconnexion':
         if (is_post()) {

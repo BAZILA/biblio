@@ -82,7 +82,7 @@ code { background: #eef1f7; padding: 1px 6px; border-radius: 4px; font-size: .9e
 .adm-barre .recherche-rapide input { width: 100%; }
 .adm-barre .compte { margin-left: auto; display: flex; gap: 14px; align-items: center; color: var(--doux); }
 .adm-burger { display: none; background: none; border: 0; font-size: 1.3rem; color: var(--marine); cursor: pointer; }
-.adm-contenu { padding: 26px 28px 60px; max-width: 1280px; width: 100%; }
+.adm-contenu { padding: 26px 28px 60px; width: 100%; min-width: 0; } /* toute la largeur disponible (tableaux larges) */
 
 .entete { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px; }
 .entete h1 { margin: 0; }

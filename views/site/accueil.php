@@ -139,6 +139,7 @@ $styleCarrousel = fn(string $classe) => "<style type=\"text/css\">.$classe.owl-c
 </div></div></div>
       </div></div>
 	  	 			 <div style="clear:both"></div>
+<?php if ($domaines): // section masquée tant qu'elle est vide ?>
 			 <div class="uppermain-5">
 			 <div class="container t3-sl">
         <div class="t3-module module "><div class="module-inner"><div class="module-ct">
@@ -167,8 +168,10 @@ $styleCarrousel = fn(string $classe) => "<style type=\"text/css\">.$classe.owl-c
 </div></div></div>
 		</div>
       </div>
+<?php endif; ?>
 	<div style="clear:both"></div>
 	<div class="uppermain-6-7">
+<?php if ($nouveautes): // section masquée tant qu'elle est vide ?>
 	<div class="uppermain-6 col-xs-12 col-sm-12 col-md-12">
 		 <div class="t3-module module "><div class="module-inner"><div class="module-ct"><div class="jtcs_item_wrapper jt-cs exeltis exeltis-2 projects" style="padding:10px 10px 10px 10px;">
 <div class="jt-pretext">
@@ -183,6 +186,7 @@ $styleCarrousel = fn(string $classe) => "<style type=\"text/css\">.$classe.owl-c
 <script>biblioCarrousel('.jtcs-nouveautes.owl-carousel', {0: {items: 1, rows: 4}, 768: {items: 2, rows: 3}, 991: {items: 4, rows: 1}});</script>
 </div></div></div>
 	</div>
+<?php endif; ?>
 	<div class="uppermain-7 ">
 	</div></div>
 

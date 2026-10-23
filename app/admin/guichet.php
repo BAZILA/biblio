@@ -12,6 +12,30 @@ if ($action === 'exemplaires') {
     exit;
 }
 
+// Étudiants de la liste de l'université sans fiche lecteur (JSON), proposés dans le choix du lecteur
+if ($action === 'etudiants') {
+    exiger('prets.ajouter');
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(array_map(fn($et) => [
+        'valeur' => 'etu-' . $et['id'],
+        'texte' => $et['nom'] . ' ' . $et['prenom'] . ' — Étudiant · n° de suivi ' . $et['numero_suivi'] . ' (sans compte)',
+    ], etudiants_sans_fiche(get_str('q'))), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// Étudiant de la liste choisi au guichet : sa fiche lecteur est créée (sans accès en ligne) pour enregistrer le prêt
+if ($action === 'etudiant') {
+    exiger_post();
+    exiger('prets.ajouter');
+    try {
+        $lecteurId = lecteur_pour_etudiant($id ?: (int) ($_POST['etudiant_id'] ?? 0));
+    } catch (RuntimeException $ex) {
+        flash('erreur', $ex->getMessage());
+        redirect(admin_url('guichet'));
+    }
+    redirect(admin_url('guichet', ['lecteur' => $lecteurId] + ((int) post_str('ouvrage') ? ['ouvrage' => (int) post_str('ouvrage')] : [])));
+}
+
 /** Exemplaires prêtables : ceux mis de côté pour ce lecteur d'abord, puis les disponibles (meilleur état d'abord). */
 function exemplaires_pretables(int $ouvrageId, int $lecteurId): array
 {
@@ -113,6 +137,7 @@ admin_page('guichet', [
     'pretsLecteur' => $pretsLecteur,
     'reservationsLecteur' => $reservationsLecteur,
     'nouveauLecteur' => get_str('nouveau_lecteur') !== '',
+    'etudiantsCharges' => peut('prets.ajouter') && (bool) val('SELECT 1 FROM etudiants WHERE actif = 1 LIMIT 1'),
     'rapide' => $rapide,
     'derniers' => prets('1', [], 'p.id DESC', 8),
 ], 'Guichet', 'guichet');

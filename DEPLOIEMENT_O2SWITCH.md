@@ -16,12 +16,61 @@ Cette ligne fait tourner **ce site seulement** en PHP 8.3, sans toucher aux autr
 Si vous préférez régler la version pour tout le compte : cPanel → **Sélectionner une version de PHP** → 8.3 →
 « Définir comme actuel », puis vous pouvez supprimer cette ligne.
 
-**Extensions** (cPanel → Sélectionner une version de PHP → onglet Extensions, version 8.3) : `pdo_mysql`, `mysqlnd`,
-`mbstring`, `gd`, `fileinfo`, `openssl`, `iconv`, `intl`, `zip`. La page d'installation vérifie leur présence.
+**Extensions de la version 8.3** — à cocher même si le compte garde une autre version par défaut :
+cPanel → **Sélectionner une version de PHP** → onglet **Extensions** → choisissez **8.3** dans la liste des versions de cet onglet
+(sans cliquer sur « Définir comme actuel »), puis cochez : `mbstring`, `gd`, `fileinfo`, `dom`, `ctype`, `pdo_mysql`, `mysqlnd`,
+`openssl`, `iconv`, `intl`, `zip`. L'enregistrement est immédiat ; rechargez ensuite `installation.php`, qui vérifie leur présence.
+
+Avec un accès SSH, vérification directe :
+
+```bash
+/opt/alt/php83/usr/bin/php -m | grep -iE '^(mbstring|gd|fileinfo|dom|ctype|pdo_mysql|openssl|iconv)$'
+```
+
+Les 8 noms doivent s'afficher. Si l'onglet Extensions ne propose pas de choisir la version 8.3 sans la rendre
+« actuelle » pour tout le compte, demandez au support o2switch d'activer ces extensions pour PHP 8.3 sur votre compte.
 
 **Réglages** (même écran, onglet Options) : `upload_max_filesize = 10M`, `post_max_size = 12M`, `memory_limit = 256M`,
 `expose_php = Off`, `date.timezone = Africa/Lome`. Avec la ligne `___lsphp` ci-dessus, un fichier `php.ini` ou `.user.ini`
 dans le dossier du site est ignoré : passez par cet écran.
+
+### Si des extensions manquent en 8.3 alors qu'elles sont cochées
+
+Les cases du sélecteur s'appliquent à la version **actuelle** du compte, pas forcément à la 8.3 forcée par le `.htaccess`.
+Vérifiez la version actuelle du compte :
+
+```bash
+php -v
+php -m | grep -iE '^(mbstring|gd|fileinfo|dom|ctype|pdo_mysql|openssl|iconv)$'
+```
+
+**Cas A — le compte est déjà en PHP 8.2 ou plus avec ces extensions** : supprimez simplement la ligne `AddHandler … php83___lsphp`
+du `.htaccess` ; le site utilise alors la version du compte.
+
+**Cas B — le compte doit rester sur une version plus ancienne** (autres sites) : php.ini propre au site.
+1. Déposez à la racine du site le fichier `php.ini` fourni (il charge `mbstring`, `gd`, `fileinfo`, `dom`) ;
+2. testez-le avant de l'activer :
+
+   ```bash
+   /opt/alt/php83/usr/bin/php -c ~/bibliotheque.univ-kara.org/php.ini -m | grep -iE '^(mbstring|gd|fileinfo|dom|ctype|pdo_mysql|openssl|iconv)$'
+   ```
+
+   les 8 noms doivent s'afficher, sans message « Unable to load dynamic library » (si un tel message cite `dom`,
+   ajoutez `extension=xml.so` juste avant `extension=dom.so`) ;
+3. remplacez les 3 premières lignes du `.htaccess` (commentaires et `AddHandler … ___lsphp`) par :
+
+   ```apache
+   <FilesMatch \.php$>
+   SetHandler application/x-httpd-php83
+   </FilesMatch>
+   AddHandler application/x-httpd-php83 .php
+   suPHP_ConfigPath /home/VOTRE_LOGIN/bibliotheque.univ-kara.org/
+   ```
+
+   (o2switch : `suPHP_ConfigPath` n'est lu qu'avec cette forme `SetHandler`, pas avec la forme `___lsphp`) ;
+4. la tâche Cron doit alors utiliser le même fichier : `/opt/alt/php83/usr/bin/php -c /home/VOTRE_LOGIN/bibliotheque.univ-kara.org/php.ini …`.
+
+Si une page affiche du code PHP au lieu du site, le handler est mal écrit : corrigez-le immédiatement.
 
 ## 2. Base de données
 
@@ -36,7 +85,16 @@ cPanel → **Gestionnaire de fichiers** → dossier `bibliotheque.univkara.tg` :
 1. videz le dossier (ancienne tentative) ;
 2. envoyez le zip, clic droit → **Extraire** directement dans ce dossier : on doit y voir `index.php`, `installation.php`,
    `admin/`, `app/`… et le fichier caché `.htaccess` (Paramètres → « Afficher les fichiers cachés ») ;
-3. droits : dossiers en **755**, fichiers en **644** (suPHP refuse 775 et 777).
+3. droits : dossiers en **755**, fichiers en **644**. Indispensable : un zip préparé sous Windows s'extrait souvent en 666/777,
+   que suPHP refuse (erreur 500 « Internal Server Error … ErrorDocument »). En SSH :
+
+   ```bash
+   find ~/bibliotheque.univ-kara.org -type d -exec chmod 755 {} +
+   find ~/bibliotheque.univ-kara.org -type f -exec chmod 644 {} +
+   ```
+
+   puis, une fois `app/config.php` créé : `chmod 600 ~/bibliotheque.univ-kara.org/app/config.php`
+   (et `php.ini` s'il existe).
 
 ## 4. Configuration
 
@@ -98,3 +156,21 @@ téléchargez régulièrement le dossier `images`.
 Remplacez les fichiers (en gardant `app/config.php` et `images/`), puis, si une mise à jour de la base est nécessaire,
 ajoutez une tâche Cron ponctuelle :
 `/opt/alt/php83/usr/bin/php /home/alpha/bibliotheque.univkara.tg/install/mettre_a_jour.php`.
+
+En SSH (avec le `php.ini` du site, cas B) :
+
+```bash
+/opt/alt/php83/usr/bin/php -c ~/bibliotheque.univ-kara.org/php.ini ~/bibliotheque.univ-kara.org/install/mettre_a_jour.php
+```
+
+## 11. Données de test
+
+Pour une démonstration, un jeu complet de données fictives (catalogue avec couvertures, étudiants, lecteurs, personnel, prêts,
+réservations…) s'ajoute sans rien effacer :
+
+```bash
+/opt/alt/php83/usr/bin/php -c ~/bibliotheque.univ-kara.org/php.ini ~/bibliotheque.univ-kara.org/install/donnees_test.php
+cat ~/bibliotheque.univ-kara.org/install/IDENTIFIANTS_TEST.txt
+```
+
+Avant l'ouverture au public, retirez-les : même commande avec `--retirer` à la fin.

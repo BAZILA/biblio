@@ -195,7 +195,7 @@
     var liste = document.querySelector(filtre.getAttribute('data-liste'));
     if (!liste) { return; }
     // Pendant le filtrage, la liste se déplie et ne montre que les correspondances ; un clic choisit
-    filtre.addEventListener('input', function () {
+    function filtrer() {
       var mots = sansAccents(filtre.value.trim()).split(/\s+/).filter(Boolean);
       var visibles = 0;
       Array.prototype.forEach.call(liste.options, function (o) {
@@ -206,6 +206,36 @@
       });
       liste.size = mots.length ? Math.min(8, Math.max(2, visibles)) : 0;
       liste.classList.toggle('liste-depliee', mots.length > 0);
+    }
+    // Guichet : les étudiants de la liste de l'université sans fiche lecteur sont cherchés sur le serveur
+    var groupeEtudiants = liste.querySelector('optgroup[data-etudiants]');
+    var urlEtudiants = liste.getAttribute('data-url-etudiants');
+    var minuterie = null, derniere = '';
+    function chercherEtudiants() {
+      var q = filtre.value.trim();
+      if (q === derniere) { return; }
+      derniere = q;
+      if (q.length < 2) { groupeEtudiants.innerHTML = ''; groupeEtudiants.hidden = true; filtrer(); return; }
+      fetch(urlEtudiants + '?q=' + encodeURIComponent(q), { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (res) {
+        if (q !== filtre.value.trim()) { return; } // une saisie plus récente est en cours
+        groupeEtudiants.innerHTML = '';
+        res.forEach(function (x) {
+          var o = document.createElement('option');
+          o.value = x.valeur;
+          o.textContent = x.texte;
+          o.setAttribute('data-recherche', q); // trouvé par le serveur (nom, prénoms ou n° de carte)
+          groupeEtudiants.appendChild(o);
+        });
+        groupeEtudiants.hidden = !res.length;
+        filtrer();
+      });
+    }
+    filtre.addEventListener('input', function () {
+      filtrer();
+      if (groupeEtudiants && urlEtudiants) {
+        clearTimeout(minuterie);
+        minuterie = setTimeout(chercherEtudiants, 250);
+      }
     });
     filtre.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === 'ArrowDown') { ev.preventDefault(); liste.focus(); } });
     liste.addEventListener('change', function () {
@@ -246,6 +276,20 @@
     // Changer de lecteur recharge la page : ses prêts, réservations et ouvrages mis de côté s'affichent
     choixLecteur.addEventListener('change', function () {
       if (!choixLecteur.value) { return; }
+      // Étudiant de la liste sans fiche : la fiche lecteur est créée côté serveur, puis le guichet s'ouvre sur lui
+      if (choixLecteur.value.indexOf('etu-') === 0) {
+        var f = document.createElement('form');
+        f.method = 'post';
+        f.action = choixLecteur.getAttribute('data-url-etudiant') + '/' + choixLecteur.value.slice(4);
+        [['_csrf', choixLecteur.form.querySelector('input[name="_csrf"]').value], ['ouvrage', choixOuvrage ? choixOuvrage.value : '']].forEach(function (c) {
+          var i = document.createElement('input');
+          i.type = 'hidden'; i.name = c[0]; i.value = c[1];
+          f.appendChild(i);
+        });
+        document.body.appendChild(f);
+        f.submit();
+        return;
+      }
       var u = new URL(window.location.href);
       u.searchParams.set('lecteur', choixLecteur.value);
       if (choixOuvrage && choixOuvrage.value) { u.searchParams.set('ouvrage', choixOuvrage.value); }
@@ -391,4 +435,22 @@
     });
     majMasque();
   }
+
+  // Cases à cocher d'une liste : « tout cocher » (data-tout-cocher="nom[]") et boutons actifs seulement si une case est cochée
+  document.querySelectorAll('input[data-tout-cocher]').forEach(function (tout) {
+    var form = tout.closest('form');
+    var nom = tout.getAttribute('data-tout-cocher');
+    function cases() { return form.querySelectorAll('input[type=checkbox][name="' + nom + '"]'); }
+    function maj() {
+      var n = Array.prototype.filter.call(cases(), function (c) { return c.checked; }).length;
+      tout.checked = n > 0 && n === cases().length;
+      tout.indeterminate = n > 0 && n < cases().length;
+      form.querySelectorAll('[data-exige-coche]').forEach(function (b) { b.disabled = n === 0; });
+      var info = form.querySelector('[data-compte-coches]');
+      if (info) { info.textContent = n ? n + ' étudiant(s) coché(s) :' : 'Cochez des étudiants, puis :'; }
+    }
+    tout.addEventListener('change', function () { cases().forEach(function (c) { c.checked = tout.checked; }); maj(); });
+    form.addEventListener('change', function (ev) { if (ev.target !== tout && ev.target.name === nom) { maj(); } });
+    maj();
+  });
 })();

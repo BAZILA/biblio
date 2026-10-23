@@ -66,7 +66,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
     exiger($action === 'nouveau' ? 'lecteurs.ajouter' : 'lecteurs.modifier');
     $l = $action === 'modifier' ? $lecteurParId($id) : [
         'id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'matricule' => '', 'categorie' => 'etudiant', 'telephone' => '',
-        'faculte' => '', 'departement' => '', 'actif' => 1, 'en_attente' => 0, 'mot_de_passe' => '',
+        'faculte' => '', 'parcours' => '', 'actif' => 1, 'en_attente' => 0, 'mot_de_passe' => '',
     ];
     $l['email'] = (string) $l['email'];
     $l['matricule'] = (string) $l['matricule'];

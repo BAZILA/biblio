@@ -4,7 +4,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS role_permissions, roles, demandes_prolongation, mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
+DROP TABLE IF EXISTS etudiants, role_permissions, roles, demandes_prolongation, mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
   auteurs, types, domaines, slides, citations, blocs, reglages, messages, utilisateurs;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -40,6 +40,7 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (2, 'demandes.voir'), (2, 'demandes.traiter'),
   (2, 'reservations.voir'), (2, 'reservations.remettre'), (2, 'reservations.annuler'),
   (2, 'lecteurs.voir'), (2, 'lecteurs.ajouter'), (2, 'lecteurs.modifier'), (2, 'lecteurs.supprimer'), (2, 'lecteurs.valider'), (2, 'lecteurs.mot_de_passe'),
+  (2, 'etudiants.voir'), (2, 'etudiants.activer'), (2, 'import.etudiants'),
   (2, 'ouvrages.voir'), (2, 'ouvrages.ajouter'), (2, 'ouvrages.modifier'), (2, 'ouvrages.supprimer'), (2, 'ouvrages.desactiver'),
   (2, 'exemplaires.ajouter'), (2, 'exemplaires.modifier'), (2, 'exemplaires.supprimer'), (2, 'exemplaires.retirer'),
   (2, 'auteurs.voir'), (2, 'auteurs.ajouter'), (2, 'auteurs.modifier'), (2, 'auteurs.supprimer'),
@@ -55,7 +56,7 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (3, 'tableau.voir'), (3, 'guichet.voir'),
   (3, 'prets.voir'), (3, 'prets.ajouter'), (3, 'prets.retour'), (3, 'prets.prolonger'),
   (3, 'demandes.voir'), (3, 'reservations.voir'), (3, 'reservations.remettre'),
-  (3, 'lecteurs.voir'), (3, 'lecteurs.ajouter'), (3, 'ouvrages.voir'),
+  (3, 'lecteurs.voir'), (3, 'lecteurs.ajouter'), (3, 'etudiants.voir'), (3, 'ouvrages.voir'),
   (4, 'tableau.voir'),
   (4, 'slides.voir'), (4, 'slides.ajouter'), (4, 'slides.modifier'), (4, 'slides.supprimer'),
   (4, 'citations.voir'), (4, 'citations.ajouter'), (4, 'citations.modifier'), (4, 'citations.supprimer'),
@@ -73,7 +74,7 @@ CREATE TABLE utilisateurs (
   matricule     VARCHAR(50)  NULL,
   categorie     ENUM('etudiant','enseignant','personnel','externe') NULL,
   faculte       VARCHAR(150) NOT NULL DEFAULT '',  -- étudiants
-  departement   VARCHAR(150) NOT NULL DEFAULT '',
+  parcours      VARCHAR(150) NOT NULL DEFAULT '',  -- étudiants (filière)
   telephone     VARCHAR(50)  NOT NULL DEFAULT '',
   actif         TINYINT(1)   NOT NULL DEFAULT 1,
   en_attente    TINYINT(1)   NOT NULL DEFAULT 0,   -- inscription en ligne pas encore validée
@@ -82,6 +83,23 @@ CREATE TABLE utilisateurs (
   UNIQUE KEY uq_email (email),
   UNIQUE KEY uq_matricule (matricule),
   CONSTRAINT fk_utilisateur_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Liste officielle des étudiants de l'université (n° de suivi, nom, prénoms, date et lieu de naissance), chargée et mise à jour
+-- par import. Un étudiant de cette liste crée seul son compte en ligne (identité vérifiée) en complétant faculté et parcours,
+-- et peut emprunter au guichet sans compte. Lien avec sa fiche lecteur : utilisateurs.matricule = etudiants.numero_suivi.
+CREATE TABLE etudiants (
+  id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  numero_suivi   VARCHAR(50)  NOT NULL,          -- n° de suivi de l'étudiant (= matricule du lecteur)
+  nom            VARCHAR(100) NOT NULL,
+  prenom         VARCHAR(150) NOT NULL,
+  date_naissance DATE NOT NULL,
+  lieu_naissance VARCHAR(150) NOT NULL,
+  actif          TINYINT(1)   NOT NULL DEFAULT 1,   -- 0 = désactivé par la bibliothèque (ne peut plus créer de compte)
+  importe_le     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modifie_le     DATETIME NULL,
+  UNIQUE KEY uq_suivi (numero_suivi),
+  KEY ix_nom (nom, prenom)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE domaines (

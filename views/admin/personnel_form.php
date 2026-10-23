@@ -28,7 +28,7 @@
 <?php endif; ?>
 	<?= champ('mot_de_passe', $p['id'] ? 'Nouveau mot de passe' : 'Mot de passe initial', '', $erreurs, ['type' => 'password', 'autocomplete' => 'new-password',
 		'aide' => ($p['id'] ? 'Laisser vide pour le conserver. ' : '') . '10 caractères minimum ; la personne pourra le changer dans « Mon compte ».']) ?>
-<?php if (!$estMoi): ?>
+<?php if (!$estMoi && peut('personnel.desactiver')): ?>
 	<?= champ('actif', 'Compte actif', $p['actif'], $erreurs, ['type' => 'case']) ?>
 <?php endif; ?>
 	<div class="form-actions">

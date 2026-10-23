@@ -25,14 +25,16 @@ const PERMISSIONS = [
             'retour' => 'Enregistrer un retour (avec constat)',
             'prolonger' => 'Prolonger un prêt',
             'forcer' => 'Prolonger malgré les règles (maximum, retard, file d’attente)',
-        ], '« Ajouter » = enregistrer un prêt au guichet.'],
+        ], '« Ajouter » = bouton « Enregistrer le prêt » du guichet (et choix d’un étudiant de la liste sans compte). « Enregistrer un retour » = boutons Retour / Rendu.'],
         'demandes' => ['Demandes de prolongation', ['voir' => 'Voir', 'traiter' => 'Accepter ou refuser une demande'], ''],
-        'reservations' => ['Réservations', ['voir' => 'Voir', 'remettre' => 'Remettre un ouvrage réservé (enregistre le prêt)', 'annuler' => 'Annuler une réservation'], ''],
+        'reservations' => ['Réservations', ['voir' => 'Voir', 'remettre' => 'Remettre un ouvrage réservé (enregistre le prêt)', 'annuler' => 'Annuler une réservation'], '« Annuler » = bouton rouge « Annuler » des réservations.'],
         'lecteurs' => ['Lecteurs', [
             'voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'supprimer' => 'Supprimer',
             'valider' => 'Valider, désactiver ou réactiver un compte',
             'mot_de_passe' => 'Réinitialiser le mot de passe',
-        ], '« Ajouter » couvre aussi la création rapide au guichet.'],
+        ], '« Ajouter » couvre aussi la création rapide au guichet. « Supprimer » = bouton « Supprimer ce lecteur » (lecteur sans aucun prêt). « Valider… » = boutons Valider, Activer, Désactiver, Réactiver.'],
+        'etudiants' => ['Étudiants de l’université', ['voir' => 'Voir', 'activer' => 'Désactiver ou réactiver des étudiants de la liste'],
+            'Liste officielle chargée par import (droit « Importer un fichier ») : inscription en ligne des étudiants et prêt au guichet sans compte. « Désactiver » = cases à cocher et boutons Désactiver / Réactiver ; les comptes déjà créés ne changent pas.'],
         'rapports' => ['Statistiques et rapports', ['voir' => 'Voir', 'exporter' => 'Télécharger les rapports PDF'],
             'Chaque rapport exige aussi de voir la rubrique concernée (prêts, ouvrages ou lecteurs).'],
     ],
@@ -40,21 +42,25 @@ const PERMISSIONS = [
         'ouvrages' => ['Ouvrages', [
             'voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'supprimer' => 'Supprimer',
             'desactiver' => 'Désactiver ou réactiver un ouvrage',
-        ], '« Supprimer » n’est possible que pour une fiche jamais prêtée.'],
+        ], '« Désactiver » = carte « Désactiver l’ouvrage » de la fiche (retiré du site et du prêt, historique gardé). « Supprimer » = lien « supprimer définitivement », seulement pour une fiche jamais prêtée.'],
         'exemplaires' => ['Exemplaires', [
             'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'supprimer' => 'Supprimer',
             'retirer' => 'Retirer de la circulation ou y remettre',
-        ], 'Gérés depuis la fiche d’un ouvrage (nécessite « Ouvrages : voir »).'],
-        'auteurs' => ['Auteurs', ACTIONS_STANDARD, ''],
-        'domaines' => ['Domaines', ACTIONS_STANDARD, ''],
-        'types' => ['Types de documents', ACTIONS_STANDARD, ''],
-        'import' => ['Importer un fichier', ['auteurs' => 'Importer des auteurs', 'ouvrages' => 'Importer des ouvrages (crée aussi domaines et types)'], ''],
+        ], 'Sur la fiche d’un ouvrage (nécessite « Ouvrages : voir ») : « Modifier » = bouton ✓ (état, notes), « Retirer » = boutons Retirer / Remettre, « Supprimer » = corbeille rouge (exemplaire jamais prêté).'],
+        'auteurs' => ['Auteurs', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (auteur lié à aucun ouvrage).'],
+        'domaines' => ['Domaines', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (domaine sans ouvrage).'],
+        'types' => ['Types de documents', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (ses ouvrages passent « sans type »).'],
+        'import' => ['Importer un fichier', [
+            'auteurs' => 'Importer des auteurs',
+            'ouvrages' => 'Importer des ouvrages (crée aussi domaines et types)',
+            'etudiants' => 'Charger ou mettre à jour la liste des étudiants',
+        ], ''],
     ],
     'Site' => [
-        'slides' => ['Diaporama d’accueil', ACTIONS_STANDARD, ''],
-        'citations' => ['Citations', ACTIONS_STANDARD, ''],
+        'slides' => ['Diaporama d’accueil', ACTIONS_STANDARD, '« Modifier » couvre aussi publier / masquer ; « Supprimer » = bouton rouge en bas de la fiche.'],
+        'citations' => ['Citations', ACTIONS_STANDARD, '« Modifier » couvre aussi publier / masquer ; « Supprimer » = bouton rouge en bas de la fiche.'],
         'blocs' => ['Textes du site', ['voir' => 'Voir', 'modifier' => 'Modifier'], 'Le HTML y est enregistré tel quel : à réserver aux personnes de confiance.'],
-        'messages' => ['Messages reçus', ['voir' => 'Voir', 'supprimer' => 'Supprimer'], ''],
+        'messages' => ['Messages reçus', ['voir' => 'Voir', 'supprimer' => 'Supprimer'], '« Supprimer » = corbeille de la liste et bouton de la fiche message.'],
     ],
     'Configuration' => [
         'reglages' => ['Réglages', [
@@ -62,8 +68,9 @@ const PERMISSIONS = [
             'mails' => 'Modifier la configuration des e-mails (serveur SMTP, mot de passe)',
         ], '« Modifier » couvre le site, la page contact et les règles de prêt.'],
         'mails' => ['E-mails envoyés', ['voir' => 'Voir', 'envoyer' => 'Envoyer un test ou lancer les rappels'], ''],
-        'personnel' => ['Comptes du personnel', ['voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier'], 'On ne peut attribuer qu’un rôle dont on possède soi-même tous les droits.'],
-        'roles' => ['Rôles et permissions', ACTIONS_STANDARD, 'On ne peut accorder que des droits que l’on possède soi-même.'],
+        'personnel' => ['Comptes du personnel', ['voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'desactiver' => 'Désactiver ou réactiver un compte'],
+            'On ne peut attribuer qu’un rôle dont on possède soi-même tous les droits. « Désactiver » = case « Compte actif » de la fiche.'],
+        'roles' => ['Rôles et permissions', ACTIONS_STANDARD, 'On ne peut accorder que des droits que l’on possède soi-même. « Supprimer » = bouton rouge de la fiche (rôle sans compte).'],
     ],
 ];
 
@@ -229,7 +236,7 @@ function normaliser_permissions(array $cochees): array
 function premiere_page_autorisee(): ?string
 {
     $ordre = ['tableau' => '', 'guichet' => 'guichet', 'prets' => 'prets', 'demandes' => 'prets/demandes', 'reservations' => 'reservations',
-        'lecteurs' => 'lecteurs', 'rapports' => 'rapports', 'ouvrages' => 'ouvrages', 'auteurs' => 'auteurs', 'domaines' => 'domaines', 'types' => 'types',
+        'lecteurs' => 'lecteurs', 'etudiants' => 'etudiants', 'rapports' => 'rapports', 'ouvrages' => 'ouvrages', 'auteurs' => 'auteurs', 'domaines' => 'domaines', 'types' => 'types',
         'slides' => 'slides', 'citations' => 'citations', 'blocs' => 'blocs', 'messages' => 'messages', 'reglages' => 'reglages',
         'mails' => 'mails', 'personnel' => 'personnel', 'roles' => 'roles'];
     foreach ($ordre as $module => $chemin) {
@@ -237,7 +244,7 @@ function premiere_page_autorisee(): ?string
             return $chemin;
         }
     }
-    if (peut('import.auteurs', 'import.ouvrages')) {
+    if (peut('import.auteurs', 'import.ouvrages', 'import.etudiants')) {
         return 'import';
     }
     return null;

@@ -1,0 +1,22 @@
+Comptes de TEST de la bibliothèque — créés par install/donnees_test.php le 22/10/2026 13:57
+À retirer avant la mise en service réelle :  php install/donnees_test.php --retirer
+
+Mot de passe de tous les comptes de test : crANMa43NC
+
+Quelques comptes (tous les lecteurs de test ont une adresse en @exemple.test) :
+- Personnel — Bibliothécaire : bibliothecaire@exemple.test
+- Personnel — Agent de prêt : agent-de-pret@exemple.test
+- Personnel — Éditeur du site : editeur-du-site@exemple.test
+- Étudiant — Sena AGBOKA : sena.agboka@exemple.test
+- Étudiant — Kpatcha EDOH : kpatcha.edoh@exemple.test
+- Étudiant — Ama Yawa TCHALIM : ama.tchalim@exemple.test
+- Enseignant — Kossivi ADJAMAGBO : kossivi.adjamagbo@exemple.test
+- Lecteur externe — Pélagie DERMAN : pelagie.derman@exemple.test
+
+Pour essayer la création de compte d'un étudiant (Espace lecteur → Créer un compte → Étudiant de l'université),
+ces étudiants de la liste n'ont pas encore de compte :
+- n° de suivi 2026000951 : ASSOGBA Délali Hodalo, né(e) le 24/11/2006 à Kara (faculté et parcours au choix)
+- n° de suivi 2024000988 : KPATCHA Essi Massama, né(e) le 17/04/2006 à Bafilo (faculté et parcours au choix)
+- n° de suivi 2025001025 : EDOH Elom Mawuli, né(e) le 20/05/2006 à Tsévié (faculté et parcours au choix)
+
+Au guichet, tapez par exemple « LAWSON » dans le choix du lecteur : les étudiants de la liste sans compte apparaissent aussi.

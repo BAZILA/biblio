@@ -59,6 +59,7 @@ $controleurs = [
     'prets'        => 'prets',
     'reservations' => 'reservations',
     'lecteurs'     => 'lecteurs',
+    'etudiants'    => 'etudiants',
     'ouvrages'     => 'ouvrages',
     'exemplaires'  => 'ouvrages',
     'auteurs'      => 'crud',
@@ -88,7 +89,7 @@ $acces = [
     'lecteurs' => ['lecteurs.voir'], 'ouvrages' => ['ouvrages.voir'], 'exemplaires' => ['ouvrages.voir'],
     'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'],
     'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],
-    'import' => ['import.auteurs', 'import.ouvrages'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
+    'import' => ['import.auteurs', 'import.ouvrages', 'import.etudiants'], 'etudiants' => ['etudiants.voir'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
     'personnel' => ['personnel.voir'], 'roles' => ['roles.voir'], 'rapports' => ['rapports.voir'],
 ];
 // Page réservée au compte Système : pour les autres, elle n'existe pas

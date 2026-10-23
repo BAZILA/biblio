@@ -1,0 +1,984 @@
+{
+    "domaines": [
+        {
+            "nom": "Informatique",
+            "slug": "informatique",
+            "description": "Algorithmique, programmation, réseaux et génie logiciel.",
+            "icone": "fa-laptop",
+            "ordre": 1
+        },
+        {
+            "nom": "Sciences exactes",
+            "slug": "sciences-exactes",
+            "description": "Mathématiques, physique et vulgarisation scientifique.",
+            "icone": "fa-flask",
+            "ordre": 2
+        },
+        {
+            "nom": "Médecine & Santé",
+            "slug": "medecine-sante",
+            "description": "Anatomie, santé publique et travaux de recherche médicale.",
+            "icone": "fa-heartbeat",
+            "ordre": 3
+        },
+        {
+            "nom": "Droit & Science politique",
+            "slug": "droit-science-politique",
+            "description": "Codes, doctrine, philosophie politique et droit africain.",
+            "icone": "fa-balance-scale",
+            "ordre": 4
+        },
+        {
+            "nom": "Économie & Gestion",
+            "slug": "economie-gestion",
+            "description": "Économie politique, management et entrepreneuriat.",
+            "icone": "fa-line-chart",
+            "ordre": 5
+        },
+        {
+            "nom": "Littérature & Langues",
+            "slug": "litterature-langues",
+            "description": "Romans, récits, dictionnaires et ouvrages de langue.",
+            "icone": "fa-book",
+            "ordre": 6
+        },
+        {
+            "nom": "Histoire & Géographie",
+            "slug": "histoire-geographie",
+            "description": "Histoire de l’Afrique et du monde, civilisations.",
+            "icone": "fa-globe",
+            "ordre": 7
+        },
+        {
+            "nom": "Philosophie",
+            "slug": "philosophie",
+            "description": "Grands textes philosophiques et revues de réflexion.",
+            "icone": "fa-lightbulb-o",
+            "ordre": 8
+        }
+    ],
+    "types": [
+        {
+            "nom": "Livre",
+            "nom_pluriel": "Livres",
+            "slug": "type-livre",
+            "description": "Ouvrages généraux, essais et classiques.",
+            "ordre": 1
+        },
+        {
+            "nom": "Roman",
+            "nom_pluriel": "Romans",
+            "slug": "type-roman",
+            "description": "Œuvres de fiction et récits littéraires.",
+            "ordre": 2
+        },
+        {
+            "nom": "Manuel",
+            "nom_pluriel": "Manuels",
+            "slug": "type-manuel",
+            "description": "Manuels universitaires et ouvrages de référence pédagogiques.",
+            "ordre": 3
+        },
+        {
+            "nom": "Dictionnaire",
+            "nom_pluriel": "Dictionnaires",
+            "slug": "type-dictionnaire",
+            "description": "Dictionnaires et ouvrages de langue.",
+            "ordre": 4
+        },
+        {
+            "nom": "Revue",
+            "nom_pluriel": "Revues",
+            "slug": "type-revue",
+            "description": "Revues et magazines périodiques.",
+            "ordre": 5
+        },
+        {
+            "nom": "Thèse",
+            "nom_pluriel": "Thèses",
+            "slug": "type-these",
+            "description": "Thèses de doctorat soutenues.",
+            "ordre": 6
+        },
+        {
+            "nom": "Mémoire",
+            "nom_pluriel": "Mémoires",
+            "slug": "type-memoire",
+            "description": "Mémoires de fin d’études (Licence, Master).",
+            "ordre": 7
+        }
+    ],
+    "ouvrages": [
+        {
+            "titre": "Introduction à l’algorithmique",
+            "domaine": "informatique",
+            "type": "type-manuel",
+            "auteurs": [
+                "Thomas H. Cormen",
+                "Charles E. Leiserson",
+                "Ronald L. Rivest",
+                "Clifford Stein"
+            ],
+            "resume": "<p>La référence mondiale de l’algorithmique : tris, structures de données, graphes, programmation dynamique et complexité, avec de nombreux exercices.</p>",
+            "description": "",
+            "editeur": "Dunod",
+            "annee": "2010",
+            "isbn": "",
+            "cote": "INF-001",
+            "pages": 1188,
+            "langue": "Français",
+            "image": "images/ouvrages/introduction-a-l-algorithmique.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 4
+        },
+        {
+            "titre": "Coder proprement",
+            "domaine": "informatique",
+            "type": "type-livre",
+            "auteurs": [
+                "Robert C. Martin"
+            ],
+            "resume": "<p>Traduction de « Clean Code » : principes, bonnes pratiques et études de cas pour écrire un code lisible, maintenable et testable.</p>",
+            "description": "",
+            "editeur": "Pearson",
+            "annee": "2009",
+            "isbn": "",
+            "cote": "INF-002",
+            "pages": 457,
+            "langue": "Français",
+            "image": "images/ouvrages/coder-proprement.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Le langage C",
+            "domaine": "informatique",
+            "type": "type-manuel",
+            "auteurs": [
+                "Brian W. Kernighan",
+                "Dennis M. Ritchie"
+            ],
+            "resume": "<p>L’ouvrage de référence écrit par les créateurs du langage C : syntaxe, pointeurs, structures, entrées-sorties et bibliothèque standard.</p>",
+            "description": "",
+            "editeur": "Dunod",
+            "annee": "2014",
+            "isbn": "",
+            "cote": "INF-003",
+            "pages": 280,
+            "langue": "Français",
+            "image": "images/ouvrages/le-langage-c.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Réseaux",
+            "domaine": "informatique",
+            "type": "type-manuel",
+            "auteurs": [
+                "Andrew S. Tanenbaum",
+                "David J. Wetherall"
+            ],
+            "resume": "<p>Couche par couche, le fonctionnement des réseaux informatiques : physique, liaison, réseau, transport, application et sécurité.</p>",
+            "description": "",
+            "editeur": "Pearson",
+            "annee": "2011",
+            "isbn": "",
+            "cote": "INF-004",
+            "pages": 970,
+            "langue": "Français",
+            "image": "images/ouvrages/reseaux.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Conception d’une application web de gestion de bibliothèque",
+            "domaine": "informatique",
+            "type": "type-memoire",
+            "auteurs": [
+                "Jean-Marc Kouassi",
+                "Fatou Diallo"
+            ],
+            "resume": "<p>Analyse des besoins, modélisation UML et réalisation d’une application web permettant la gestion des prêts et du catalogue d’une bibliothèque universitaire.</p>",
+            "description": "",
+            "editeur": "Mémoire de Licence professionnelle",
+            "annee": "2024",
+            "isbn": "",
+            "cote": "INF-005",
+            "pages": 86,
+            "langue": "Français",
+            "image": "images/ouvrages/conception-d-une-application-web-de-gestion-de-bibliotheque.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Analyse réelle et complexe",
+            "domaine": "sciences-exactes",
+            "type": "type-manuel",
+            "auteurs": [
+                "Walter Rudin"
+            ],
+            "resume": "<p>Un classique de l’enseignement supérieur : théorie de la mesure, intégration de Lebesgue, espaces de Hilbert et fonctions holomorphes.</p>",
+            "description": "",
+            "editeur": "Dunod",
+            "annee": "2009",
+            "isbn": "",
+            "cote": "SCI-001",
+            "pages": 488,
+            "langue": "Français",
+            "image": "images/ouvrages/analyse-reelle-et-complexe.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Algèbre",
+            "domaine": "sciences-exactes",
+            "type": "type-manuel",
+            "auteurs": [
+                "Serge Lang"
+            ],
+            "resume": "<p>Groupes, anneaux, modules, corps et théorie de Galois : l’ouvrage de référence de l’algèbre moderne.</p>",
+            "description": "",
+            "editeur": "Dunod",
+            "annee": "2004",
+            "isbn": "",
+            "cote": "SCI-002",
+            "pages": 926,
+            "langue": "Français",
+            "image": "images/ouvrages/algebre.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Une brève histoire du temps",
+            "domaine": "sciences-exactes",
+            "type": "type-livre",
+            "auteurs": [
+                "Stephen Hawking"
+            ],
+            "resume": "<p>Du big bang aux trous noirs, Stephen Hawking explique au grand public les grandes questions de la cosmologie moderne.</p>",
+            "description": "",
+            "editeur": "Flammarion",
+            "annee": "1989",
+            "isbn": "",
+            "cote": "SCI-003",
+            "pages": 236,
+            "langue": "Français",
+            "image": "images/ouvrages/une-breve-histoire-du-temps.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Physique",
+            "domaine": "sciences-exactes",
+            "type": "type-manuel",
+            "auteurs": [
+                "Eugene Hecht"
+            ],
+            "resume": "<p>Manuel complet de physique générale : mécanique, thermodynamique, électromagnétisme, optique et physique moderne.</p>",
+            "description": "",
+            "editeur": "De Boeck",
+            "annee": "1999",
+            "isbn": "",
+            "cote": "SCI-004",
+            "pages": 1332,
+            "langue": "Français",
+            "image": "images/ouvrages/physique.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Pour la Science",
+            "domaine": "sciences-exactes",
+            "type": "type-revue",
+            "auteurs": [
+                "Rédaction de Pour la Science"
+            ],
+            "resume": "<p>Revue mensuelle de vulgarisation scientifique, édition française de Scientific American. Collection des numéros de l’année.</p>",
+            "description": "",
+            "editeur": "Pour la Science",
+            "annee": "2025",
+            "isbn": "",
+            "cote": "SCI-005",
+            "pages": 100,
+            "langue": "Français",
+            "image": "images/ouvrages/pour-la-science.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 6
+        },
+        {
+            "titre": "Gray’s Anatomie pour les étudiants",
+            "domaine": "medecine-sante",
+            "type": "type-manuel",
+            "auteurs": [
+                "Richard L. Drake",
+                "A. Wayne Vogl",
+                "Adam W. M. Mitchell"
+            ],
+            "resume": "<p>Atlas et manuel d’anatomie humaine richement illustré, organisé par régions du corps avec des cas cliniques.</p>",
+            "description": "",
+            "editeur": "Elsevier Masson",
+            "annee": "2015",
+            "isbn": "",
+            "cote": "MED-001",
+            "pages": 1161,
+            "langue": "Français",
+            "image": "images/ouvrages/gray-s-anatomie-pour-les-etudiants.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Modélisation de la transmission du paludisme en milieu tropical",
+            "domaine": "medecine-sante",
+            "type": "type-these",
+            "auteurs": [
+                "Aïcha Koné"
+            ],
+            "resume": "<p>Étude épidémiologique et modèles mathématiques de la dynamique de transmission du paludisme, avec évaluation des stratégies de prévention.</p>",
+            "description": "",
+            "editeur": "Thèse de doctorat en santé publique",
+            "annee": "2021",
+            "isbn": "",
+            "cote": "MED-002",
+            "pages": 214,
+            "langue": "Français",
+            "image": "images/ouvrages/modelisation-de-la-transmission-du-paludisme-en-milieu-tropical.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Prise en charge nutritionnelle des enfants de moins de cinq ans",
+            "domaine": "medecine-sante",
+            "type": "type-memoire",
+            "auteurs": [
+                "Mariam Ouattara"
+            ],
+            "resume": "<p>Évaluation des pratiques de prise en charge de la malnutrition infantile dans les centres de santé communautaires.</p>",
+            "description": "",
+            "editeur": "Mémoire de Master en nutrition",
+            "annee": "2022",
+            "isbn": "",
+            "cote": "MED-003",
+            "pages": 98,
+            "langue": "Français",
+            "image": "images/ouvrages/prise-en-charge-nutritionnelle-des-enfants-de-moins-de-cinq-ans.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "De l’esprit des lois",
+            "domaine": "droit-science-politique",
+            "type": "type-livre",
+            "auteurs": [
+                "Montesquieu"
+            ],
+            "resume": "<p>Œuvre fondatrice de la pensée politique moderne, célèbre pour sa théorie de la séparation des pouvoirs.</p>",
+            "description": "",
+            "editeur": "Gallimard (Folio essais)",
+            "annee": "1748",
+            "isbn": "",
+            "cote": "DRT-001",
+            "pages": 1088,
+            "langue": "Français",
+            "image": "images/ouvrages/de-l-esprit-des-lois.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Du contrat social",
+            "domaine": "droit-science-politique",
+            "type": "type-livre",
+            "auteurs": [
+                "Jean-Jacques Rousseau"
+            ],
+            "resume": "<p>Rousseau y fonde la légitimité du pouvoir politique sur la volonté générale et la souveraineté du peuple.</p>",
+            "description": "",
+            "editeur": "Flammarion (GF)",
+            "annee": "1762",
+            "isbn": "",
+            "cote": "DRT-002",
+            "pages": 256,
+            "langue": "Français",
+            "image": "images/ouvrages/du-contrat-social.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Code civil",
+            "domaine": "droit-science-politique",
+            "type": "type-livre",
+            "auteurs": [
+                "Éditions Dalloz"
+            ],
+            "resume": "<p>Texte intégral du Code civil annoté, avec jurisprudence et textes complémentaires. Édition annuelle.</p>",
+            "description": "",
+            "editeur": "Dalloz",
+            "annee": "2025",
+            "isbn": "",
+            "cote": "DRT-003",
+            "pages": 3200,
+            "langue": "Français",
+            "image": "images/ouvrages/code-civil.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 5
+        },
+        {
+            "titre": "Le droit foncier coutumier face au droit moderne en Afrique de l’Ouest",
+            "domaine": "droit-science-politique",
+            "type": "type-these",
+            "auteurs": [
+                "Mamadou Traoré"
+            ],
+            "resume": "<p>Analyse de la coexistence entre règles coutumières et législation foncière moderne, et propositions pour une sécurisation des droits fonciers.</p>",
+            "description": "",
+            "editeur": "Thèse de doctorat en droit privé",
+            "annee": "2019",
+            "isbn": "",
+            "cote": "DRT-004",
+            "pages": 342,
+            "langue": "Français",
+            "image": "images/ouvrages/le-droit-foncier-coutumier-face-au-droit-moderne-en-afrique-de-l-ouest.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Le Capital au XXIe siècle",
+            "domaine": "economie-gestion",
+            "type": "type-livre",
+            "auteurs": [
+                "Thomas Piketty"
+            ],
+            "resume": "<p>Une vaste étude historique de la répartition des revenus et des patrimoines depuis le XVIIIe siècle.</p>",
+            "description": "",
+            "editeur": "Seuil",
+            "annee": "2013",
+            "isbn": "",
+            "cote": "ECO-001",
+            "pages": 970,
+            "langue": "Français",
+            "image": "images/ouvrages/le-capital-au-xxie-siecle.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Recherches sur la nature et les causes de la richesse des nations",
+            "domaine": "economie-gestion",
+            "type": "type-livre",
+            "auteurs": [
+                "Adam Smith"
+            ],
+            "resume": "<p>Texte fondateur de l’économie politique classique : division du travail, marché et rôle de l’État.</p>",
+            "description": "",
+            "editeur": "Flammarion (GF)",
+            "annee": "1776",
+            "isbn": "",
+            "cote": "ECO-002",
+            "pages": 531,
+            "langue": "Français",
+            "image": "images/ouvrages/recherches-sur-la-nature-et-les-causes-de-la-richesse-des-nations.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Management : l’essentiel des concepts et des pratiques",
+            "domaine": "economie-gestion",
+            "type": "type-manuel",
+            "auteurs": [
+                "Stephen P. Robbins",
+                "David A. DeCenzo",
+                "Philippe Gabilliet"
+            ],
+            "resume": "<p>Manuel de référence en management : planification, organisation, direction et contrôle, illustré par des cas d’entreprises.</p>",
+            "description": "",
+            "editeur": "Pearson",
+            "annee": "",
+            "isbn": "",
+            "cote": "ECO-003",
+            "pages": null,
+            "langue": "Français",
+            "image": "images/ouvrages/management-l-essentiel-des-concepts-et-des-pratiques.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Impact du microcrédit sur la croissance des PME",
+            "domaine": "economie-gestion",
+            "type": "type-memoire",
+            "auteurs": [
+                "Yao N’Guessan"
+            ],
+            "resume": "<p>Étude empirique de l’effet des institutions de microfinance sur le chiffre d’affaires et l’emploi des petites et moyennes entreprises.</p>",
+            "description": "",
+            "editeur": "Mémoire de Master en finance",
+            "annee": "2023",
+            "isbn": "",
+            "cote": "ECO-004",
+            "pages": 104,
+            "langue": "Français",
+            "image": "images/ouvrages/impact-du-microcredit-sur-la-croissance-des-pme.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Les Misérables",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Victor Hugo"
+            ],
+            "resume": "<p>La rédemption de Jean Valjean, ancien forçat, dans la France du XIXe siècle : une fresque sociale et humaine monumentale.</p>",
+            "description": "",
+            "editeur": "Gallimard (Folio classique)",
+            "annee": "1862",
+            "isbn": "",
+            "cote": "LIT-001",
+            "pages": 1664,
+            "langue": "Français",
+            "image": "images/ouvrages/les-miserables.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 4
+        },
+        {
+            "titre": "L’Étranger",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Albert Camus"
+            ],
+            "resume": "<p>Meursault, homme indifférent aux conventions, commet un meurtre sur une plage d’Alger. Un roman clé de la philosophie de l’absurde.</p>",
+            "description": "",
+            "editeur": "Gallimard",
+            "annee": "1942",
+            "isbn": "",
+            "cote": "LIT-002",
+            "pages": 184,
+            "langue": "Français",
+            "image": "images/ouvrages/l-etranger.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 5
+        },
+        {
+            "titre": "Une si longue lettre",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Mariama Bâ"
+            ],
+            "resume": "<p>Roman épistolaire où Ramatoulaye écrit à son amie Aïssatou : un regard lucide sur la condition des femmes et la polygamie au Sénégal.</p>",
+            "description": "",
+            "editeur": "Nouvelles Éditions Africaines",
+            "annee": "1979",
+            "isbn": "",
+            "cote": "LIT-003",
+            "pages": 131,
+            "langue": "Français",
+            "image": "images/ouvrages/une-si-longue-lettre.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 4
+        },
+        {
+            "titre": "Les Soleils des indépendances",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Ahmadou Kourouma"
+            ],
+            "resume": "<p>Fama, prince malinké déchu, erre dans l’Afrique des indépendances. Un roman majeur qui réinvente la langue française.</p>",
+            "description": "",
+            "editeur": "Seuil",
+            "annee": "1968",
+            "isbn": "",
+            "cote": "LIT-004",
+            "pages": 208,
+            "langue": "Français",
+            "image": "images/ouvrages/les-soleils-des-independances.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "L’Enfant noir",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Camara Laye"
+            ],
+            "resume": "<p>Récit autobiographique de l’enfance de l’auteur en Haute-Guinée, entre traditions familiales et départ vers l’école.</p>",
+            "description": "",
+            "editeur": "Plon",
+            "annee": "1953",
+            "isbn": "",
+            "cote": "LIT-005",
+            "pages": 256,
+            "langue": "Français",
+            "image": "images/ouvrages/l-enfant-noir.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Amkoullel, l’enfant peul",
+            "domaine": "litterature-langues",
+            "type": "type-livre",
+            "auteurs": [
+                "Amadou Hampâté Bâ"
+            ],
+            "resume": "<p>Les mémoires d’enfance et de jeunesse d’Amadou Hampâté Bâ, témoignage vivant de la culture orale peule et du Mali colonial.</p>",
+            "description": "",
+            "editeur": "Actes Sud",
+            "annee": "1991",
+            "isbn": "",
+            "cote": "LIT-006",
+            "pages": 409,
+            "langue": "Français",
+            "image": "images/ouvrages/amkoullel-l-enfant-peul.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Le Petit Robert de la langue française",
+            "domaine": "litterature-langues",
+            "type": "type-dictionnaire",
+            "auteurs": [
+                "Paul Robert"
+            ],
+            "resume": "<p>Le dictionnaire de référence de la langue française : définitions, étymologies, synonymes et citations.</p>",
+            "description": "",
+            "editeur": "Le Robert",
+            "annee": "2025",
+            "isbn": "",
+            "cote": "LIT-007",
+            "pages": 2880,
+            "langue": "Français",
+            "image": "images/ouvrages/le-petit-robert-de-la-langue-francaise.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 3
+        },
+        {
+            "titre": "Bescherelle : la conjugaison pour tous",
+            "domaine": "litterature-langues",
+            "type": "type-manuel",
+            "auteurs": [
+                "Éditions Hatier"
+            ],
+            "resume": "<p>Toute la conjugaison française : tableaux des verbes types, règles d’accord et répertoire alphabétique des verbes.</p>",
+            "description": "",
+            "editeur": "Hatier",
+            "annee": "2019",
+            "isbn": "",
+            "cote": "LIT-008",
+            "pages": 256,
+            "langue": "Français",
+            "image": "images/ouvrages/bescherelle-la-conjugaison-pour-tous.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 6
+        },
+        {
+            "titre": "Nations nègres et culture",
+            "domaine": "histoire-geographie",
+            "type": "type-livre",
+            "auteurs": [
+                "Cheikh Anta Diop"
+            ],
+            "resume": "<p>Ouvrage fondateur dans lequel Cheikh Anta Diop défend l’antériorité des civilisations africaines et la place de l’Égypte ancienne.</p>",
+            "description": "",
+            "editeur": "Présence Africaine",
+            "annee": "1954",
+            "isbn": "",
+            "cote": "HIS-001",
+            "pages": 572,
+            "langue": "Français",
+            "image": "images/ouvrages/nations-negres-et-culture.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 1,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Histoire de l’Afrique noire",
+            "domaine": "histoire-geographie",
+            "type": "type-livre",
+            "auteurs": [
+                "Joseph Ki-Zerbo"
+            ],
+            "resume": "<p>Première grande synthèse de l’histoire de l’Afrique subsaharienne écrite par un historien africain, des origines au XXe siècle.</p>",
+            "description": "",
+            "editeur": "Hatier",
+            "annee": "1972",
+            "isbn": "",
+            "cote": "HIS-002",
+            "pages": 702,
+            "langue": "Français",
+            "image": "images/ouvrages/histoire-de-l-afrique-noire.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Histoire générale de l’Afrique, vol. I : Méthodologie et préhistoire africaine",
+            "domaine": "histoire-geographie",
+            "type": "type-livre",
+            "auteurs": [
+                "Joseph Ki-Zerbo"
+            ],
+            "resume": "<p>Premier volume de la collection de l’UNESCO, sous la direction de Joseph Ki-Zerbo : sources, méthodes et préhistoire du continent.</p>",
+            "description": "",
+            "editeur": "UNESCO",
+            "annee": "1980",
+            "isbn": "",
+            "cote": "HIS-003",
+            "pages": 924,
+            "langue": "Français",
+            "image": "images/ouvrages/histoire-generale-de-l-afrique-vol-i-methodologie-et-prehistoire-africaine.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 1
+        },
+        {
+            "titre": "Discours de la méthode",
+            "domaine": "philosophie",
+            "type": "type-livre",
+            "auteurs": [
+                "René Descartes"
+            ],
+            "resume": "<p>Descartes y expose sa méthode pour « bien conduire sa raison » et y formule le célèbre « Je pense, donc je suis ».</p>",
+            "description": "",
+            "editeur": "Flammarion (GF)",
+            "annee": "1637",
+            "isbn": "",
+            "cote": "PHI-001",
+            "pages": 189,
+            "langue": "Français",
+            "image": "images/ouvrages/discours-de-la-methode.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 4
+        },
+        {
+            "titre": "Ainsi parlait Zarathoustra",
+            "domaine": "philosophie",
+            "type": "type-livre",
+            "auteurs": [
+                "Friedrich Nietzsche"
+            ],
+            "resume": "<p>Poème philosophique où Zarathoustra annonce le surhomme et l’éternel retour. Une œuvre majeure de la pensée moderne.</p>",
+            "description": "",
+            "editeur": "Gallimard (Folio essais)",
+            "annee": "1883",
+            "isbn": "",
+            "cote": "PHI-002",
+            "pages": 480,
+            "langue": "Français",
+            "image": "images/ouvrages/ainsi-parlait-zarathoustra.jpg",
+            "sur_place": 0,
+            "coup_de_coeur": 0,
+            "exemplaires": 2
+        },
+        {
+            "titre": "Philosophie Magazine",
+            "domaine": "philosophie",
+            "type": "type-revue",
+            "auteurs": [
+                "Rédaction de Philosophie Magazine"
+            ],
+            "resume": "<p>Mensuel de philosophie grand public : dossiers, entretiens et lectures des grands penseurs. Collection des numéros de l’année.</p>",
+            "description": "",
+            "editeur": "Philo Éditions",
+            "annee": "2025",
+            "isbn": "",
+            "cote": "PHI-003",
+            "pages": 98,
+            "langue": "Français",
+            "image": "images/ouvrages/philosophie-magazine.jpg",
+            "sur_place": 1,
+            "coup_de_coeur": 0,
+            "exemplaires": 4
+        },
+        {
+            "titre": "Conception d’un système d’information pour la gestion des inscriptions universitaires",
+            "domaine": "informatique",
+            "type": "type-memoire",
+            "auteurs": [
+                "Essohanam Pali"
+            ],
+            "resume": "<p>Analyse des besoins de la scolarité, modélisation UML et réalisation d’une application web de gestion des inscriptions.</p>",
+            "editeur": "Mémoire de Master en informatique — Université de Kara",
+            "annee": "2024",
+            "cote": "INF-006",
+            "pages": 112,
+            "sur_place": 1,
+            "exemplaires": 1,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "Réseaux informatiques : notions fondamentales",
+            "domaine": "informatique",
+            "type": "type-manuel",
+            "auteurs": [
+                "Philippe Atelin"
+            ],
+            "resume": "<p>Modèle OSI, TCP/IP, adressage, routage et sécurité des réseaux locaux, avec exercices corrigés.</p>",
+            "editeur": "ENI",
+            "annee": "2020",
+            "cote": "INF-007",
+            "pages": 448,
+            "exemplaires": 3,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "sur_place": 0,
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "Probabilités et statistique pour l’ingénieur",
+            "domaine": "sciences-exactes",
+            "type": "type-manuel",
+            "auteurs": [
+                "Gilbert Saporta"
+            ],
+            "resume": "<p>Variables aléatoires, lois usuelles, estimation et tests d’hypothèses, illustrés par des applications.</p>",
+            "editeur": "Technip",
+            "annee": "2011",
+            "cote": "SCI-006",
+            "pages": 622,
+            "exemplaires": 2,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "sur_place": 0,
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "Prévalence de l’hypertension artérielle chez les adultes à Kara",
+            "domaine": "medecine-sante",
+            "type": "type-these",
+            "auteurs": [
+                "Akossiwa Tchalim"
+            ],
+            "resume": "<p>Enquête transversale sur la prévalence et les facteurs de risque de l’hypertension artérielle en milieu urbain.</p>",
+            "editeur": "Thèse de doctorat en médecine — Université de Kara",
+            "annee": "2023",
+            "cote": "MED-004",
+            "pages": 156,
+            "sur_place": 1,
+            "exemplaires": 1,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "Le contentieux électoral en Afrique de l’Ouest",
+            "domaine": "droit-science-politique",
+            "type": "type-memoire",
+            "auteurs": [
+                "Komlan Agboka"
+            ],
+            "resume": "<p>Étude comparée des juridictions électorales et de leurs décisions dans plusieurs pays d’Afrique de l’Ouest.</p>",
+            "editeur": "Mémoire de Master en droit public — Université de Kara",
+            "annee": "2022",
+            "cote": "DRT-005",
+            "pages": 94,
+            "sur_place": 1,
+            "exemplaires": 1,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "Comptabilité générale : principes et applications",
+            "domaine": "economie-gestion",
+            "type": "type-manuel",
+            "auteurs": [
+                "Béatrice Grandguillot",
+                "Francis Grandguillot"
+            ],
+            "resume": "<p>Le plan comptable, l’enregistrement des opérations courantes et les travaux de fin d’exercice, pas à pas.</p>",
+            "editeur": "Gualino",
+            "annee": "2021",
+            "cote": "ECO-005",
+            "pages": 320,
+            "exemplaires": 3,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "sur_place": 0,
+            "coup_de_coeur": 0
+        },
+        {
+            "titre": "L’Aventure ambiguë",
+            "domaine": "litterature-langues",
+            "type": "type-roman",
+            "auteurs": [
+                "Cheikh Hamidou Kane"
+            ],
+            "resume": "<p>Samba Diallo, jeune Diallobé formé à l’école coranique puis à l’école française, partagé entre deux mondes.</p>",
+            "editeur": "Julliard",
+            "annee": "1961",
+            "cote": "LIT-009",
+            "pages": 192,
+            "coup_de_coeur": 1,
+            "exemplaires": 2,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "sur_place": 0
+        },
+        {
+            "titre": "Le Togo : histoire et sociétés",
+            "domaine": "histoire-geographie",
+            "type": "type-livre",
+            "auteurs": [
+                "Nicoué Lodjou Gayibor"
+            ],
+            "resume": "<p>Synthèse de l’histoire du Togo des origines à l’époque contemporaine et des sociétés qui l’ont façonné.</p>",
+            "editeur": "Presses de l’UB",
+            "annee": "2011",
+            "cote": "HIS-004",
+            "pages": 540,
+            "exemplaires": 2,
+            "description": "",
+            "isbn": "",
+            "langue": "Français",
+            "image": "",
+            "sur_place": 0,
+            "coup_de_coeur": 0
+        }
+    ]
+}

@@ -14,6 +14,9 @@ const LIBELLES_CATEGORIE = [
     'externe'    => 'Lecteur externe',
 ];
 
+/** Catégories des demandes de compte validées par la bibliothèque (les étudiants s'inscrivent via la liste de l'université). */
+const CATEGORIES_HORS_ETUDIANT = ['enseignant' => 'Enseignant', 'personnel' => 'Personnel', 'externe' => 'Lecteur externe'];
+
 const LIBELLES_RESERVATION = [
     'en_attente' => 'En attente',
     'disponible' => 'À retirer',

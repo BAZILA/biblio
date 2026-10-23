@@ -6,6 +6,9 @@
 
 const IMPORT_TAILLE_MAX = 2 * 1024 * 1024;
 const IMPORT_LIGNES_MAX = 2000;
+// Liste des étudiants : toute l'université en un seul fichier
+const IMPORT_ETUDIANTS_LIGNES_MAX = 40000;
+const IMPORT_ETUDIANTS_TAILLE_MAX = 8 * 1024 * 1024;
 
 /** Colonnes reconnues pour les ouvrages : nom normalisé de l'en-tête → champ. */
 const IMPORT_COLONNES_OUVRAGES = [
@@ -29,14 +32,14 @@ function cle_comparaison(string $s): string
 }
 
 /** Lit le fichier envoyé et renvoie ses lignes (tableaux de cellules), en UTF-8. */
-function lire_fichier_import(string $champ): array
+function lire_fichier_import(string $champ, int $lignesMax = IMPORT_LIGNES_MAX, int $tailleMax = IMPORT_TAILLE_MAX): array
 {
     $f = $_FILES[$champ] ?? null;
     if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) {
         throw new RuntimeException('Choisissez un fichier.');
     }
-    if ($f['error'] !== UPLOAD_ERR_OK || $f['size'] > IMPORT_TAILLE_MAX) {
-        throw new RuntimeException('Fichier refusé : 2 Mo maximum.');
+    if ($f['error'] !== UPLOAD_ERR_OK || $f['size'] > $tailleMax) {
+        throw new RuntimeException('Fichier refusé : ' . round($tailleMax / 1048576) . ' Mo maximum.');
     }
     $texte = (string) file_get_contents($f['tmp_name']);
     if (str_starts_with($texte, "\xEF\xBB\xBF")) {
@@ -60,8 +63,8 @@ function lire_fichier_import(string $champ): array
             continue;
         }
         $lignes[] = $cellules;
-        if (count($lignes) > IMPORT_LIGNES_MAX + 1) {
-            throw new RuntimeException('Fichier trop long : ' . IMPORT_LIGNES_MAX . ' lignes au maximum par import.');
+        if (count($lignes) > $lignesMax + 1) {
+            throw new RuntimeException('Fichier trop long : ' . $lignesMax . ' lignes au maximum par import.');
         }
     }
     fclose($flux);

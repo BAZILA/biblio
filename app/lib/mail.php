@@ -193,11 +193,32 @@ function mail_decision_prolongation(int $demandeId): void
         bonjour($d) . "\n\n" . $texte, 'prolongation');
 }
 
+/**
+ * Rappel des identifiants envoyé à l'ouverture d'un compte. Le mot de passe n'y figure jamais : il n'est connu que
+ * de son titulaire (enregistré chiffré) et les e-mails sont conservés en clair dans le journal « E-mails envoyés ».
+ */
+function identifiants_compte(array $u): string
+{
+    return "Vos identifiants de connexion :\n"
+        . '- Identifiant : ' . $u['email'] . " (votre adresse e-mail)\n"
+        . "- Mot de passe : celui que vous avez choisi en créant votre compte\n\n"
+        . "Connexion à votre espace lecteur :\n" . site_url_absolue() . "index.php/compte/connexion\n\n"
+        . 'Mot de passe oublié ? Adressez-vous à l’accueil de la bibliothèque : un mot de passe provisoire vous sera envoyé.';
+}
+
 function mail_compte_valide(array $u): void
 {
     envoyer_mail($u['email'], 'Votre compte lecteur est activé',
-        bonjour($u) . "\n\nVotre compte lecteur a été validé par la bibliothèque. Vous pouvez vous connecter pour réserver des ouvrages et suivre vos prêts :\n"
-        . site_url_absolue() . 'index.php/compte/connexion', 'compte');
+        bonjour($u) . "\n\nVotre compte lecteur a été validé par la bibliothèque. Vous pouvez maintenant réserver des ouvrages et suivre vos prêts en ligne.\n\n"
+        . identifiants_compte($u), 'compte');
+}
+
+function mail_compte_etudiant_cree(array $u): void
+{
+    envoyer_mail($u['email'], 'Votre compte lecteur est créé',
+        bonjour($u) . "\n\nVotre compte lecteur de la bibliothèque est créé (n° de suivi " . $u['matricule'] . "). "
+        . "Vous pouvez dès maintenant réserver des ouvrages, suivre vos prêts et demander une prolongation en ligne.\n\n"
+        . identifiants_compte($u), 'compte');
 }
 
 function mail_mot_de_passe(array $u, string $motDePasse): void

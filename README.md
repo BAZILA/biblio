@@ -37,6 +37,39 @@ Après une mise à jour du code, adapter une base existante **sans rien effacer*
 
 Admin → **Importer un fichier** : liste d’auteurs (un nom par ligne) ou catalogue d’ouvrages (CSV « point-virgule » enregistré depuis Excel ; modèle téléchargeable sur la page). Un aperçu ligne par ligne s’affiche avant tout enregistrement ; les doublons sont ignorés, les domaines et types inconnus sont créés.
 
+## Étudiants de l’université
+
+La liste des étudiants (nouveaux et anciens) fournie par la scolarité se charge dans **Importer un fichier → Étudiants de l’université**.
+Le fichier (CSV « point-virgule » enregistré depuis Excel) ne contient que cinq colonnes : `numero_suivi ; nom ; prenom ;
+date_naissance ; lieu_naissance`. Le n° de suivi ne contient que des chiffres (colonne au format « Texte » dans Excel pour garder
+les zéros en tête et éviter la notation scientifique). On la recharge quand elle change : les nouveaux sont ajoutés, les identités modifiées sont corrigées
+(repérées par le n° de suivi). **Personne n’est jamais retiré** par un rechargement. Rubrique **Étudiants de l’université** : cases à
+cocher (« tout cocher ») pour désactiver ou réactiver des étudiants, et bouton « Réactiver tous les étudiants désactivés ». Un étudiant
+désactivé ne peut plus créer de compte ni être choisi au guichet sans fiche ; un compte déjà créé reste valable.
+
+- **Création de compte** : un étudiant de la liste crée seul son compte (Espace lecteur → Créer un compte → Étudiant) avec son n° de suivi,
+  ses nom et prénoms, sa date et son lieu de naissance (vérifiés contre la liste : accents, majuscules et ordre des prénoms indifférents),
+  puis il complète **faculté**, **parcours**, e-mail (son identifiant) et mot de passe. Un e-mail lui confirme la création. Cinq essais
+  infructueux pour un même n° de suivi bloquent un quart d’heure.
+- **Enseignants, personnel, visiteurs** : demande validée par la bibliothèque (la catégorie « Étudiant » n’y figure pas), puis e-mail
+  d’activation rappelant l’identifiant.
+- **Guichet** : en tapant un nom ou un n° de suivi, les étudiants actifs de la liste sans compte apparaissent aussi ; les choisir crée leur
+  fiche lecteur (sans accès en ligne) et le prêt peut être enregistré. S’ils créent ensuite leur compte, cette fiche est reprise.
+  « Créer un lecteur » sert aux autres lecteurs et aux étudiants pas encore dans la liste (n° de suivi comme matricule).
+
+Le mot de passe n’est jamais envoyé par e-mail : il est enregistré chiffré, et les e-mails sont conservés en clair dans le journal
+« E-mails envoyés ». En cas d’oubli, l’accueil réinitialise le mot de passe (mot de passe provisoire envoyé au lecteur).
+
+## Données de test
+
+`php install/donnees_test.php` ajoute un jeu complet de démonstration : catalogue avec couvertures (et quelques ouvrages sans
+couverture), 150 étudiants dans la liste de l’université, lecteurs de chaque catégorie (comptes en ligne, fiches guichet, demandes
+à valider), un compte par rôle du personnel, prêts en cours / en retard / rendus avec constat, réservations, demandes de
+prolongation, messages, diaporama et citations. Rien d’existant n’est effacé ; aucun e-mail n’est envoyé ; les adresses sont
+fictives (`@exemple.test`). Le mot de passe des comptes de test (tiré au hasard) est écrit dans `install/IDENTIFIANTS_TEST.txt`.
+
+Avant la mise en service réelle : `php install/donnees_test.php --retirer` retire tout ce que le script a ajouté.
+
 ## E-mails et rappels
 
 - Réglages → **E-mails aux lecteurs** : tant que l’envoi est « désactivé », les messages sont seulement consignés (Admin → E-mails envoyés). Pour envoyer réellement, renseigner un serveur SMTP (celui de l’université, ou un compte Gmail/Outlook avec mot de passe d’application) et faire un envoi de test.
