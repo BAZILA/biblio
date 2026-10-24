@@ -40,6 +40,6 @@ if ($compte) {
 }
 
 file_put_contents(__DIR__ . '/SYSTEME.txt', "Compte Système (super administrateur) — " . date('d/m/Y H:i') . "\n"
-    . "Adresse : " . base_url() . "/admin/\nE-mail : $email\nMot de passe : $motDePasse\n\n"
+    . "Adresse : " . site_url_absolue() . "admin/\nE-mail : $email\nMot de passe : $motDePasse\n\n"
     . "Connectez-vous, changez ce mot de passe dans « Mon compte », puis supprimez ce fichier.\n");
 echo "Identifiants écrits dans install/SYSTEME.txt\n";
