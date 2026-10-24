@@ -2,6 +2,7 @@
 /app/config.php
 /install/IDENTIFIANTS.txt
 /install/SYSTEME.txt
+/install/IDENTIFIANTS_TEST.txt
 /php.ini
 
 # Journaux
@@ -13,6 +14,8 @@ php_error.log
 *.zip
 *.sql
 !/install/schema.sql
+!/install/contenu_site.sql
+!/install/contenu_accueil.sql
 *.tgz
 
 # OS / éditeur
@@ -22,3 +25,6 @@ Desktop.ini
 .idea/
 .vscode/
 .cursor/
+
+# Envois faits depuis l'administration sur le serveur (vidéos du diaporama)
+/images/videos/
