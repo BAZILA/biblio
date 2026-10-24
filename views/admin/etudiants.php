@@ -6,10 +6,11 @@ $guichet = peut('guichet.voir') && peut('prets.ajouter');
 ?>
 <div class="entete">
 	<h1>Étudiants de l’université</h1>
-	<div class="actions"><?php if (peut('import.etudiants')): ?><a class="btn" href="<?= e(admin_url('import', ['quoi' => 'etudiants'])) ?>"><i class="fa-solid fa-file-import"></i> Charger / mettre à jour la liste</a><?php endif; ?></div>
+	<div class="actions"><?php if (peut('etudiants.ajouter')): ?><a class="btn secondaire" href="<?= e(admin_url('etudiants/nouveau')) ?>"><i class="fa-solid fa-user-plus"></i> Ajouter un étudiant</a><?php endif; ?>
+		<?php if (peut('import.etudiants')): ?><a class="btn" href="<?= e(admin_url('import', ['quoi' => 'etudiants'])) ?>"><i class="fa-solid fa-file-import"></i> Charger / mettre à jour la liste</a><?php endif; ?></div>
 </div>
 
-<p class="doux">Liste fournie par la scolarité (n° de suivi, nom, prénoms, date et lieu de naissance) : <?= e(pluriel((int) $totaux['total'], 'étudiant')) ?>
+<p class="doux">Liste fournie par la scolarité (n° de suivi, nom, prénoms, date et lieu de naissance, faculté) : <?= e(pluriel((int) $totaux['total'], 'étudiant')) ?>
 	<?= $totaux['maj'] ? ' — dernière mise à jour le ' . e(date_fr($totaux['maj'], true)) : '' ?>.
 	Un étudiant actif de cette liste crée seul son compte en ligne (identité vérifiée) et peut emprunter au guichet même sans compte.
 	Un rechargement de la liste ne retire jamais personne ; un étudiant désactivé ne peut plus créer de compte, mais un compte déjà créé reste valable.</p>
@@ -22,7 +23,7 @@ $guichet = peut('guichet.voir') && peut('prets.ajouter');
 
 <form class="filtres" method="get">
 	<input type="hidden" name="filtre" value="<?= e($filtre) ?>">
-	<input type="search" name="q" value="<?= e($q) ?>" placeholder="Nom, prénom, n° de suivi, lieu de naissance…">
+	<input type="search" name="q" value="<?= e($q) ?>" placeholder="Nom, prénom, n° de suivi, faculté…">
 	<button class="btn secondaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
 	<span class="doux"><?= e(pluriel($pg['total'], 'étudiant')) ?></span>
 </form>
@@ -62,9 +63,10 @@ $guichet = peut('guichet.voir') && peut('prets.ajouter');
 				<td><?php if (!$et['lecteur_id']): ?><span class="doux">—</span>
 					<?php elseif ($et['compte_en_ligne']): ?><span class="badge <?= $et['lecteur_actif'] ? 'vert' : 'orange' ?>">Compte en ligne<?= $et['lecteur_actif'] ? '' : ' (inactif)' ?></span>
 					<?php else: ?><span class="badge bleu">Fiche guichet</span><?php endif; ?></td>
-				<td><?= e((string) $et['faculte']) ?><?= (string) $et['parcours'] !== '' ? '<br><span class="doux">' . e($et['parcours']) . '</span>' : '' ?></td>
+				<td><?= e((string) $et['faculte']) ?><?= (string) $et['parcours'] !== '' ? '<br><span class="doux">Parcours : ' . e($et['parcours']) . '</span>' : '' ?></td>
 				<td><?= $et['actif'] ? '<span class="badge vert">Actif</span>' : '<span class="badge">Désactivé</span>' ?></td>
 				<td class="actions">
+					<?php if (peut('etudiants.modifier')): ?><a class="btn secondaire petit" href="<?= e(admin_url('etudiants/modifier/' . $et['id'])) ?>" title="Modifier"><i class="fa-solid fa-pen"></i></a><?php endif; ?>
 					<?php if ($et['lecteur_id'] && peut('lecteurs.voir')): ?><a class="btn secondaire petit" href="<?= e(admin_url('lecteurs/voir/' . $et['lecteur_id'])) ?>">Fiche</a><?php endif; ?>
 					<?php if ($guichet && $et['lecteur_id']): ?><a class="btn secondaire petit" href="<?= e(admin_url('guichet', ['lecteur' => $et['lecteur_id']])) ?>">Guichet</a>
 					<?php elseif ($guichet && $et['actif']): ?><button class="btn secondaire petit" type="submit" form="guichet-<?= (int) $et['id'] ?>">Guichet</button><?php endif; ?>

@@ -40,16 +40,18 @@ Admin → **Importer un fichier** : liste d’auteurs (un nom par ligne) ou cata
 ## Étudiants de l’université
 
 La liste des étudiants (nouveaux et anciens) fournie par la scolarité se charge dans **Importer un fichier → Étudiants de l’université**.
-Le fichier (CSV « point-virgule » enregistré depuis Excel) ne contient que cinq colonnes : `numero_suivi ; nom ; prenom ;
-date_naissance ; lieu_naissance`. Le n° de suivi ne contient que des chiffres (colonne au format « Texte » dans Excel pour garder
+Le fichier (CSV « point-virgule » enregistré depuis Excel) contient six colonnes : `numero_suivi ; nom ; prenom ;
+date_naissance ; lieu_naissance ; faculte`. Le n° de suivi ne contient que des chiffres (colonne au format « Texte » dans Excel pour garder
 les zéros en tête et éviter la notation scientifique). On la recharge quand elle change : les nouveaux sont ajoutés, les identités modifiées sont corrigées
 (repérées par le n° de suivi). **Personne n’est jamais retiré** par un rechargement. Rubrique **Étudiants de l’université** : cases à
 cocher (« tout cocher ») pour désactiver ou réactiver des étudiants, et bouton « Réactiver tous les étudiants désactivés ». Un étudiant
-désactivé ne peut plus créer de compte ni être choisi au guichet sans fiche ; un compte déjà créé reste valable.
+désactivé ne peut plus créer de compte ni être choisi au guichet sans fiche ; un compte déjà créé reste valable. Boutons **Ajouter un
+étudiant** (un étudiant absent du fichier) et **Modifier** (corriger une identité) : l’étudiant peut ensuite créer son compte. Un changement
+de n° de suivi suit sur sa fiche lecteur.
 
 - **Création de compte** : un étudiant de la liste crée seul son compte (Espace lecteur → Créer un compte → Étudiant) avec son n° de suivi,
   ses nom et prénoms, sa date et son lieu de naissance (vérifiés contre la liste : accents, majuscules et ordre des prénoms indifférents),
-  puis il complète **faculté**, **parcours**, e-mail (son identifiant) et mot de passe. Un e-mail lui confirme la création. Cinq essais
+  puis il complète son **parcours**, son e-mail (son identifiant) et son mot de passe ; sa faculté vient de la liste. Un e-mail lui confirme la création. Cinq essais
   infructueux pour un même n° de suivi bloquent un quart d’heure.
 - **Enseignants, personnel, visiteurs** : demande validée par la bibliothèque (la catégorie « Étudiant » n’y figure pas), puis e-mail
   d’activation rappelant l’identifiant.
@@ -108,9 +110,30 @@ Avant la mise en service réelle : `php install/donnees_test.php --retirer` reti
 - **Compte Système** (super administrateur) : créé par `php install/compte_systeme.php [email]`, qui écrit ses identifiants dans `install/SYSTEME.txt` (à supprimer après avoir changé le mot de passe ; relancer la commande réinitialise le mot de passe). Il a tous les droits, il est **invisible** des autres comptes (ni dans le personnel, ni dans les rôles, pages introuvables pour eux), et ses actions apparaissent comme faites par « Système ».
 - Depuis sa page **Système**, il **masque des permissions** à tous les autres comptes, Administrateur compris : elles disparaissent des menus, des boutons et de la grille des rôles (masquer « Voir » masque toute la rubrique). Les rôles qui les avaient les retrouvent si on les démasque.
 
+## Actualités, évènements et diaporama de l’accueil
+
+- Admin → **Actualités et évènements** : titre, présentation courte, texte, image, **vidéo de fond** facultative (MP4 / WebM, limitée par
+  `upload_max_filesize` et `post_max_size` de PHP), dates et lieu pour un évènement, date de publication (une date future programme la
+  publication), effet de la diapositive (zoom lent, panoramique, fondu, glissement, rideau, mise au point) avec aperçu.
+- Site : page **Actualités** (menu), filtres Tout / Actualités / Évènements, « À venir », et une page par actualité ou évènement.
+- **Diaporama de l’accueil** : d’abord les diapositives fixes (Site → Diaporama d’accueil : bienvenue…, elles aussi avec vidéo et effet),
+  puis les actualités et évènements cochés « au diaporama », les plus récents d’abord, avec « En savoir plus » et « Toutes les actualités ».
+  Réglages `diaporama_actualites_max` (6) et `diaporama_duree` (7 secondes). Pause au survol, bouton pause, clavier, glissement au doigt ;
+  les animations sont réduites si le système le demande.
+- Droits : Actualités : voir / ajouter / modifier / supprimer / **publier** (publier, masquer, mettre au diaporama).
+
+## Journal d’audit
+
+Admin → **Journal d’audit** (droit « Journal d’audit : voir », « exporter » pour le CSV) : toutes les opérations, même les plus petites —
+pages consultées et actions de l’administration, connexions réussies, refusées ou bloquées, créations de compte, réservations, demandes
+et messages du site. Pour chacune : date et heure, personne (« Système » pour le compte Système, « Visiteur » sans connexion), action,
+résultat (le message affiché), informations envoyées (jamais les mots de passe), adresse IP et navigateur. Filtres par période, personne,
+catégorie, espace et résultat. Le journal ne peut être ni modifié ni effacé depuis l’administration (`app/lib/audit.php`).
+
 ## Statistiques et rapports
 
-- Admin → **Statistiques et rapports** : chiffres d'une période (prêts, retours, taux de retour à temps, durée moyenne, lecteurs, réservations, prolongations), situation à ce jour, répartitions par mois, domaine, catégorie de lecteurs, faculté, ouvrages les plus empruntés, état des exemplaires au retour.
+- Admin → **Statistiques et rapports** : chiffres d'une période (prêts, retours, taux de retour à temps, durée moyenne, lecteurs, réservations, prolongations), **palmarès** (meilleur lecteur, faculté et parcours les plus actifs, ouvrage le plus emprunté, domaine le plus consulté), courbe des prêts et retours par mois, **meilleurs lecteurs**, facultés et parcours qui empruntent le plus, répartitions par domaine et catégorie de lecteurs, ouvrages les plus empruntés, état des exemplaires au retour.
+- Tableau de bord : courbe des prêts et retours des 12 derniers mois (survol ou flèches du clavier pour lire chaque mois, tableau des valeurs).
 - Six rapports **PDF** prêts à imprimer, en noir et blanc (seul le logo UK est en couleur) : rapport statistique, prêts en cours et retards, historique des prêts, inventaire du catalogue, liste des lecteurs, exemplaires abîmés / perdus / retirés. Générés par `app/lib/pdf.php`, sans bibliothèque externe.
 - Permissions : « Statistiques et rapports : voir / télécharger les rapports PDF » ; chaque rapport exige aussi de voir la rubrique concernée.
 

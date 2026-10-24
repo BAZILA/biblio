@@ -9,6 +9,18 @@ require __DIR__ . '/app/bootstrap.php';
 $vues = __DIR__ . '/views/site';
 $segments = current_path() === '' ? [] : explode('/', current_path());
 
+// Journal d'audit : les actions faites sur le site public (connexion, création de compte, réservation, message…)
+audit_requete(function () use ($segments): string {
+    $chemin = implode('/', array_slice($segments, 0, 2));
+    return [
+        'compte/connexion' => 'Espace lecteur : connexion', 'compte/deconnexion' => 'Espace lecteur : déconnexion',
+        'compte/inscription' => 'Création de compte lecteur' . (($_POST['profil'] ?? '') === 'autre' ? ' (enseignant, personnel ou visiteur)' : ' (étudiant)'),
+        'compte/reserver' => 'Espace lecteur : réservation d’un ouvrage', 'compte/annuler' => 'Espace lecteur : annulation d’une réservation',
+        'compte/prolongation' => 'Espace lecteur : demande de prolongation', 'compte/mot-de-passe' => 'Espace lecteur : changement de mot de passe',
+        'contact' => 'Message envoyé depuis la page Contact',
+    ][$chemin] ?? 'Site : ' . ($chemin ?: 'accueil');
+}, false);
+
 /** Affiche une page dans le gabarit commun et termine. */
 function page(string $vue, array $vars, array $gabarit): never
 {
@@ -44,7 +56,7 @@ $parPage = reglage_int('par_page', 12);
 switch ($segments[0] ?? '') {
 
     case '':
-        $slides = rows('SELECT * FROM slides WHERE publie = 1 ORDER BY ordre, id');
+        $slides = diapositives_accueil(); // bienvenue, puis actualités et évènements « au diaporama »
         page('accueil', [
             'slides'       => $slides,
             'chiffres'     => chiffres_cles(),
@@ -175,6 +187,29 @@ switch ($segments[0] ?? '') {
             }
         }
         page('contact', ['saisie' => $saisie, 'erreurs' => $erreurs], ['titre' => 'Contacter la bibliothèque', 'actif' => 'contact', 'classeHtml' => 'view-contact']);
+
+    case 'actualites':
+        $gabaritActu = ['actif' => 'actualites', 'classeHtml' => 'view-actualites', 'pleineLargeur' => true];
+        if (isset($segments[1])) {
+            $a = row('SELECT a.* FROM actualites a WHERE a.slug = ? AND ' . ACTUALITE_VISIBLE, [$segments[1]]);
+            if (!$a) {
+                introuvable('Cette actualité n’existe pas ou n’est plus en ligne.');
+            }
+            page('actualite', [
+                'a' => $a,
+                'autres' => actualites('a.id <> ?', [$a['id']], 'a.date_publication DESC, a.id DESC', 3),
+            ], $gabaritActu + ['titre' => $a['titre'], 'description' => $a['chapo'], 'image' => $a['image']]);
+        }
+        $type = in_array(get_str('type'), ['actualite', 'evenement'], true) ? get_str('type') : '';
+        $where = $type !== '' ? 'a.type = ?' : '1';
+        $params = $type !== '' ? [$type] : [];
+        $pg = pagination((int) val('SELECT COUNT(*) FROM actualites a WHERE ' . ACTUALITE_VISIBLE . " AND $where", $params), 9);
+        page('actualites', [
+            'type' => $type,
+            'liste' => actualites($where, $params, 'a.date_publication DESC, a.id DESC', $pg['parPage'], $pg['offset']),
+            'aVenir' => $type === 'actualite' ? [] : evenements_a_venir(4),
+            'pagination' => $pg,
+        ], $gabaritActu + ['titre' => 'Actualités et évènements']);
 
     case 'compte':
         require __DIR__ . '/app/site/compte.php';

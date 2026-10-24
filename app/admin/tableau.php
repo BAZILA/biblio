@@ -22,4 +22,6 @@ admin_page('tableau', [
     'populaires' => rows('SELECT o.id, o.titre, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id
                           JOIN ouvrages o ON o.id = e.ouvrage_id WHERE p.date_pret >= CURDATE() - INTERVAL 1 YEAR
                           GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 5'),
+    // Courbe des 12 derniers mois (mois en cours compris)
+    'courbe' => peut('prets.voir') ? series_mensuelles(date('Y-m-01', strtotime('first day of -11 months')), date('Y-m-d')) : null,
 ], 'Tableau de bord', 'tableau');

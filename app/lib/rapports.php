@@ -89,9 +89,53 @@ function statistiques(string $du, string $au): array
         rows("SELECT etat_retour AS cle, COUNT(*) AS nb FROM prets WHERE date_retour $entre GROUP BY etat_retour ORDER BY nb DESC", $p));
     $s['top_ouvrages'] = rows("SELECT o.titre AS cle, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
                                WHERE p.date_pret $entre GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 10", $p);
-    $s['top_lecteurs'] = rows("SELECT CONCAT(u.nom, ' ', u.prenom) AS cle, COUNT(*) AS nb FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id
-                               WHERE p.date_pret $entre GROUP BY u.id ORDER BY nb DESC, u.nom LIMIT 10", $p);
+    $s['top_lecteurs'] = rows("SELECT CONCAT(u.nom, ' ', u.prenom) AS cle, COUNT(*) AS nb, u.id, u.categorie, u.faculte, u.parcours,
+                                      COUNT(DISTINCT e.ouvrage_id) AS titres
+                               FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id JOIN exemplaires e ON e.id = p.exemplaire_id
+                               WHERE p.date_pret $entre GROUP BY u.id ORDER BY nb DESC, titres DESC, u.nom LIMIT 10", $p);
+    // Facultés : tous les lecteurs rattachés (étudiants et enseignants), prêts et nombre de lecteurs différents
+    $s['facultes'] = rows("SELECT u.faculte AS cle, COUNT(*) AS nb, COUNT(DISTINCT u.id) AS lecteurs FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id
+                            WHERE p.date_pret $entre AND u.faculte <> '' GROUP BY u.faculte ORDER BY nb DESC LIMIT 12", $p);
+    $s['par_parcours'] = rows("SELECT u.parcours AS cle, COUNT(*) AS nb FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id
+                                WHERE p.date_pret $entre AND u.parcours <> '' GROUP BY u.parcours ORDER BY nb DESC LIMIT 10", $p);
+    // Palmarès de la période
+    $s['palmares'] = [
+        'lecteur' => $s['top_lecteurs'][0] ?? null,
+        'faculte' => $s['facultes'][0] ?? null,
+        'parcours' => $s['par_parcours'][0] ?? null,
+        'ouvrage' => $s['top_ouvrages'][0] ?? null,
+        'domaine' => $s['par_domaine'][0] ?? null,
+    ];
     return $s;
+}
+
+/**
+ * Prêts et retours mois par mois entre deux dates (mois sans activité à zéro), pour les courbes.
+ * Renvoie ['mois' => ['2026-01', …], 'prets' => [n, …], 'retours' => [n, …]].
+ */
+function series_mensuelles(string $du, string $au): array
+{
+    $mois = [];
+    for ($t = strtotime(date('Y-m-01', strtotime($du))); $t <= strtotime($au); $t = strtotime('+1 month', $t)) {
+        $mois[date('Y-m', $t)] = 0;
+    }
+    $compter = function (string $colonne) use ($mois, $du, $au): array {
+        $valeurs = $mois;
+        foreach (rows("SELECT DATE_FORMAT($colonne, '%Y-%m') AS m, COUNT(*) AS nb FROM prets WHERE $colonne BETWEEN ? AND ? GROUP BY m", [$du, $au]) as $r) {
+            if (isset($valeurs[$r['m']])) {
+                $valeurs[$r['m']] = (int) $r['nb'];
+            }
+        }
+        return array_values($valeurs);
+    };
+    return ['mois' => array_keys($mois), 'prets' => $compter('date_pret'), 'retours' => $compter('date_retour')];
+}
+
+/** « oct. 26 » à partir de « 2026-10 » (axe des courbes). */
+function mois_court(string $cle): string
+{
+    [$a, $m] = explode('-', $cle);
+    return MOIS_COURTS[(int) $m] . ' ' . substr($a, 2);
 }
 
 /** Libellé de mois « octobre 2026 » à partir de « 2026-10 ». */
@@ -139,9 +183,19 @@ function rapport_pdf(string $type, string $du, string $au): never
             $pdf->titreSection('Ouvrages les plus empruntés');
             $pdf->tableau([['Rang', 1, 'C'], ['Ouvrage', 8, 'G'], ['Prêts', 1.5, 'D']],
                 array_map(fn($r, $i) => [$i + 1, $r['cle'], $r['nb']], $s['top_ouvrages'], array_keys($s['top_ouvrages'])));
-            $pdf->titreSection('Lecteurs les plus actifs');
-            $pdf->tableau([['Rang', 1, 'C'], ['Lecteur', 8, 'G'], ['Prêts', 1.5, 'D']],
-                array_map(fn($r, $i) => [$i + 1, $r['cle'], $r['nb']], $s['top_lecteurs'], array_keys($s['top_lecteurs'])));
+            $pdf->titreSection('Meilleurs lecteurs de la période');
+            $pdf->tableau([['Rang', 1, 'C'], ['Lecteur', 4.5, 'G'], ['Faculté / parcours', 5, 'G'], ['Titres', 1.3, 'D'], ['Prêts', 1.3, 'D']],
+                array_map(fn($r, $i) => [$i + 1, $r['cle'], trim($r['faculte'] . ($r['parcours'] !== '' ? ' / ' . $r['parcours'] : '')) ?: (LIBELLES_CATEGORIE[$r['categorie']] ?? ''),
+                    $r['titres'], $r['nb']], $s['top_lecteurs'], array_keys($s['top_lecteurs'])));
+            if ($s['facultes']) {
+                $pdf->titreSection('Facultés qui empruntent le plus');
+                $pdf->tableau([['Rang', 1, 'C'], ['Faculté', 7, 'G'], ['Lecteurs', 1.6, 'D'], ['Prêts', 1.4, 'D']],
+                    array_map(fn($r, $i) => [$i + 1, $r['cle'], $r['lecteurs'], $r['nb']], $s['facultes'], array_keys($s['facultes'])));
+            }
+            if ($s['par_parcours']) {
+                $pdf->titreSection('Parcours qui empruntent le plus');
+                $pdf->barres($paires($s['par_parcours']));
+            }
             break;
 
         case 'prets-en-cours':

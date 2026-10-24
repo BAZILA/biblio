@@ -36,8 +36,8 @@ switch ($action) {
         page('compte/connexion', compact('email', 'erreur', 'retour'), $gabarit + ['titre' => 'Connexion — Espace lecteur']);
 
     case 'inscription':
-        // Deux parcours : étudiant de la liste de l'université (compte créé tout de suite, identité vérifiée, il complète
-        // faculté et parcours) ou enseignant / personnel / visiteur (demande validée ensuite par la bibliothèque).
+        // Deux parcours : étudiant de la liste de l'université (compte créé tout de suite, identité vérifiée ; sa faculté vient
+        // de la liste, il complète son parcours) ou enseignant / personnel / visiteur (demande validée ensuite par la bibliothèque).
         $profil = (post_str('profil') ?: get_str('profil')) === 'autre' ? 'autre' : 'etudiant';
         $listeEtudiants = (bool) val('SELECT 1 FROM etudiants WHERE actif = 1 LIMIT 1');
         $saisie = ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'categorie' => 'enseignant', 'matricule' => '', 'telephone' => '',
@@ -54,7 +54,7 @@ switch ($action) {
             $robot = ($_POST['site_web'] ?? '') !== '';
 
             if ($profil === 'etudiant') {
-                foreach (['nom', 'prenom', 'numero_suivi', 'date_naissance', 'lieu_naissance', 'faculte', 'parcours', 'email', 'telephone'] as $k) {
+                foreach (['nom', 'prenom', 'numero_suivi', 'date_naissance', 'lieu_naissance', 'parcours', 'email', 'telephone'] as $k) {
                     $saisie[$k] = mb_substr(post_str($k, ''), 0, $k === 'email' ? 190 : 150);
                     if ($saisie[$k] === '' && $k !== 'telephone') {
                         $erreurs[$k] = 'Champ requis.';
@@ -100,7 +100,7 @@ switch ($action) {
                         redirect(url('compte/connexion'));
                     }
                     $donnees = ['email' => $saisie['email'], 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT), 'actif' => 1, 'en_attente' => 0,
-                        'faculte' => $saisie['faculte'], 'parcours' => $saisie['parcours'], 'telephone' => $saisie['telephone']];
+                        'faculte' => $etudiant['faculte'], 'parcours' => $saisie['parcours'], 'telephone' => $saisie['telephone']];
                     if ($fiche) {
                         update('utilisateurs', (int) $fiche['id'], $donnees);
                     } else {

@@ -36,7 +36,7 @@ $piege = '<div class="biblio-hp" aria-hidden="true"><label>Ne pas remplir <input
 
 <?php elseif ($profil === 'etudiant'): ?>
 	<p>Votre compte est créé immédiatement. Renseignez votre <strong>n° de suivi</strong> et votre identité <strong>telle qu’enregistrée par la scolarité</strong> :
-		la bibliothèque la vérifie automatiquement. Complétez ensuite votre faculté et votre parcours. Votre adresse e-mail sera votre identifiant de connexion.</p>
+		la bibliothèque la vérifie automatiquement (votre faculté est reprise de la liste). Complétez ensuite votre parcours. Votre adresse e-mail sera votre identifiant de connexion.</p>
 	<div class="biblio-contact-form box-shadow biblio-compte-boite">
 		<?php if (isset($erreurs['identite'])): ?><div class="biblio-alert biblio-alert-erreur"><?= e($erreurs['identite']) ?></div><?php endif; ?>
 		<form method="post" action="<?= e(url('compte/inscription')) ?>" class="well">
@@ -51,11 +51,7 @@ $piege = '<div class="biblio-hp" aria-hidden="true"><label>Ne pas remplir <input
 				<?= $champ('date_naissance', 'Date de naissance', 'date', 'required max="' . date('Y-m-d') . '" autocomplete="bday"') ?>
 				<?= $champ('lieu_naissance', 'Lieu de naissance', 'text', 'required') ?>
 			</div>
-			<div class="biblio-form-2col">
-				<?= $champ('faculte', 'Faculté', 'text', 'required list="i_facultes"') ?>
-				<?= $champ('parcours', 'Parcours', 'text', 'required list="i_parcours"') ?>
-			</div>
-			<datalist id="i_facultes"><?php foreach (valeurs_existantes('faculte') as $f): ?><option value="<?= e($f) ?>"><?php endforeach; ?></datalist>
+			<?= $champ('parcours', 'Parcours', 'text', 'required list="i_parcours"', 'Votre filière, ex. Génie logiciel, Droit privé, Lettres modernes.') ?>
 			<datalist id="i_parcours"><?php foreach (valeurs_existantes('parcours') as $p): ?><option value="<?= e($p) ?>"><?php endforeach; ?></datalist>
 			<div class="biblio-form-2col">
 				<?= $champ('email', 'E-mail (votre identifiant de connexion)', 'email', 'required autocomplete="email"') ?>

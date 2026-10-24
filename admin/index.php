@@ -20,6 +20,11 @@ $section  = $segments[0] ?? '';
 $action   = $segments[1] ?? '';
 $id       = isset($segments[2]) ? (int) $segments[2] : 0;
 
+// Journal d'audit : toute page consultée et toute action de l'administration (sauf les recherches techniques en arrière-plan)
+const ESPACE_ADMIN = true;
+audit_requete(fn() => audit_libelle_admin($segments, $_SERVER['REQUEST_METHOD'] ?? 'GET'), true,
+    ($section === 'auteurs' && $action === 'chercher') || ($section === 'guichet' && in_array($action, ['exemplaires', 'etudiants'], true)));
+
 /** Affiche une page d'administration dans le gabarit et termine. */
 function admin_page(string $vue, array $vars, string $titre, string $section): never
 {
@@ -76,6 +81,8 @@ $controleurs = [
     'roles'        => 'roles',
     'systeme'      => 'systeme',
     'rapports'     => 'rapports',
+    'audit'        => 'audit',
+    'actualites'   => 'actualites',
     'mon-compte'   => 'connexion',
 ];
 
@@ -91,6 +98,7 @@ $acces = [
     'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],
     'import' => ['import.auteurs', 'import.ouvrages', 'import.etudiants'], 'etudiants' => ['etudiants.voir'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
     'personnel' => ['personnel.voir'], 'roles' => ['roles.voir'], 'rapports' => ['rapports.voir'],
+    'audit' => ['audit.voir'], 'actualites' => ['actualites.voir'],
 ];
 // Page réservée au compte Système : pour les autres, elle n'existe pas
 if ($section === 'systeme' && !is_systeme()) {

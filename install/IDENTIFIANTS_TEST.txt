@@ -1,7 +1,7 @@
-Comptes de TEST de la bibliothèque — créés par install/donnees_test.php le 22/10/2026 13:57
+Comptes de TEST de la bibliothèque — créés par install/donnees_test.php le 23/10/2026 20:09
 À retirer avant la mise en service réelle :  php install/donnees_test.php --retirer
 
-Mot de passe de tous les comptes de test : crANMa43NC
+Mot de passe de tous les comptes de test : 6hq3YbgjAw
 
 Quelques comptes (tous les lecteurs de test ont une adresse en @exemple.test) :
 - Personnel — Bibliothécaire : bibliothecaire@exemple.test

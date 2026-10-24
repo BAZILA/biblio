@@ -140,4 +140,52 @@ if ($biblio && !val("SELECT COUNT(*) FROM role_permissions WHERE permission = 'e
     $etapes++;
 }
 
+// Faculté chargée avec la liste des étudiants
+if (!colonne_existe('etudiants', 'faculte')) {
+    db()->exec("ALTER TABLE etudiants ADD COLUMN faculte VARCHAR(150) NOT NULL DEFAULT '' AFTER lieu_naissance");
+    echo "etudiants.faculte ajoutée\n";
+    $etapes++;
+}
+
+// Diaporama : vidéo de fond et effet d'entrée
+foreach (['video' => "VARCHAR(255) NOT NULL DEFAULT '' AFTER image", 'animation' => "VARCHAR(20) NOT NULL DEFAULT 'zoom' AFTER video"] as $col => $def) {
+    if (!colonne_existe('slides', $col)) {
+        db()->exec("ALTER TABLE slides ADD COLUMN $col $def");
+        echo "slides.$col ajoutée\n";
+        $etapes++;
+    }
+}
+
+// Actualités et évènements, journal d'audit : mêmes définitions que dans schema.sql
+foreach (['actualites', 'audit'] as $table) {
+    if (!table_existe($table)) {
+        preg_match('/CREATE TABLE ' . $table . ' \(.*?\) ENGINE=[^;]+;/s', file_get_contents(__DIR__ . '/schema.sql'), $m);
+        db()->exec(rtrim($m[0], ';'));
+        echo "table $table créée\n";
+        $etapes++;
+    }
+}
+foreach (['diaporama_actualites_max' => '6', 'diaporama_duree' => '7'] as $cle => $valeur) {
+    if (!val('SELECT COUNT(*) FROM reglages WHERE cle = ?', [$cle])) {
+        q('INSERT INTO reglages (cle, valeur) VALUES (?, ?)', [$cle, $valeur]);
+        $etapes++;
+    }
+}
+
+// Nouveaux droits accordés aux rôles fournis par défaut (une seule fois)
+$droits = [
+    'Bibliothécaire' => ['etudiants.ajouter', 'etudiants.modifier', 'actualites.voir', 'actualites.ajouter', 'actualites.modifier', 'actualites.supprimer', 'actualites.publier'],
+    'Éditeur du site' => ['actualites.voir', 'actualites.ajouter', 'actualites.modifier', 'actualites.supprimer', 'actualites.publier'],
+];
+if (!val("SELECT COUNT(*) FROM role_permissions WHERE permission LIKE 'actualites.%'")) {
+    foreach ($droits as $role => $liste) {
+        $roleId = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', [$role]);
+        foreach ($roleId ? $liste : [] as $p) {
+            q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$roleId, $p]);
+        }
+    }
+    echo "droits Actualités (et Étudiants : ajouter / modifier) ajoutés aux rôles Bibliothécaire et Éditeur du site\n";
+    $etapes++;
+}
+
 echo $etapes ? "Mise à jour terminée ($etapes étape(s)).\n" : "La base est déjà à jour.\n";

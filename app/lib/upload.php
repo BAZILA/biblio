@@ -27,6 +27,55 @@ function supprimer_couverture(string $chemin): void
     }
 }
 
+const VIDEOS_AUTORISEES = ['video/mp4' => 'mp4', 'video/webm' => 'webm'];
+
+/** Taille maximale d'une vidéo : la plus petite des limites de PHP (upload_max_filesize, post_max_size). */
+function video_taille_max(): int
+{
+    $octets = function (string $v): int {
+        $n = (int) $v;
+        return match (strtolower(substr(trim($v), -1))) { 'g' => $n << 30, 'm' => $n << 20, 'k' => $n << 10, default => $n };
+    };
+    return min($octets((string) ini_get('upload_max_filesize')), $octets((string) ini_get('post_max_size')) ?: PHP_INT_MAX);
+}
+
+/**
+ * Enregistre la vidéo envoyée (mp4 ou webm) sous images/videos/. Renvoie le chemin relatif, null si aucun fichier,
+ * ou lève une RuntimeException si le fichier est refusé.
+ */
+function televerser_video(string $champ, string $nomBase): ?string
+{
+    $f = $_FILES[$champ] ?? null;
+    if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    $max = round(video_taille_max() / 1048576);
+    if (in_array($f['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        throw new RuntimeException("Vidéo trop lourde : $max Mo maximum sur ce serveur (raccourcissez-la ou compressez-la).");
+    }
+    if ($f['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('L’envoi de la vidéo a échoué.');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    if (!isset(VIDEOS_AUTORISEES[$mime])) {
+        throw new RuntimeException('Format de vidéo non accepté : MP4 ou WebM uniquement.');
+    }
+    $repertoire = ROOT_DIR . '/images/videos';
+    if (!is_dir($repertoire) && !mkdir($repertoire, 0755, true)) {
+        throw new RuntimeException('Dossier des vidéos inaccessible.');
+    }
+    $base = slugify($nomBase);
+    $ext = VIDEOS_AUTORISEES[$mime];
+    $nom = "$base.$ext";
+    for ($i = 2; is_file("$repertoire/$nom"); $i++) {
+        $nom = "$base-$i.$ext";
+    }
+    if (!move_uploaded_file($f['tmp_name'], "$repertoire/$nom")) {
+        throw new RuntimeException('Impossible d’enregistrer la vidéo.');
+    }
+    return "images/videos/$nom";
+}
+
 /**
  * Enregistre l'image envoyée dans le champ $champ sous images/$dossier/.
  * Renvoie le chemin relatif (« images/ouvrages/titre.jpg »), null si aucun fichier,

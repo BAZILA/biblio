@@ -4,7 +4,7 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS etudiants, role_permissions, roles, demandes_prolongation, mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
+DROP TABLE IF EXISTS audit, actualites, etudiants, role_permissions, roles, demandes_prolongation, mails, tentatives_connexion, reservations, prets, exemplaires, ouvrage_auteur, ouvrages,
   auteurs, types, domaines, slides, citations, blocs, reglages, messages, utilisateurs;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -40,7 +40,8 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (2, 'demandes.voir'), (2, 'demandes.traiter'),
   (2, 'reservations.voir'), (2, 'reservations.remettre'), (2, 'reservations.annuler'),
   (2, 'lecteurs.voir'), (2, 'lecteurs.ajouter'), (2, 'lecteurs.modifier'), (2, 'lecteurs.supprimer'), (2, 'lecteurs.valider'), (2, 'lecteurs.mot_de_passe'),
-  (2, 'etudiants.voir'), (2, 'etudiants.activer'), (2, 'import.etudiants'),
+  (2, 'etudiants.voir'), (2, 'etudiants.ajouter'), (2, 'etudiants.modifier'), (2, 'etudiants.activer'), (2, 'import.etudiants'),
+  (2, 'actualites.voir'), (2, 'actualites.ajouter'), (2, 'actualites.modifier'), (2, 'actualites.supprimer'), (2, 'actualites.publier'),
   (2, 'ouvrages.voir'), (2, 'ouvrages.ajouter'), (2, 'ouvrages.modifier'), (2, 'ouvrages.supprimer'), (2, 'ouvrages.desactiver'),
   (2, 'exemplaires.ajouter'), (2, 'exemplaires.modifier'), (2, 'exemplaires.supprimer'), (2, 'exemplaires.retirer'),
   (2, 'auteurs.voir'), (2, 'auteurs.ajouter'), (2, 'auteurs.modifier'), (2, 'auteurs.supprimer'),
@@ -60,7 +61,8 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (4, 'tableau.voir'),
   (4, 'slides.voir'), (4, 'slides.ajouter'), (4, 'slides.modifier'), (4, 'slides.supprimer'),
   (4, 'citations.voir'), (4, 'citations.ajouter'), (4, 'citations.modifier'), (4, 'citations.supprimer'),
-  (4, 'blocs.voir'), (4, 'blocs.modifier'), (4, 'messages.voir');
+  (4, 'blocs.voir'), (4, 'blocs.modifier'), (4, 'messages.voir'),
+  (4, 'actualites.voir'), (4, 'actualites.ajouter'), (4, 'actualites.modifier'), (4, 'actualites.supprimer'), (4, 'actualites.publier');
 
 -- Comptes : personnel (avec un rôle) et lecteurs (espace lecteur + prêts)
 CREATE TABLE utilisateurs (
@@ -95,6 +97,7 @@ CREATE TABLE etudiants (
   prenom         VARCHAR(150) NOT NULL,
   date_naissance DATE NOT NULL,
   lieu_naissance VARCHAR(150) NOT NULL,
+  faculte        VARCHAR(150) NOT NULL DEFAULT '',  -- chargée avec la liste ; le parcours est saisi par l'étudiant
   actif          TINYINT(1)   NOT NULL DEFAULT 1,   -- 0 = désactivé par la bibliothèque (ne peut plus créer de compte)
   importe_le     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   modifie_le     DATETIME NULL,
@@ -247,8 +250,57 @@ CREATE TABLE slides (
   bouton      VARCHAR(100) NOT NULL DEFAULT '',
   lien        VARCHAR(255) NOT NULL DEFAULT '',
   image       VARCHAR(255) NOT NULL,
+  video       VARCHAR(255) NOT NULL DEFAULT '',   -- vidéo de fond facultative (mp4 / webm), l'image sert d'affiche
+  animation   VARCHAR(20)  NOT NULL DEFAULT 'zoom', -- effet d'entrée : zoom, panoramique, fondu, glissement, rideau, flou
   ordre       INT NOT NULL DEFAULT 0,
   publie      TINYINT(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Actualités et évènements : page Actualités du site, page propre à chacun, et diapositives de l'accueil (au_diaporama)
+CREATE TABLE actualites (
+  id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  type             ENUM('actualite','evenement') NOT NULL DEFAULT 'actualite',
+  titre            VARCHAR(190) NOT NULL,
+  slug             VARCHAR(190) NOT NULL,
+  chapo            VARCHAR(400) NOT NULL DEFAULT '',   -- résumé : cartes et diapositive
+  contenu          MEDIUMTEXT NULL,                     -- HTML (paragraphes)
+  image            VARCHAR(255) NOT NULL DEFAULT '',
+  video            VARCHAR(255) NOT NULL DEFAULT '',    -- vidéo de fond de la diapositive (mp4 / webm)
+  date_publication DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  debut            DATETIME NULL,                       -- évènement : date et heure
+  fin              DATETIME NULL,
+  lieu             VARCHAR(190) NOT NULL DEFAULT '',
+  au_diaporama     TINYINT(1) NOT NULL DEFAULT 0,       -- défile dans le diaporama de l'accueil
+  animation        VARCHAR(20)  NOT NULL DEFAULT 'zoom',
+  publie           TINYINT(1) NOT NULL DEFAULT 1,
+  auteur_id        INT UNSIGNED NULL,
+  cree_le          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  modifie_le       DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_slug (slug),
+  KEY ix_publication (publie, date_publication),
+  KEY ix_diaporama (au_diaporama, publie)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Journal d'audit : toutes les opérations (pages consultées et actions de l'administration, connexions, actions du site).
+-- Pas de clé étrangère : le journal garde la trace même si le compte est supprimé.
+CREATE TABLE audit (
+  id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  le             DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  utilisateur_id INT UNSIGNED NULL,
+  acteur         VARCHAR(190) NOT NULL DEFAULT '',     -- nom au moment de l'opération (« Système », « Visiteur »…)
+  espace         ENUM('admin','site') NOT NULL,
+  categorie      VARCHAR(20)  NOT NULL,                -- action, consultation, connexion, securite, export
+  action         VARCHAR(190) NOT NULL,
+  methode        VARCHAR(8)   NOT NULL DEFAULT '',
+  chemin         VARCHAR(255) NOT NULL DEFAULT '',
+  resultat       VARCHAR(500) NOT NULL DEFAULT '',     -- message affiché (succès, erreur)
+  statut         ENUM('succes','erreur','info') NOT NULL DEFAULT 'info',
+  details        TEXT NULL,                            -- champs envoyés (JSON, sans mots de passe)
+  ip             VARCHAR(45)  NOT NULL DEFAULT '',
+  navigateur     VARCHAR(255) NOT NULL DEFAULT '',
+  KEY ix_le (le),
+  KEY ix_utilisateur (utilisateur_id, le),
+  KEY ix_categorie (categorie, le)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- « Paroles d'auteurs » sur l'accueil
@@ -336,4 +388,6 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('smtp_utilisateur', ''),
   ('smtp_mot_de_passe', ''),
   ('taches_dernier_jour', ''),
-  ('permissions_masquees', '');
+  ('permissions_masquees', ''),
+  ('diaporama_actualites_max', '6'),
+  ('diaporama_duree', '7');

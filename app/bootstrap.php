@@ -38,6 +38,7 @@ if (PHP_SAPI !== 'cli') {
 
 require APP_DIR . '/lib/db.php';
 require APP_DIR . '/lib/helpers.php';
+require APP_DIR . '/lib/audit.php';
 require APP_DIR . '/lib/auth.php';
 require APP_DIR . '/lib/permissions.php';
 require APP_DIR . '/lib/catalogue.php';
@@ -45,3 +46,4 @@ require APP_DIR . '/lib/prets.php';
 require APP_DIR . '/lib/mail.php';
 require APP_DIR . '/lib/lecteurs.php';
 require APP_DIR . '/lib/etudiants.php';
+require APP_DIR . '/lib/actualites.php';

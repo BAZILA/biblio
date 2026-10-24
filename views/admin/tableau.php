@@ -178,3 +178,14 @@ $ouvrage = fn(array $o, string $code = ''): string => '<div class="cellule-ouvra
 	</section>
 <?php endif; ?>
 </div>
+
+<?php if ($courbe): ?>
+<section class="carte" style="margin-top:20px">
+	<div class="carte-titre"><h2><i class="fa-solid fa-chart-line"></i> Activité des 12 derniers mois</h2>
+		<?php if (peut('rapports.voir')): ?><a class="lien" href="<?= e(admin_url('rapports', ['du' => date('Y-m-d', strtotime('-12 months +1 day')), 'au' => date('Y-m-d')])) ?>">Statistiques détaillées</a><?php endif; ?></div>
+	<?= render(ROOT_DIR . '/views/admin/_courbe.php', ['titre' => 'Prêts et retours par mois sur les 12 derniers mois', 'mois' => $courbe['mois'], 'series' => [
+		['nom' => 'Prêts', 'couleur' => '#3a5bd0', 'valeurs' => $courbe['prets']],
+		['nom' => 'Retours', 'couleur' => '#009c30', 'valeurs' => $courbe['retours']],
+	]]) ?>
+</section>
+<?php endif; ?>

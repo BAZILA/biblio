@@ -34,7 +34,7 @@ $libelles = ['auteurs' => 'auteurs', 'ouvrages' => 'ouvrages', 'etudiants' => '�
 	<div class="tableau-wrap"><table class="tableau">
 		<thead><tr><th>Ligne</th><th>État</th>
 			<?php if ($quoi === 'auteurs'): ?><th>Nom</th>
-			<?php elseif ($etudiants): ?><th>N° de suivi</th><th>Nom et prénoms</th><th>Naissance</th>
+			<?php elseif ($etudiants): ?><th>N° de suivi</th><th>Nom et prénoms</th><th>Naissance</th><th>Faculté</th>
 			<?php else: ?><th>Titre</th><th>Auteurs</th><th>Domaine</th><th>Type</th><th>Cote</th><th class="num">Ex.</th><?php endif; ?>
 			<th>Remarque</th></tr></thead>
 		<tbody>
@@ -48,6 +48,7 @@ $libelles = ['auteurs' => 'auteurs', 'ouvrages' => 'ouvrages', 'etudiants' => '�
 				<td><code><?= e($l['numero_suivi']) ?></code></td>
 				<td><strong><?= e($l['nom']) ?></strong> <?= e($l['prenom']) ?></td>
 				<td><?= $l['date_naissance'] !== '' ? e(date_fr($l['date_naissance'])) : '' ?><?= $l['lieu_naissance'] !== '' ? ' à ' . e($l['lieu_naissance']) : '' ?></td>
+				<td><?= e($l['faculte']) ?></td>
 <?php else: ?>
 				<td><strong><?= e($l['titre']) ?></strong></td>
 				<td><?= e(implode(', ', $l['auteurs'])) ?></td>

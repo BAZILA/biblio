@@ -453,4 +453,71 @@
     form.addEventListener('change', function (ev) { if (ev.target !== tout && ev.target.name === nom) { maj(); } });
     maj();
   });
+  // Fiche actualité : bloc « évènement » selon le type, aperçu de l'effet de diapositive
+  document.querySelectorAll('input[name="type"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      document.querySelectorAll('[data-si-type]').forEach(function (b) { afficher(b, b.getAttribute('data-si-type') === r.value); });
+    });
+  });
+  document.querySelectorAll('[data-si-type][hidden]').forEach(function (b) { afficher(b, false); });
+  document.querySelectorAll('select[data-apercu-animation]').forEach(function (choix) {
+    var apercu = document.querySelector(choix.getAttribute('data-apercu-animation'));
+    function rejouer() {
+      apercu.setAttribute('data-animation', choix.value);
+      apercu.querySelectorAll('.fond, .texte').forEach(function (el) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+    }
+    choix.addEventListener('change', rejouer);
+    apercu.addEventListener('click', rejouer);
+    var titre = document.querySelector('input[name="titre"]');
+    if (titre) { titre.addEventListener('input', function () { apercu.querySelector('strong').textContent = titre.value || 'Titre'; }); }
+    var image = document.querySelector('input[type=file][name="image"]');
+    if (image) { image.addEventListener('change', function () { if (image.files[0]) { apercu.querySelector('.fond').style.backgroundImage = 'url(' + URL.createObjectURL(image.files[0]) + ')'; rejouer(); } }); }
+  });
+  // Courbes : réticule et infobulle au survol ou au clavier (flèches), toutes les séries du mois pointé
+  document.querySelectorAll('figure[data-courbe]').forEach(function (fig) {
+    var d = JSON.parse(fig.getAttribute('data-courbe'));
+    var svg = fig.querySelector('svg'), zone = fig.querySelector('.courbe-zone');
+    var capture = fig.querySelector('.courbe-capture'), reticule = fig.querySelector('.courbe-reticule');
+    var points = fig.querySelectorAll('.courbe-point'), bulle = fig.querySelector('.courbe-bulle');
+    var actuel = -1;
+    function montrer(i) {
+      actuel = Math.max(0, Math.min(d.x.length - 1, i));
+      var x = d.x[actuel];
+      reticule.setAttribute('x1', x); reticule.setAttribute('x2', x); reticule.setAttribute('visibility', 'visible');
+      d.series.forEach(function (s, k) {
+        points[k].setAttribute('cx', x); points[k].setAttribute('cy', s.y[actuel]); points[k].setAttribute('visibility', 'visible');
+      });
+      bulle.textContent = '';
+      var m = document.createElement('div'); m.className = 'mois'; m.textContent = d.mois[actuel]; bulle.appendChild(m);
+      d.series.forEach(function (s) {
+        var l = document.createElement('div'); l.className = 'ligne-serie';
+        var cle = document.createElement('i'); cle.style.background = s.couleur;
+        var v = document.createElement('strong'); v.textContent = s.valeurs[actuel];
+        var n = document.createElement('span'); n.textContent = s.nom;
+        l.appendChild(cle); l.appendChild(v); l.appendChild(n); bulle.appendChild(l);
+      });
+      bulle.hidden = false;
+      var pct = x / d.largeur * 100;
+      bulle.style.left = Math.max(12, Math.min(88, pct)) + '%';
+    }
+    function cacher() {
+      reticule.setAttribute('visibility', 'hidden');
+      points.forEach(function (p) { p.setAttribute('visibility', 'hidden'); });
+      bulle.hidden = true;
+    }
+    function indice(ev) {
+      var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+      var x = pt.matrixTransform(svg.getScreenCTM().inverse()).x, best = 0;
+      d.x.forEach(function (v, i) { if (Math.abs(v - x) < Math.abs(d.x[best] - x)) { best = i; } });
+      return best;
+    }
+    capture.addEventListener('pointermove', function (ev) { montrer(indice(ev)); });
+    capture.addEventListener('pointerleave', cacher);
+    capture.addEventListener('focus', function () { montrer(actuel < 0 ? d.x.length - 1 : actuel); });
+    capture.addEventListener('blur', cacher);
+    capture.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowLeft') { ev.preventDefault(); montrer(actuel - 1); }
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); montrer(actuel + 1); }
+    });
+  });
 })();

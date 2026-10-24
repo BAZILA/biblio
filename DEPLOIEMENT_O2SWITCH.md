@@ -174,3 +174,16 @@ cat ~/bibliotheque.univ-kara.org/install/IDENTIFIANTS_TEST.txt
 ```
 
 Avant l'ouverture au public, retirez-les : même commande avec `--retirer` à la fin.
+
+## 12. Vidéos du diaporama (taille des envois)
+
+Les vidéos de fond des diapositives sont limitées par PHP. Dans le `php.ini` du site, mettez par exemple :
+
+```ini
+upload_max_filesize = 64M
+post_max_size = 70M
+max_execution_time = 120
+```
+
+En SSH : `nano ~/bibliotheque.univ-kara.org/php.ini`, modifiez les trois lignes, enregistrez (Ctrl+O, Entrée, Ctrl+X). Le changement est
+immédiat. Préférez des vidéos courtes (5 à 15 secondes en boucle, sans son, 1920×1080, quelques Mo) : elles se chargent vite sur mobile.

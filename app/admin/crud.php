@@ -48,13 +48,16 @@ $ressources = [
     'slides' => [
         'table' => 'slides', 'modifier' => 'Modifier la diapositive', 'titre' => 'Diaporama d’accueil', 'nouveau' => 'Nouvelle diapositive', 'ordre' => 'ordre, id',
         'liste' => ['image' => 'Image', 'titre' => 'Titre', 'bouton' => 'Bouton', 'publie' => 'Publiée'],
+        'intro' => 'Diapositives fixes de l’accueil (la première accueille les visiteurs). Les actualités et évènements cochés « au diaporama » défilent ensuite (rubrique Actualités et évènements).',
         'requete' => 'SELECT * FROM slides ORDER BY ordre, id',
         'champs' => [
             'titre' => ['Titre', 'textarea', ['required' => true, 'attrs' => 'rows="2" style="min-height:0"', 'aide' => 'Un retour à la ligne crée un saut de ligne dans le grand titre.']],
             'texte' => ['Texte', 'textarea', []],
             'bouton' => ['Libellé du bouton', 'text', ['aide' => 'Laisser vide pour ne pas afficher de bouton.']],
             'lien' => ['Lien du bouton', 'text', ['aide' => 'Page du site (ex. catalogue, domaines/informatique) ou adresse complète https://…']],
-            'image' => ['Image de fond', 'image', ['dossier' => 'biblio', 'aide' => 'Format paysage, 1920×1140 px conseillé.']],
+            'image' => ['Image de fond', 'image', ['dossier' => 'biblio', 'aide' => 'Format paysage, 1920×1080 px conseillé. Sert aussi d’affiche pendant le chargement de la vidéo.']],
+            'video' => ['Vidéo de fond (facultatif)', 'video', ['aide' => 'MP4 ou WebM, quelques secondes en boucle, sans son : elle remplace l’image sur la diapositive.']],
+            'animation' => ['Effet de la diapositive', 'select', ['options' => ANIMATIONS_DIAPO]],
             'ordre' => ['Ordre', 'number', []],
             'publie' => ['Publiée', 'case', []],
         ],
@@ -120,7 +123,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
         exiger($action === 'nouveau' ? "$section.ajouter" : "$section.modifier");
         $data = [];
         foreach ($res['champs'] as $nom => [$libelle, $type, $opts]) {
-            if ($type === 'image') {
+            if ($type === 'image' || $type === 'video') {
                 continue;
             }
             $v = $type === 'case' ? (isset($_POST[$nom]) ? 1 : 0) : post_str($nom, '');
@@ -143,11 +146,16 @@ if ($action === 'nouveau' || $action === 'modifier') {
             $ligne[$nom] = $v;
         }
         foreach ($res['champs'] as $nom => [$libelle, $type, $opts]) {
-            if ($type !== 'image' || $erreurs) {
+            if (($type !== 'image' && $type !== 'video') || $erreurs) {
                 continue;
             }
             try {
-                $chemin = televerser_image($nom, $opts['dossier'], $ligne['titre'] ?? $ligne['auteur'] ?? $section);
+                if ($type === 'video' && isset($_POST['retirer_' . $nom])) {
+                    $data[$nom] = $ligne[$nom] = '';
+                }
+                $chemin = $type === 'video'
+                    ? televerser_video($nom, $ligne['titre'] ?? $section)
+                    : televerser_image($nom, $opts['dossier'], $ligne['titre'] ?? $ligne['auteur'] ?? $section);
                 if ($chemin) {
                     $data[$nom] = $chemin;
                     $ligne[$nom] = $chemin;

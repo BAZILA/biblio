@@ -33,7 +33,7 @@ const PERMISSIONS = [
             'valider' => 'Valider, désactiver ou réactiver un compte',
             'mot_de_passe' => 'Réinitialiser le mot de passe',
         ], '« Ajouter » couvre aussi la création rapide au guichet. « Supprimer » = bouton « Supprimer ce lecteur » (lecteur sans aucun prêt). « Valider… » = boutons Valider, Activer, Désactiver, Réactiver.'],
-        'etudiants' => ['Étudiants de l’université', ['voir' => 'Voir', 'activer' => 'Désactiver ou réactiver des étudiants de la liste'],
+        'etudiants' => ['Étudiants de l’université', ['voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'activer' => 'Désactiver ou réactiver des étudiants de la liste'],
             'Liste officielle chargée par import (droit « Importer un fichier ») : inscription en ligne des étudiants et prêt au guichet sans compte. « Désactiver » = cases à cocher et boutons Désactiver / Réactiver ; les comptes déjà créés ne changent pas.'],
         'rapports' => ['Statistiques et rapports', ['voir' => 'Voir', 'exporter' => 'Télécharger les rapports PDF'],
             'Chaque rapport exige aussi de voir la rubrique concernée (prêts, ouvrages ou lecteurs).'],
@@ -57,6 +57,8 @@ const PERMISSIONS = [
         ], ''],
     ],
     'Site' => [
+        'actualites' => ['Actualités et évènements', ACTIONS_STANDARD + ['publier' => 'Publier, masquer, mettre au diaporama'],
+            'Pages Actualités du site et diapositives d’actualité de l’accueil. « Supprimer » = bouton rouge en bas de la fiche.'],
         'slides' => ['Diaporama d’accueil', ACTIONS_STANDARD, '« Modifier » couvre aussi publier / masquer ; « Supprimer » = bouton rouge en bas de la fiche.'],
         'citations' => ['Citations', ACTIONS_STANDARD, '« Modifier » couvre aussi publier / masquer ; « Supprimer » = bouton rouge en bas de la fiche.'],
         'blocs' => ['Textes du site', ['voir' => 'Voir', 'modifier' => 'Modifier'], 'Le HTML y est enregistré tel quel : à réserver aux personnes de confiance.'],
@@ -70,6 +72,7 @@ const PERMISSIONS = [
         'mails' => ['E-mails envoyés', ['voir' => 'Voir', 'envoyer' => 'Envoyer un test ou lancer les rappels'], ''],
         'personnel' => ['Comptes du personnel', ['voir' => 'Voir', 'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'desactiver' => 'Désactiver ou réactiver un compte'],
             'On ne peut attribuer qu’un rôle dont on possède soi-même tous les droits. « Désactiver » = case « Compte actif » de la fiche.'],
+        'audit' => ['Journal d’audit', ['voir' => 'Voir', 'exporter' => 'Exporter (CSV)'], 'Toutes les opérations faites sur la plateforme. Le journal ne peut être ni modifié ni effacé.'],
         'roles' => ['Rôles et permissions', ACTIONS_STANDARD, 'On ne peut accorder que des droits que l’on possède soi-même. « Supprimer » = bouton rouge de la fiche (rôle sans compte).'],
     ],
 ];
@@ -237,8 +240,8 @@ function premiere_page_autorisee(): ?string
 {
     $ordre = ['tableau' => '', 'guichet' => 'guichet', 'prets' => 'prets', 'demandes' => 'prets/demandes', 'reservations' => 'reservations',
         'lecteurs' => 'lecteurs', 'etudiants' => 'etudiants', 'rapports' => 'rapports', 'ouvrages' => 'ouvrages', 'auteurs' => 'auteurs', 'domaines' => 'domaines', 'types' => 'types',
-        'slides' => 'slides', 'citations' => 'citations', 'blocs' => 'blocs', 'messages' => 'messages', 'reglages' => 'reglages',
-        'mails' => 'mails', 'personnel' => 'personnel', 'roles' => 'roles'];
+        'actualites' => 'actualites', 'slides' => 'slides', 'citations' => 'citations', 'blocs' => 'blocs', 'messages' => 'messages', 'reglages' => 'reglages',
+        'mails' => 'mails', 'personnel' => 'personnel', 'roles' => 'roles', 'audit' => 'audit'];
     foreach ($ordre as $module => $chemin) {
         if (peut("$module.voir")) {
             return $chemin;

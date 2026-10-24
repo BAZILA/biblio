@@ -47,15 +47,18 @@ function tenter_connexion(string $email, string $motDePasse): array|string
     $parEmail = (int) val('SELECT COUNT(*) FROM tentatives_connexion WHERE email = ? AND le > NOW() - INTERVAL 15 MINUTE', [$email]);
     $parIp = (int) val('SELECT COUNT(*) FROM tentatives_connexion WHERE ip = ? AND le > NOW() - INTERVAL 15 MINUTE', [$ip]);
     if ($parEmail >= ECHECS_MAX_EMAIL || $parIp >= ECHECS_MAX_IP) {
+        audit_noter('erreur', "Connexion bloquée (trop de tentatives) pour « $email ».", 'securite');
         return 'Trop de tentatives. Réessayez dans un quart d’heure.';
     }
 
     $u = row('SELECT * FROM utilisateurs WHERE email = ?', [$email]);
     if (!$u || $u['mot_de_passe'] === '' || !password_verify($motDePasse, $u['mot_de_passe'])) {
         insert('tentatives_connexion', ['email' => mb_substr($email, 0, 190), 'ip' => mb_substr($ip, 0, 45)]);
+        audit_noter('erreur', "Connexion refusée : e-mail ou mot de passe incorrect (« $email »).", 'securite');
         return 'E-mail ou mot de passe incorrect.';
     }
     if (!$u['actif']) {
+        audit_noter('erreur', "Connexion refusée : compte « $email » " . ($u['en_attente'] ? 'pas encore validé.' : 'désactivé.'), 'securite');
         return $u['en_attente']
             ? 'Ce compte n’est pas encore activé par la bibliothèque.'
             : 'Ce compte a été désactivé : contactez la bibliothèque.';
@@ -65,6 +68,7 @@ function tenter_connexion(string $email, string $motDePasse): array|string
     session_regenerate_id(true);
     $_SESSION['user_id'] = (int) $u['id'];
     q('UPDATE utilisateurs SET derniere_connexion = NOW() WHERE id = ?', [$u['id']]);
+    audit_noter('succes', 'Connexion réussie.', 'connexion');
     if (password_needs_rehash($u['mot_de_passe'], PASSWORD_DEFAULT)) {
         q('UPDATE utilisateurs SET mot_de_passe = ? WHERE id = ?', [password_hash($motDePasse, PASSWORD_DEFAULT), $u['id']]);
     }

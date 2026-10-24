@@ -10,6 +10,7 @@
  * @var string $classeHtml  Classes additionnelles sur <html>
  * @var array  $cssAvant    Feuilles de style propres à la page, chargées avant celles du thème
  * @var string $tete        HTML additionnel dans <head>
+ * @var bool   $pleineLargeur Contenu sur toute la largeur de l'écran (pages Actualités)
  */
 $accueil   = $accueil ?? false;
 $actif     = $actif ?? '';
@@ -25,6 +26,10 @@ $lecteur = user();
 	<meta charset="utf-8">
 	<meta name="description" content="<?= e($description ?? reglage('site_description')) ?>">
 	<title><?= e($titre) ?></title>
+<?php if (!empty($image)): ?>
+	<meta property="og:title" content="<?= e($titre) ?>">
+	<meta property="og:image" content="<?= e(rtrim(reglage('site_adresse'), '/') . '/' . ltrim($image, '/')) ?>">
+<?php endif; ?>
 	<link href="<?= e(media('images/biblio/favicon.png')) ?>" rel="icon" type="image/png">
 	<link href="<?= e(media('images/biblio/favicon.ico')) ?>" rel="alternate icon" type="image/vnd.microsoft.icon">
 	<link href="<?= e(media('images/biblio/uk-sigle.png')) ?>" rel="apple-touch-icon">
@@ -45,6 +50,7 @@ $lecteur = user();
 	<link href="<?= asset('vendor/jt-testimonial/font-awesome.css') ?>" rel="stylesheet">
 <?php endif; ?>
 	<link href="<?= asset('site/site.css') ?>" rel="stylesheet">
+	<link href="<?= asset('site/vitrine.css') ?>" rel="stylesheet">
 	<script src="<?= asset('vendor/jquery/jquery.min.js') ?>"></script>
 	<script>jQuery.noConflict();</script>
 	<script src="<?= asset('vendor/t3/bootstrap/js/bootstrap.js') ?>"></script>
@@ -161,6 +167,9 @@ body {font-family:Nunito Sans Regular,Helvetica,Arial, sans-serif!important; fon
 <li itemprop='name'<?= $actif === 'recherche' ? ' class="current active"' : '' ?> data-level="1">
 <a itemprop='url' class=""  href="<?= e(url('recherche')) ?>"   data-target="#">Recherche </a>
 </li>
+<li itemprop='name'<?= $actif === 'actualites' ? ' class="current active"' : '' ?> data-level="1">
+<a itemprop='url' class=""  href="<?= e(url('actualites')) ?>"   data-target="#">Actualités </a>
+</li>
 <li itemprop='name'<?= $actif === 'contact' ? ' class="current active"' : '' ?> data-level="1">
 <a itemprop='url' class=""  href="<?= e(url('contact')) ?>"   data-target="#">Contact </a>
 </li>
@@ -184,7 +193,7 @@ body {font-family:Nunito Sans Regular,Helvetica,Arial, sans-serif!important; fon
 <?php if ($accueil): ?>
 <?= $contenu ?>
 <?php else: ?>
-<div id="t3-mainbody" class="container t3-mainbody">
+<div id="t3-mainbody" class="container t3-mainbody<?= !empty($pleineLargeur) ? ' vit-pleine-largeur' : '' ?>">
 	<div class="row">
 
 		<!-- MAIN CONTENT -->

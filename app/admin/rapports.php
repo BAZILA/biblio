@@ -19,4 +19,5 @@ admin_page('rapports', [
     'du' => $du,
     'au' => $au,
     's' => statistiques($du, $au),
+    'courbe' => series_mensuelles($du, $au),
 ], 'Statistiques et rapports', 'rapports');

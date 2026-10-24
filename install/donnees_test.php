@@ -70,6 +70,7 @@ if (in_array('--retirer', $argv, true)) {
         $n['messages'] = q('DELETE FROM messages WHERE id IN (' . liste_in(ids('messages')) . ')')->rowCount();
         $n['diapositives'] = q('DELETE FROM slides WHERE id IN (' . liste_in(ids('slides')) . ')')->rowCount();
         $n['citations'] = q('DELETE FROM citations WHERE id IN (' . liste_in(ids('citations')) . ')')->rowCount();
+        $n['actualités et évènements'] = q('DELETE FROM actualites WHERE id IN (' . liste_in(ids('actualites')) . ')')->rowCount();
         $n['e-mails du journal'] = q('DELETE FROM mails WHERE destinataire LIKE ?', ['%@' . DOMAINE_TEST])->rowCount();
         q("DELETE FROM tentatives_connexion WHERE email LIKE ?", ['%@' . DOMAINE_TEST]);
         q("DELETE FROM reglages WHERE cle = 'donnees_test'");
@@ -181,16 +182,16 @@ try {
         if (val('SELECT 1 FROM etudiants WHERE numero_suivi = ?', [$carte])) {
             continue;
         }
-        // La liste ne contient que l'identité ; faculté, parcours et téléphone sont ceux que l'étudiant donnera en créant son compte
+        // La liste contient l'identité et la faculté ; parcours et téléphone sont ceux que l'étudiant donnera en créant son compte
         $e = [
             'numero_suivi' => $carte, 'nom' => $nom, 'prenom' => $prenom,
             'date_naissance' => sprintf('%04d-%02d-%02d', $annee - mt_rand(18, 22), mt_rand(1, 12), mt_rand(1, 28)),
-            'lieu_naissance' => $hasard($lieux),
+            'lieu_naissance' => $hasard($lieux), 'faculte' => $faculte,
             'actif' => count($etudiants) < 145 ? 1 : 0, // les 5 derniers : désactivés par la bibliothèque (exemple)
             'importe_le' => $moment(-40, '08:00:00'),
         ];
         $e['id'] = noter('etudiants', insert('etudiants', $e));
-        $etudiants[] = $e + ['faculte' => $faculte, 'parcours' => $hasard($cursus[$faculte]),
+        $etudiants[] = $e + ['parcours' => $hasard($cursus[$faculte]),
             'telephone' => sprintf('+228 9%d %02d %02d %02d', mt_rand(0, 9), mt_rand(0, 99), mt_rand(0, 99), mt_rand(0, 99))];
     }
     $bilan['étudiants (liste de l’université)'] = count($etudiants);
@@ -399,6 +400,42 @@ try {
         noter('messages', insert('messages', ['nom' => $nom, 'email' => slugify($nom) . '@' . DOMAINE_TEST, 'sujet' => $sujet,
             'message' => $texte, 'lu' => $lu, 'recu_le' => $moment(-$k * 3, '1' . $k . ':20:00')]));
     }
+
+    /* ---------- Actualités et évènements (les quatre premiers défilent dans le diaporama de l'accueil) ---------- */
+    $actus = [
+        ['evenement', 'Semaine du livre africain', 'Lectures publiques, rencontres d’auteurs et exposition de manuscrits : une semaine pour célébrer les littératures africaines.',
+         "Du lundi au vendredi, la salle de lecture accueille des lectures à voix haute, des tables rondes avec des écrivains togolais et une exposition de manuscrits anciens.\n\nLes étudiants de lettres présenteront leurs travaux sur Mariama Bâ, Ahmadou Kourouma et Cheikh Hamidou Kane.\n\nEntrée libre, dans la limite des places disponibles.",
+         'images/biblio/photo4.jpg', -2, 18, 22, 'Salle de lecture, bâtiment central', 'panoramique'],
+        ['actualite', 'Horaires élargis pendant les examens', 'Du 3 au 28 novembre, la bibliothèque ouvre de 7 h 30 à 20 h en semaine, et le samedi de 8 h à 13 h.',
+         "Pour accompagner la période des examens, les horaires d’ouverture sont élargis.\n\nLa salle de lecture reste silencieuse ; les salles de travail en groupe se réservent à l’accueil.",
+         'images/biblio/photo5.jpg', -1, null, null, '', 'rideau'],
+        ['actualite', '120 nouveaux ouvrages en informatique et en santé', 'Algorithmique, réseaux, intelligence artificielle, anatomie et santé publique : découvrez les dernières acquisitions.',
+         "La bibliothèque a reçu 120 nouveaux ouvrages, dont des manuels de référence en informatique et en santé publique.\n\nIls sont consultables dans le catalogue en ligne et peuvent être réservés depuis votre espace lecteur.",
+         'images/biblio/photo6.jpg', -4, null, null, '', 'flou'],
+        ['evenement', 'Atelier : bien chercher dans le catalogue', 'Une heure pour apprendre à trouver un ouvrage, le réserver en ligne et suivre ses prêts.',
+         "Atelier pratique ouvert à tous les étudiants de première année.\n\nApportez votre téléphone ou votre ordinateur : nous créerons ensemble votre compte lecteur.",
+         'images/biblio/photo7.jpg', -6, 6, 6, 'Salle multimédia', 'zoom'],
+        ['actualite', 'Créez votre compte lecteur en ligne', 'Les étudiants inscrits créent désormais leur compte en ligne avec leur n° de suivi : réservations et prolongations depuis le téléphone.',
+         "Rendez-vous dans l’Espace lecteur, rubrique « Créer un compte », puis « Étudiant de l’université ».\n\nVotre identité est vérifiée automatiquement à partir de la liste fournie par la scolarité.",
+         'images/biblio/photo9.jpg', -10, null, null, '', 'glissement'],
+        ['evenement', 'Conférence : le droit foncier en Afrique de l’Ouest', 'Conférence-débat autour de la thèse de Mamadou Traoré, disponible en consultation sur place.',
+         "La Faculté de Droit et des Sciences Politiques et la bibliothèque organisent une conférence-débat.\n\nLa thèse est consultable sur place à la bibliothèque.",
+         'images/biblio/photo10.jpg', -15, -8, -8, 'Amphithéâtre A', 'fondu'],
+    ];
+    foreach ($actus as $k => [$type, $titre, $chapo, $contenu, $image, $publie, $debut, $fin, $lieu, $animation]) {
+        $slug = slugify($titre);
+        if (val('SELECT 1 FROM actualites WHERE slug = ?', [$slug])) {
+            continue;
+        }
+        noter('actualites', insert('actualites', [
+            'type' => $type, 'titre' => $titre, 'slug' => $slug, 'chapo' => $chapo, 'contenu' => texte_vers_html($contenu),
+            'image' => is_file(ROOT_DIR . '/' . $image) ? $image : '', 'date_publication' => $moment($publie, '08:30:00'),
+            'debut' => $debut !== null ? $moment($debut, $type === 'evenement' ? '09:00:00' : '00:00:00') : null,
+            'fin' => $fin !== null && $fin !== $debut ? $moment($fin, '17:00:00') : null,
+            'lieu' => $lieu, 'au_diaporama' => $k < 4 ? 1 : 0, 'animation' => $animation, 'publie' => 1, 'auteur_id' => $agent,
+        ]));
+    }
+    $bilan['actualités et évènements'] = count(ids('actualites'));
 
     /* ---------- Diaporama et citations de l'accueil (s'ils sont vides) ---------- */
     $sql = file_get_contents(__DIR__ . '/contenu_accueil.sql');

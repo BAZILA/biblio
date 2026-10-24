@@ -18,6 +18,17 @@
 		<?php if (!empty($opts['aide'])): ?><div class="aide"><?= e($opts['aide']) ?></div><?php endif; ?>
 		<?php if (isset($erreurs[$nom])): ?><div class="erreur"><?= e($erreurs[$nom]) ?></div><?php endif; ?>
 	</div>
+<?php elseif ($type === 'video'): ?>
+	<div class="champ<?= isset($erreurs[$nom]) ? ' en-erreur' : '' ?>">
+		<label><?= e($libelle) ?></label>
+<?php if ($valeur): ?>
+		<video src="<?= e(media($valeur)) ?>" class="apercu-image" muted loop playsinline controls preload="metadata"></video>
+		<label class="case"><input type="checkbox" name="retirer_<?= $nom ?>" value="1"> Retirer la vidéo</label>
+<?php endif; ?>
+		<input type="file" name="<?= $nom ?>" accept="video/mp4,video/webm">
+		<div class="aide"><?= e($opts['aide'] ?? '') ?> <?= round(video_taille_max() / 1048576) ?> Mo au maximum sur ce serveur.</div>
+		<?php if (isset($erreurs[$nom])): ?><div class="erreur"><?= e($erreurs[$nom]) ?></div><?php endif; ?>
+	</div>
 <?php elseif ($type === 'slug'): ?>
 	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['attrs' => 'data-slug-de="nom"' . (isset($opts['prefixe']) ? ' data-prefixe="' . e($opts['prefixe']) . '"' : '')]) ?>
 <?php elseif ($type === 'icone'): ?>

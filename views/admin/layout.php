@@ -36,6 +36,7 @@ $menu = [
         ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages', 'import.etudiants']],
     ],
     'Site' => [
+        ['actualites', 'actualites', 'fa-newspaper', 'Actualités et évènements', null, ['actualites.voir']],
         ['slides', 'slides', 'fa-images', 'Diaporama d’accueil', null, ['slides.voir']],
         ['citations', 'citations', 'fa-quote-left', 'Citations', null, ['citations.voir']],
         ['blocs', 'blocs', 'fa-pen-to-square', 'Textes du site', null, ['blocs.voir']],
@@ -46,6 +47,7 @@ $menu = [
         ['mails', 'mails', 'fa-paper-plane', 'E-mails envoyés', null, ['mails.voir']],
         ['personnel', 'personnel', 'fa-user-shield', 'Comptes du personnel', null, ['personnel.voir']],
         ['roles', 'roles', 'fa-user-lock', 'Rôles et permissions', null, ['roles.voir']],
+        ['audit', 'audit', 'fa-clipboard-list', 'Journal d’audit', null, ['audit.voir']],
         ['systeme', 'systeme', 'fa-microchip', 'Système', null, ['systeme.voir']], // seul le compte Système a ce droit
     ],
 ];

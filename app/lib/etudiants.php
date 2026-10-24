@@ -1,10 +1,10 @@
 <?php
 /**
  * Liste officielle des étudiants de l'université (table etudiants), chargée et mise à jour par import :
- * n° de suivi, nom, prénoms, date et lieu de naissance — rien d'autre.
+ * n° de suivi, nom, prénoms, date et lieu de naissance, faculté. Le parcours est complété par l'étudiant.
  *
  * - Inscription en ligne : un étudiant de la liste crée seul son compte ; son identité est vérifiée contre la liste,
- *   sans validation par la bibliothèque. Il complète lui-même faculté, parcours, e-mail et mot de passe.
+ *   sans validation par la bibliothèque. Il complète lui-même son parcours, son e-mail et son mot de passe.
  * - Guichet : les étudiants de la liste sans fiche lecteur peuvent emprunter ; leur fiche est créée au premier prêt.
  * - Un rechargement n'enlève jamais personne. La bibliothèque peut désactiver (et réactiver) des étudiants de la liste :
  *   ils ne peuvent alors plus créer de compte ni être choisis au guichet sans fiche ; les comptes existants ne changent pas.
@@ -74,10 +74,11 @@ function verifier_etudiant(array $s): array|string
     return $e;
 }
 
-/** Colonnes d'une fiche lecteur tirées de la liste des étudiants (faculté et parcours sont complétés par l'étudiant). */
+/** Colonnes d'une fiche lecteur tirées de la liste des étudiants (le parcours est complété par l'étudiant). */
 function lecteur_depuis_etudiant(array $e): array
 {
-    return ['role' => 'lecteur', 'categorie' => 'etudiant', 'matricule' => normaliser_suivi($e['numero_suivi']), 'nom' => $e['nom'], 'prenom' => $e['prenom']];
+    return ['role' => 'lecteur', 'categorie' => 'etudiant', 'matricule' => normaliser_suivi($e['numero_suivi']), 'nom' => $e['nom'], 'prenom' => $e['prenom'],
+        'faculte' => (string) ($e['faculte'] ?? '')];
 }
 
 /**
@@ -143,9 +144,11 @@ const IMPORT_COLONNES_ETUDIANTS = [
     'prenom' => 'prenom', 'prenoms' => 'prenom',
     'date_naissance' => 'date_naissance', 'date_de_naissance' => 'date_naissance', 'ne_le' => 'date_naissance', 'nee_le' => 'date_naissance',
     'lieu_naissance' => 'lieu_naissance', 'lieu_de_naissance' => 'lieu_naissance', 'ne_a' => 'lieu_naissance', 'nee_a' => 'lieu_naissance',
+    'faculte' => 'faculte', 'facultes' => 'faculte', 'etablissement' => 'faculte', 'ufr' => 'faculte', 'ecole' => 'faculte',
 ];
-const CHAMPS_ETUDIANT = ['numero_suivi', 'nom', 'prenom', 'date_naissance', 'lieu_naissance'];
-const LIBELLES_CHAMPS_ETUDIANT = ['numero_suivi' => 'n° de suivi', 'nom' => 'nom', 'prenom' => 'prénoms', 'date_naissance' => 'date de naissance', 'lieu_naissance' => 'lieu de naissance'];
+const CHAMPS_ETUDIANT = ['numero_suivi', 'nom', 'prenom', 'date_naissance', 'lieu_naissance', 'faculte'];
+const LIBELLES_CHAMPS_ETUDIANT = ['numero_suivi' => 'n° de suivi', 'nom' => 'nom', 'prenom' => 'prénoms', 'date_naissance' => 'date de naissance',
+    'lieu_naissance' => 'lieu de naissance', 'faculte' => 'faculté'];
 
 /**
  * Analyse la liste : une ligne d'en-têtes puis un étudiant par ligne.
@@ -157,7 +160,7 @@ function analyser_etudiants(array $lignes): array
     $manquantes = array_diff(CHAMPS_ETUDIANT, $entetes);
     if ($manquantes) {
         throw new RuntimeException('Colonnes absentes de la première ligne : ' . implode(', ', $manquantes)
-            . '. Attendu : numero_suivi ; nom ; prenom ; date_naissance ; lieu_naissance (téléchargez le modèle).');
+            . '. Attendu : numero_suivi ; nom ; prenom ; date_naissance ; lieu_naissance ; faculte (téléchargez le modèle).');
     }
     $existants = [];
     foreach (rows('SELECT * FROM etudiants') as $e) {
@@ -189,7 +192,7 @@ function analyser_etudiants(array $lignes): array
             $messages[] = 'Date de naissance invalide (JJ/MM/AAAA attendu).';
         }
         $v['date_naissance'] = (string) $date;
-        foreach (['numero_suivi' => 50, 'nom' => 100, 'prenom' => 150, 'lieu_naissance' => 150] as $k => $max) {
+        foreach (['numero_suivi' => 50, 'nom' => 100, 'prenom' => 150, 'lieu_naissance' => 150, 'faculte' => 150] as $k => $max) {
             $v[$k] = mb_substr($v[$k], 0, $max);
         }
 
@@ -204,6 +207,9 @@ function analyser_etudiants(array $lignes): array
             $changes = array_filter(CHAMPS_ETUDIANT, fn($k) => (string) $ancien[$k] !== $v[$k]);
             $statut = $changes ? 'maj' : 'ignore';
             $messages[] = $changes ? 'Corrigé : ' . implode(', ', array_map(fn($k) => LIBELLES_CHAMPS_ETUDIANT[$k], $changes)) . '.' : 'Déjà à jour.';
+            if ($v['faculte'] === '') {
+                $messages[] = 'Faculté vide.';
+            }
             if (!$ancien['actif']) {
                 $messages[] = 'Désactivé dans la liste (réactivable depuis la rubrique Étudiants).';
             }
@@ -217,7 +223,7 @@ function analyser_etudiants(array $lignes): array
 /**
  * Enregistre la liste analysée : ajoute les nouveaux, corrige les fiches modifiées.
  * Personne n'est retiré ni désactivé : un étudiant absent du fichier reste dans la liste avec ses droits.
- * Les fiches lecteurs déjà liées reprennent le nom et les prénoms corrigés.
+ * Les fiches lecteurs déjà liées reprennent le nom, les prénoms et la faculté corrigés.
  */
 function importer_etudiants(array $analyse): array
 {
@@ -230,9 +236,9 @@ function importer_etudiants(array $analyse): array
                 insert('etudiants', $donnees);
                 $bilan['nouveaux']++;
             } elseif ($l['statut'] === 'maj') {
-                q('UPDATE etudiants SET nom = ?, prenom = ?, date_naissance = ?, lieu_naissance = ?, modifie_le = NOW() WHERE numero_suivi = ?',
-                    [$l['nom'], $l['prenom'], $l['date_naissance'], $l['lieu_naissance'], $l['numero_suivi']]);
-                q("UPDATE utilisateurs SET nom = ?, prenom = ? WHERE role = 'lecteur' AND matricule = ?", [$l['nom'], $l['prenom'], $l['numero_suivi']]);
+                q('UPDATE etudiants SET nom = ?, prenom = ?, date_naissance = ?, lieu_naissance = ?, faculte = ?, modifie_le = NOW() WHERE numero_suivi = ?',
+                    [$l['nom'], $l['prenom'], $l['date_naissance'], $l['lieu_naissance'], $l['faculte'], $l['numero_suivi']]);
+                synchroniser_fiche_etudiant($l['numero_suivi'], $l);
                 $bilan['maj']++;
             }
         }
@@ -246,9 +252,45 @@ function importer_etudiants(array $analyse): array
 
 function modele_import_etudiants(): string
 {
-    return "numero_suivi;nom;prenom;date_naissance;lieu_naissance\n"
-        . "2024000125;KOFFI;Ama Rose;14/03/2004;Kara\n"
-        . "2023000872;PALI;Essohanam;02/11/2002;Bassar\n";
+    return "numero_suivi;nom;prenom;date_naissance;lieu_naissance;faculte\n"
+        . "2024000125;KOFFI;Ama Rose;14/03/2004;Kara;Faculté des Sciences et Techniques\n"
+        . "2023000872;PALI;Essohanam;02/11/2002;Bassar;Faculté de Droit et des Sciences Politiques\n";
+}
+
+/** La fiche lecteur liée reprend l'identité et la faculté de la liste (le parcours reste celui choisi par l'étudiant). */
+function synchroniser_fiche_etudiant(string $numero, array $e): void
+{
+    q("UPDATE utilisateurs SET nom = ?, prenom = ?, faculte = IF(? <> '', ?, faculte) WHERE role = 'lecteur' AND matricule = ?",
+        [$e['nom'], $e['prenom'], $e['faculte'], $e['faculte'], normaliser_suivi($numero)]);
+}
+
+/** Contrôle une fiche saisie à la main (ajout ou correction d'un étudiant) ; renvoie les erreurs par champ. */
+function valider_etudiant(array $e): array
+{
+    $erreurs = [];
+    foreach (['nom' => 'Nom', 'prenom' => 'Prénoms', 'lieu_naissance' => 'Lieu de naissance', 'faculte' => 'Faculté'] as $k => $lib) {
+        if ($e[$k] === '') {
+            $erreurs[$k] = 'Champ requis.';
+        }
+    }
+    if (!suivi_valide($e['numero_suivi'])) {
+        $erreurs['numero_suivi'] = 'Chiffres uniquement.';
+    } elseif (val('SELECT 1 FROM etudiants WHERE numero_suivi = ? AND id <> ?', [$e['numero_suivi'], (int) $e['id']])) {
+        $erreurs['numero_suivi'] = 'Ce n° de suivi est déjà dans la liste.';
+    } elseif ($e['numero_suivi'] !== (string) val('SELECT numero_suivi FROM etudiants WHERE id = ?', [(int) $e['id']])
+        && val("SELECT 1 FROM utilisateurs WHERE role = 'lecteur' AND matricule = ?", [$e['numero_suivi']])) {
+        $erreurs['numero_suivi'] = 'Ce n° de suivi est déjà le matricule d’un lecteur : il ne peut pas être attribué à un autre étudiant.';
+    }
+    if (!date_naissance_iso($e['date_naissance'])) {
+        $erreurs['date_naissance'] = 'Date invalide.';
+    }
+    return $erreurs;
+}
+
+/** Facultés déjà présentes dans la liste (suggestions des formulaires). */
+function facultes_liste(): array
+{
+    return array_column(rows("SELECT DISTINCT faculte FROM etudiants WHERE faculte <> '' ORDER BY faculte"), 'faculte');
 }
 
 /** Adresse e-mail partiellement masquée (« a••••@gmail.com ») : rappel d'identifiant sans la dévoiler. */
