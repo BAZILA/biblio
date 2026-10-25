@@ -18,7 +18,9 @@
 				<td><?php if ($p['role_nom']): ?><span class="badge <?= $p['tous_droits'] ? 'bleu' : '' ?>"><?= $p['systeme'] ? '<i class="fa-solid fa-microchip"></i> ' : ($p['tous_droits'] ? '<i class="fa-solid fa-crown"></i> ' : '') ?><?= e($p['role_nom']) ?></span><?php else: ?><span class="badge orange">Aucun rôle</span><?php endif; ?></td>
 				<td><?= $p['derniere_connexion'] ? e(date_fr($p['derniere_connexion'], true)) : '—' ?></td>
 				<td><?= $p['actif'] ? '<span class="badge vert">Actif</span>' : '<span class="badge">Désactivé</span>' ?></td>
-				<td class="actions"><?php if ($modifiable): ?><a class="btn secondaire petit" href="<?= e(admin_url('personnel/modifier/' . $p['id'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a><?php endif; ?></td>
+				<td class="actions"><?php if ($modifiable): ?><a class="btn secondaire petit" href="<?= e(admin_url('personnel/modifier/' . $p['id'])) ?>"><i class="fa-solid fa-pen"></i> Modifier</a><?php endif; ?>
+					<?php if (is_systeme() && (int) $p['id'] !== (int) user()['id']): ?><?= bouton_action(admin_url('personnel/supprimer/' . $p['id']), '<i class="fa-solid fa-trash"></i>', 'btn danger petit',
+						'Supprimer définitivement le compte de ' . nom_complet($p) . ' (' . $p['email'] . ') ? Ses prêts, retours et décisions enregistrés sont conservés.') ?><?php endif; ?></td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

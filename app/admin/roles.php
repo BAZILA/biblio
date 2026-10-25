@@ -15,14 +15,28 @@ if ($action === 'supprimer') {
     exiger('roles.supprimer');
     $r = $roleParId($id);
     $nb = (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role_id = ? AND role = 'personnel'", [$id]);
-    if ($r['tous_droits']) {
+    // Le compte Système peut supprimer tout rôle sauf le rôle Système, même l'Administrateur ou un rôle attribué :
+    // ses comptes passent alors au rôle de remplacement choisi
+    $remplacant = is_systeme() ? row('SELECT * FROM roles WHERE id = ? AND systeme = 0 AND id <> ?', [(int) post_str('remplacant'), $id]) : null;
+    if ($r['systeme']) {
+        flash('erreur', 'Le rôle Système ne peut pas être supprimé.');
+    } elseif ($r['tous_droits'] && !is_systeme()) {
         flash('erreur', 'Ce rôle ne peut pas être supprimé.');
-    } elseif ($nb) {
-        flash('erreur', "Ce rôle est attribué à " . pluriel($nb, 'compte') . ' : attribuez-leur un autre rôle avant de le supprimer.');
+    } elseif ($nb && !$remplacant) {
+        flash('erreur', "Ce rôle est attribué à " . pluriel($nb, 'compte') . ' : ' . (is_systeme()
+            ? 'choisissez le rôle de remplacement de ces comptes.' : 'attribuez-leur un autre rôle avant de le supprimer.'));
         redirect(admin_url('roles/modifier/' . $id));
     } else {
-        q('DELETE FROM roles WHERE id = ?', [$id]);
-        flash('succes', "Rôle « {$r['nom']} » supprimé.");
+        db()->beginTransaction();
+        if ($nb) {
+            q("UPDATE utilisateurs SET role_id = ? WHERE role_id = ? AND role = 'personnel'", [$remplacant['id'], $id]);
+        }
+        q('DELETE FROM roles WHERE id = ?', [$id]); // ses permissions suivent (clé étrangère)
+        db()->commit();
+        flash('succes', "Rôle « {$r['nom']} » supprimé." . ($nb ? ' ' . pluriel($nb, 'compte passé', 'comptes passés') . " au rôle « {$remplacant['nom']} »." : ''));
+        if ($r['tous_droits'] && !val('SELECT COUNT(*) FROM roles WHERE tous_droits = 1 AND systeme = 0')) {
+            flash('info', 'Plus aucun rôle n’a « tous les droits » : l’établissement n’a plus d’administrateur complet. Vous pouvez cocher « Tous les droits » sur un autre rôle.');
+        }
     }
     redirect(admin_url('roles'));
 }
@@ -116,6 +130,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
         'mesDroits' => tous_droits() ? permissions_visibles() : $mesDroits,
         'visibles' => $r['systeme'] ? toutes_permissions() : permissions_visibles(),
         'comptes' => $r['id'] ? rows("SELECT id, nom, prenom, email, actif FROM utilisateurs WHERE role_id = ? AND role = 'personnel' ORDER BY nom", [$r['id']]) : [],
+        'remplacants' => is_systeme() && $r['id'] ? rows('SELECT id, nom, tous_droits FROM roles WHERE systeme = 0 AND id <> ? ORDER BY tous_droits DESC, nom', [$r['id']]) : [],
     ], $r['id'] ? 'Rôle : ' . $r['nom'] : 'Nouveau rôle', 'roles');
 }
 

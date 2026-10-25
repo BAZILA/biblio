@@ -36,3 +36,13 @@
 		<a class="btn secondaire" href="<?= e(admin_url('personnel')) ?>">Annuler</a>
 	</div>
 </form>
+
+<?php if ($p['id'] && !$estMoi && is_systeme()): ?>
+<section class="carte zone-sensible" style="max-width:760px;margin-top:20px">
+	<h2><i class="fa-solid fa-trash"></i> Supprimer ce compte</h2>
+	<p class="doux">Réservé au compte Système. La personne ne pourra plus se connecter ; les prêts, retours, décisions et actualités qu’elle a enregistrés sont conservés (sans son nom),
+		et le journal d’audit garde la trace de toutes ses actions. Pour une absence temporaire, préférez « Compte actif » décoché.</p>
+	<?= bouton_action(admin_url('personnel/supprimer/' . $p['id']), '<i class="fa-solid fa-trash"></i> Supprimer définitivement', 'btn danger',
+		'Supprimer définitivement le compte de ' . nom_complet($p) . ' (' . $p['email'] . ') ?') ?>
+</section>
+<?php endif; ?>

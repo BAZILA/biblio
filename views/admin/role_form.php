@@ -121,7 +121,24 @@ $case = function (string $perm, string $libelle, bool $standard) use ($coche, $a
 		</ul>
 <?php endif; ?>
 	</section>
-<?php if (!$r['tous_droits'] && peut('roles.supprimer')): ?>
+<?php if (!$r['systeme'] && is_systeme()): ?>
+	<section class="carte zone-sensible">
+		<h2><i class="fa-solid fa-trash"></i> Supprimer le rôle</h2>
+		<p class="doux">Réservé au compte Système : tout rôle peut être supprimé, Administrateur compris.<?= $comptes ? ' Ses ' . count($comptes) . ' compte(s) passent au rôle choisi ci-dessous.' : '' ?></p>
+		<form method="post" action="<?= e(admin_url('roles/supprimer/' . $r['id'])) ?>" data-confirmer="Supprimer définitivement le rôle « <?= e($r['nom']) ?> » ?">
+			<?= csrf_field() ?>
+<?php if ($comptes): ?>
+			<div class="champ"><label for="remplacant">Nouveau rôle de ses comptes</label>
+				<select id="remplacant" name="remplacant" required><option value="">— Choisir —</option>
+<?php foreach ($remplacants as $rr): ?>
+					<option value="<?= (int) $rr['id'] ?>"><?= e($rr['nom']) ?><?= $rr['tous_droits'] ? ' (tous les droits)' : '' ?></option>
+<?php endforeach; ?>
+				</select></div>
+<?php endif; ?>
+			<button class="btn danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer le rôle</button>
+		</form>
+	</section>
+<?php elseif (!$r['tous_droits'] && !$r['systeme'] && peut('roles.supprimer')): ?>
 	<section class="carte zone-sensible">
 		<h2><i class="fa-solid fa-trash"></i> Supprimer le rôle</h2>
 		<p class="doux">Possible seulement si aucun compte n’a ce rôle.</p>

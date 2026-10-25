@@ -23,6 +23,40 @@ function roles_attribuables(): array
 
 $attribuables = roles_attribuables();
 
+// Suppression d'un compte du personnel : réservée au compte Système (pour les autres, l'action n'existe pas)
+if ($action === 'supprimer') {
+    exiger_post();
+    if (!is_systeme()) {
+        admin_introuvable('Page');
+    }
+    $p = row("SELECT u.*, r.tous_droits, r.systeme FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id WHERE u.id = ? AND u.role = 'personnel'", [$id])
+        ?? admin_introuvable('Compte');
+    $autreAdmin = (int) val("SELECT COUNT(*) FROM utilisateurs u JOIN roles r ON r.id = u.role_id
+        WHERE u.role = 'personnel' AND u.actif = 1 AND r.tous_droits = 1 AND r.systeme = 0 AND u.id <> ?", [$id]);
+    if ($id === (int) $moi['id']) {
+        flash('erreur', 'Vous ne pouvez pas supprimer votre propre compte.');
+    } elseif ($p['tous_droits'] && !$p['systeme'] && $p['actif'] && !$autreAdmin) {
+        flash('erreur', 'C’est le dernier administrateur actif de l’établissement : nommez-en un autre avant de supprimer ce compte.');
+    } else {
+        db()->beginTransaction();
+        try {
+            // Les prêts, retours, décisions et actualités qu'il a enregistrés sont conservés, sans auteur
+            q('UPDATE prets SET agent_retour_id = NULL WHERE agent_retour_id = ?', [$id]);
+            q('UPDATE actualites SET auteur_id = NULL WHERE auteur_id = ?', [$id]);
+            q('DELETE FROM tentatives_connexion WHERE email = ?', [(string) $p['email']]);
+            q('DELETE FROM utilisateurs WHERE id = ?', [$id]); // prets.agent_id et demandes.agent_id passent à NULL (clés étrangères)
+            db()->commit();
+        } catch (Throwable $t) {
+            db()->rollBack();
+            throw $t;
+        }
+        flash('succes', 'Compte « ' . nom_complet($p) . ' » (' . $p['email'] . ') supprimé. Les prêts, retours et décisions qu’il avait enregistrés sont conservés ; '
+            . 'le journal d’audit garde la trace de ses actions.');
+        redirect(admin_url('personnel'));
+    }
+    redirect(admin_url('personnel/modifier/' . $id));
+}
+
 if ($action === 'nouveau' || $action === 'modifier') {
     exiger($action === 'nouveau' ? 'personnel.ajouter' : 'personnel.modifier');
     $p = $action === 'modifier'
