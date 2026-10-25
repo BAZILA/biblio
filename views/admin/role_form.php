@@ -19,7 +19,7 @@ $modulesVisibles = function (array $modules) use ($vis): array {
 $a = array_flip($mesDroits);
 $case = function (string $perm, string $libelle, bool $standard) use ($coche, $a, $lectureSeule, $r): string {
     $horsPortee = !isset($a[$perm]);
-    $attr = (isset($coche[$perm]) || $r['tous_droits'] ? ' checked' : '') . ($lectureSeule || $horsPortee ? ' disabled' : '');
+    $attr = (isset($coche[$perm]) || $r['tous_droits'] ? ' checked' : '') . ($lectureSeule || $horsPortee || ($r['tous_droits'] && !$r['systeme']) ? ' disabled' : '');
     $titre = $horsPortee && !$lectureSeule ? ' title="Vous ne possédez pas ce droit : vous ne pouvez ni l’accorder ni le retirer."' : '';
     [$module, $action] = explode('.', $perm, 2);
     return '<label class="case-droit' . ($standard ? ' standard' : '') . '"' . $titre . '><input type="checkbox" name="permissions[]" value="' . e($perm) . '"'
@@ -35,7 +35,7 @@ $case = function (string $perm, string $libelle, bool $standard) use ($coche, $a
 
 <?php if ($r['systeme']): ?>
 <div class="flash info">Rôle <strong>Système</strong> : toutes les permissions, y compris celles masquées aux autres comptes. Invisible pour eux ; ses actions apparaissent comme faites par « Système ».</div>
-<?php elseif ($r['tous_droits']): ?>
+<?php elseif ($r['tous_droits'] && !is_systeme()): ?>
 <div class="flash info">Le rôle <strong>Administrateur</strong> possède toujours toutes les permissions, y compris celles des futures rubriques. Il ne se modifie pas : pour un rôle proche avec moins de droits, utilisez « Dupliquer » depuis la liste des rôles.</div>
 <?php endif; ?>
 
@@ -48,6 +48,16 @@ $case = function (string $perm, string $libelle, bool $standard) use ($coche, $a
 			<?= champ('description', 'Description', $r['description'], $erreurs, ['attrs' => 'maxlength="255" placeholder="À quoi sert ce rôle ?"']) ?>
 		</div>
 	</section>
+<?php if (is_systeme() && !$r['systeme']): ?>
+	<section class="carte carte-systeme">
+		<h2><i class="fa-solid fa-microchip"></i> Réservé au compte Système</h2>
+		<label class="case"><input type="checkbox" name="tous_droits" value="1" id="role-tous-droits"<?= $r['tous_droits'] ? ' checked' : '' ?>>
+			<strong>Tous les droits</strong>, présents et futurs (comme l’Administrateur). Décochez pour choisir les permissions une à une dans la grille.</label>
+		<label class="case" style="margin-top:10px"><input type="checkbox" name="masque" value="1" id="role-masque"<?= !empty($r['masque']) ? ' checked' : '' ?><?= $r['tous_droits'] ? ' disabled' : '' ?>>
+			<strong>Masquer ce rôle aux autres comptes</strong> : il disparaît des Rôles et permissions, ne peut plus être attribué, et ses comptes n’apparaissent plus dans les Comptes du personnel.
+			Seul le compte Système les voit. (Impossible pour un rôle « tous les droits ».)</label>
+	</section>
+<?php endif; ?>
 
 	<section class="carte grille-droits-carte">
 		<div class="carte-titre">

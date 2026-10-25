@@ -520,4 +520,24 @@
       if (ev.key === 'ArrowRight') { ev.preventDefault(); montrer(actuel + 1); }
     });
   });
+  // Rôle (compte Système) : « Tous les droits » grise la grille ; décoché, chaque permission se choisit
+  var tousDroits = document.getElementById('role-tous-droits');
+  if (tousDroits) {
+    var majTousDroits = function () {
+      document.querySelectorAll('#form-role input[name="permissions[]"]').forEach(function (c) { c.disabled = tousDroits.checked; });
+      var masque = document.getElementById('role-masque');
+      if (masque) { masque.disabled = tousDroits.checked; if (tousDroits.checked) { masque.checked = false; } }
+    };
+    tousDroits.addEventListener('change', majTousDroits);
+    majTousDroits();
+  }
+  // Listes à ranger (tableau de bord) : flèches monter / descendre ; l'ordre envoyé suit l'ordre affiché
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-monter], [data-descendre]');
+    if (!b || !b.closest('[data-ordonnable]')) { return; }
+    var li = b.closest('li');
+    if (b.hasAttribute('data-monter') && li.previousElementSibling) { li.parentNode.insertBefore(li, li.previousElementSibling); }
+    if (b.hasAttribute('data-descendre') && li.nextElementSibling) { li.parentNode.insertBefore(li.nextElementSibling, li); }
+    b.focus();
+  });
 })();

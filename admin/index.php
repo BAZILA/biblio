@@ -60,6 +60,7 @@ taches_quotidiennes();
 
 $controleurs = [
     ''             => 'tableau',
+    'tableau'      => 'tableau',
     'guichet'      => 'guichet',
     'prets'        => 'prets',
     'reservations' => 'reservations',
@@ -92,7 +93,7 @@ if (!isset($controleurs[$section])) {
 
 // Droit minimal pour ouvrir chaque section ; chaque contrôleur vérifie ensuite l'action demandée
 $acces = [
-    'guichet' => ['guichet.voir'], 'prets' => ['prets.voir', 'demandes.voir'], 'reservations' => ['reservations.voir'],
+    'tableau' => ['tableau.voir'], 'guichet' => ['guichet.voir'], 'prets' => ['prets.voir', 'demandes.voir'], 'reservations' => ['reservations.voir'],
     'lecteurs' => ['lecteurs.voir'], 'ouvrages' => ['ouvrages.voir'], 'exemplaires' => ['ouvrages.voir'],
     'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'],
     'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],

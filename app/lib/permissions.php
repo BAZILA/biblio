@@ -167,6 +167,15 @@ function tous_droits(?array $u = null): bool
     return (bool) (role_de($u)['tous_droits'] ?? false);
 }
 
+/**
+ * Condition SQL sur la table roles (alias $a) : rôles que l'utilisateur connecté peut voir.
+ * Le compte Système voit tout ; les autres ne voient ni le rôle Système ni les rôles qu'il a masqués (ni leurs comptes).
+ */
+function roles_visibles_sql(string $a = 'r'): string
+{
+    return is_systeme() ? '1' : "COALESCE($a.systeme, 0) = 0 AND COALESCE($a.masque, 0) = 0";
+}
+
 /** Compte Système : super administrateur lié au système, invisible des autres comptes. */
 function is_systeme(?array $u = null): bool
 {

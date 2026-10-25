@@ -12,7 +12,7 @@ function roles_attribuables(): array
     $mesDroits = role_de()['permissions'] ?? [];
     $roles = [];
     // Le rôle Système n'est attribuable (et visible) que par le compte Système
-    foreach (rows('SELECT * FROM roles' . (is_systeme() ? '' : ' WHERE systeme = 0') . ' ORDER BY systeme DESC, tous_droits DESC, nom') as $r) {
+    foreach (rows('SELECT * FROM roles r WHERE ' . roles_visibles_sql() . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.nom') as $r) {
         $droits = array_intersect(permissions_du_role((int) $r['id']), permissions_visibles());
         if (tous_droits() || (!$r['tous_droits'] && !array_diff($droits, $mesDroits))) {
             $roles[$r['id']] = $r;
@@ -27,7 +27,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
     exiger($action === 'nouveau' ? 'personnel.ajouter' : 'personnel.modifier');
     $p = $action === 'modifier'
         ? (row("SELECT u.* FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id WHERE u.id = ? AND u.role = 'personnel'"
-              . (is_systeme() ? '' : ' AND COALESCE(r.systeme, 0) = 0'), [$id]) ?? admin_introuvable('Compte'))
+              . ' AND ' . roles_visibles_sql(), [$id]) ?? admin_introuvable('Compte'))
         : ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'role_id' => (int) (array_key_last($attribuables) ?? 0), 'actif' => 1];
     $estMoi = (int) $p['id'] === (int) $moi['id'];
     // Un compte dont le rôle dépasse mes droits n'est modifiable que par un administrateur (sauf le mien, pour mes coordonnées)
@@ -97,6 +97,6 @@ if ($action === 'nouveau' || $action === 'modifier') {
 
 admin_page('personnel', [
     'liste' => rows("SELECT u.*, r.nom AS role_nom, r.tous_droits, r.systeme FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id
-                     WHERE u.role = 'personnel'" . (is_systeme() ? '' : ' AND COALESCE(r.systeme, 0) = 0') . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.nom, u.nom'),
+                     WHERE u.role = 'personnel' AND " . roles_visibles_sql() . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.nom, u.nom'),
     'attribuables' => $attribuables,
 ], 'Comptes du personnel', 'personnel');

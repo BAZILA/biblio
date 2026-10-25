@@ -188,4 +188,18 @@ if (!val("SELECT COUNT(*) FROM role_permissions WHERE permission LIKE 'actualite
     $etapes++;
 }
 
+// Rôles masqués par le compte Système ; préférences personnelles (tableau de bord)
+if (!colonne_existe('roles', 'masque')) {
+    db()->exec('ALTER TABLE roles ADD COLUMN masque TINYINT(1) NOT NULL DEFAULT 0 AFTER systeme');
+    echo "roles.masque ajoutée
+";
+    $etapes++;
+}
+if (!colonne_existe('utilisateurs', 'preferences')) {
+    db()->exec('ALTER TABLE utilisateurs ADD COLUMN preferences TEXT NULL AFTER derniere_connexion');
+    echo "utilisateurs.preferences ajoutée
+";
+    $etapes++;
+}
+
 echo $etapes ? "Mise à jour terminée ($etapes étape(s)).\n" : "La base est déjà à jour.\n";

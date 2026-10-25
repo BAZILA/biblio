@@ -1,12 +1,12 @@
 <?php
 /**
  * Rôles et permissions : liste des rôles, grille des droits par module, duplication, suppression.
- * Garde-fous : le rôle Administrateur (tous les droits) n'est ni modifiable ni supprimable,
- * et l'on ne peut accorder que des droits que l'on possède soi-même.
+ * Garde-fous : le rôle Administrateur (tous les droits) n'est modifiable que par le compte Système et n'est pas supprimable ;
+ * l'on ne peut accorder que des droits que l'on possède soi-même. Le compte Système peut aussi masquer un rôle (et ses comptes).
  */
 
 $mesDroits = role_de()['permissions'] ?? [];
-$roleParId = fn(int $id) => row('SELECT * FROM roles WHERE id = ?' . (is_systeme() ? '' : ' AND systeme = 0'), [$id]) ?? admin_introuvable('Rôle');
+$roleParId = fn(int $id) => row('SELECT * FROM roles r WHERE r.id = ? AND ' . roles_visibles_sql(), [$id]) ?? admin_introuvable('Rôle');
 /** Permissions effectives d'un rôle, telles qu'on les montre (sans les masquées) */
 $droitsDuRole = fn(array $r) => $r['systeme'] ? toutes_permissions() : ($r['tous_droits'] ? permissions_visibles() : array_values(array_intersect(permissions_du_role((int) $r['id']), permissions_visibles())));
 
@@ -50,17 +50,23 @@ if ($action === 'dupliquer') {
 
 if ($action === 'nouveau' || $action === 'modifier') {
     exiger($action === 'nouveau' ? 'roles.ajouter' : 'roles.voir');
-    $r = $action === 'modifier' ? $roleParId($id) : ['id' => 0, 'nom' => '', 'description' => '', 'tous_droits' => 0, 'systeme' => 0];
+    $r = $action === 'modifier' ? $roleParId($id) : ['id' => 0, 'nom' => '', 'description' => '', 'tous_droits' => 0, 'systeme' => 0, 'masque' => 0];
     $perms = $r['id'] ? $droitsDuRole($r) : [];
-    $lectureSeule = $r['tous_droits'] || ($action === 'modifier' && !peut('roles.modifier'));
+    // Le rôle Système ne se modifie jamais ; un rôle « tous les droits » (Administrateur) seulement par le compte Système
+    $lectureSeule = $r['systeme'] || ($r['tous_droits'] && !is_systeme()) || ($action === 'modifier' && !peut('roles.modifier'));
     $erreurs = [];
 
     if (is_post()) {
         csrf_verify();
         exiger($action === 'nouveau' ? 'roles.ajouter' : 'roles.modifier');
-        if ($r['tous_droits']) {
+        if ($r['systeme'] || ($r['tous_droits'] && !is_systeme())) {
             flash('erreur', 'Ce rôle a toujours tous les droits : il ne se modifie pas.');
             redirect(admin_url('roles/modifier/' . $id));
+        }
+        // Réservé au compte Système : « tous les droits » et rôle masqué aux autres comptes
+        if (is_systeme()) {
+            $r['tous_droits'] = isset($_POST['tous_droits']) ? 1 : 0;
+            $r['masque'] = isset($_POST['masque']) && !$r['tous_droits'] ? 1 : 0;
         }
         $r['nom'] = post_str('nom', '');
         $r['description'] = post_str('description', '');
@@ -83,7 +89,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
         }
         if (!$erreurs) {
             db()->beginTransaction();
-            $data = ['nom' => mb_substr($r['nom'], 0, 100), 'description' => mb_substr($r['description'], 0, 255)];
+            $data = ['nom' => mb_substr($r['nom'], 0, 100), 'description' => mb_substr($r['description'], 0, 255)]
+                + (is_systeme() ? ['tous_droits' => $r['tous_droits'], 'masque' => $r['masque']] : []);
             if ($r['id']) {
                 update('roles', (int) $r['id'], $data);
             } else {
@@ -94,7 +101,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
                 insert('role_permissions', ['role_id' => $r['id'], 'permission' => $p]);
             }
             db()->commit();
-            flash('succes', "Rôle « {$r['nom']} » enregistré : " . pluriel(count(array_intersect($voulues, permissions_visibles())), 'permission') . '.');
+            flash('succes', "Rôle « {$r['nom']} » enregistré : " . ($r['tous_droits'] ? 'tous les droits' : pluriel(count(array_intersect($voulues, permissions_visibles())), 'permission'))
+                . ($r['masque'] ? ' — masqué aux autres comptes' : '') . '.');
             redirect(admin_url('roles/modifier/' . $r['id']));
         }
         $perms = array_values(array_intersect($voulues, permissions_visibles()));
@@ -114,6 +122,6 @@ if ($action === 'nouveau' || $action === 'modifier') {
 admin_page('roles', [
     'roles' => array_map(fn($r) => $r + ['nb_permissions' => count($droitsDuRole($r))],
         rows("SELECT r.*, (SELECT COUNT(*) FROM utilisateurs u WHERE u.role_id = r.id AND u.role = 'personnel') AS nb_comptes
-              FROM roles r" . (is_systeme() ? '' : ' WHERE r.systeme = 0') . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.nom')),
+              FROM roles r WHERE " . roles_visibles_sql() . ' ORDER BY r.systeme DESC, r.tous_droits DESC, r.masque, r.nom')),
     'total' => count(permissions_visibles()),
 ], 'Rôles et permissions', 'roles');

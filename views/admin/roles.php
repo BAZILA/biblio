@@ -12,7 +12,7 @@
 <?php foreach ($roles as $r): ?>
 	<section class="carte carte-role<?= $r['systeme'] ? ' systeme' : ($r['tous_droits'] ? ' admin' : '') ?>">
 		<div class="carte-titre">
-			<h2><i class="fa-solid <?= $r['systeme'] ? 'fa-microchip' : ($r['tous_droits'] ? 'fa-crown' : 'fa-user-tag') ?>"></i> <?= e($r['nom']) ?></h2><?= $r['systeme'] ? '<span class="badge">Invisible des autres comptes</span>' : '' ?>
+			<h2><i class="fa-solid <?= $r['systeme'] ? 'fa-microchip' : ($r['tous_droits'] ? 'fa-crown' : 'fa-user-tag') ?>"></i> <?= e($r['nom']) ?></h2><?= $r['systeme'] ? '<span class="badge">Invisible des autres comptes</span>' : (!empty($r['masque']) ? '<span class="badge orange"><i class="fa-solid fa-eye-slash"></i> Masqué aux autres comptes</span>' : '') ?>
 		</div>
 		<p class="doux"><?= e($r['description'] ?: 'Pas de description.') ?></p>
 		<div class="jauge" title="<?= $r['tous_droits'] ? $total : (int) $r['nb_permissions'] ?> / <?= $total ?>"><span style="width:<?= $r['tous_droits'] ? 100 : round(100 * $r['nb_permissions'] / max(1, $total)) ?>%"></span></div>
@@ -21,7 +21,7 @@
 			<span><strong><?= (int) $r['nb_comptes'] ?></strong> compte(s)</span>
 		</p>
 		<div class="form-actions">
-			<a class="btn secondaire petit" href="<?= e(admin_url('roles/modifier/' . $r['id'])) ?>"><?= !$r['tous_droits'] && peut('roles.modifier') ? '<i class="fa-solid fa-sliders"></i> Modifier les droits' : '<i class="fa-solid fa-eye"></i> Voir les droits' ?></a>
+			<a class="btn secondaire petit" href="<?= e(admin_url('roles/modifier/' . $r['id'])) ?>"><?= !$r['systeme'] && (!$r['tous_droits'] || is_systeme()) && peut('roles.modifier') ? '<i class="fa-solid fa-sliders"></i> Modifier les droits' : '<i class="fa-solid fa-eye"></i> Voir les droits' ?></a>
 			<?php if (peut('roles.ajouter')): ?><?= bouton_action(admin_url('roles/dupliquer/' . $r['id']), '<i class="fa-solid fa-copy"></i> Dupliquer', 'btn secondaire petit') ?><?php endif; ?>
 		</div>
 	</section>

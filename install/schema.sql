@@ -16,6 +16,7 @@ CREATE TABLE roles (
   description VARCHAR(255) NOT NULL DEFAULT '',
   tous_droits TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = toutes les permissions visibles, présentes et futures (Administrateur)
   systeme     TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = compte Système (super admin) : tout, invisible des autres comptes
+  masque      TINYINT(1) NOT NULL DEFAULT 0,   -- 1 = masqué par le compte Système : rôle et comptes invisibles des autres
   cree_le     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_nom (nom)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -81,6 +82,7 @@ CREATE TABLE utilisateurs (
   actif         TINYINT(1)   NOT NULL DEFAULT 1,
   en_attente    TINYINT(1)   NOT NULL DEFAULT 0,   -- inscription en ligne pas encore validée
   derniere_connexion DATETIME NULL,
+  preferences   TEXT NULL,                         -- réglages personnels (JSON) : tableau de bord…
   cree_le       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_email (email),
   UNIQUE KEY uq_matricule (matricule),
