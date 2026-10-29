@@ -1,10 +1,13 @@
 <?php
 /**
  * Crée en une fois les comptes du personnel listés dans un fichier Excel (.xlsx) ou CSV, avec un même rôle.
- *   php install/creer_comptes_personnel.php fichier.xlsx [--role="Formation"] [--essai] [--envoyer]
+ *   php install/creer_comptes_personnel.php fichier.xlsx [--role="Formation"] [--meme-mot-de-passe | --mot-de-passe="…"] [--essai] [--envoyer]
  *
  *   --role     nom du rôle à donner (par défaut « Formation ») ; il doit déjà exister
- *   --essai    affiche ce qui serait fait, sans rien enregistrer
+ *   --meme-mot-de-passe   un seul mot de passe provisoire, tiré au hasard, pour tous les comptes
+ *   --mot-de-passe="…"    un seul mot de passe provisoire choisi (10 caractères au moins) pour tous les comptes
+ *                         (sans ces deux options : un mot de passe différent par compte)
+ *   --essai   affiche ce qui serait fait, sans rien enregistrer
  *   --envoyer  envoie à chacun un e-mail avec son identifiant et son mot de passe provisoire (mode SMTP des Réglages)
  *
  * Le fichier doit avoir une ligne d'en-tête avec une colonne « Nom… » et une colonne « …mail… » (ex. « Nom et prénoms »,
@@ -23,9 +26,17 @@ require __DIR__ . '/../app/bootstrap.php';
 $fichier = null;
 $nomRole = 'Formation';
 $essai = $envoyer = false;
+$commun = null; // mot de passe provisoire commun à tous les comptes
 foreach (array_slice($argv, 1) as $a) {
     if (str_starts_with($a, '--role=')) {
         $nomRole = trim(substr($a, 7), " \"'");
+    } elseif ($a === '--meme-mot-de-passe') {
+        $commun = rtrim(strtr(base64_encode(random_bytes(9)), '+/', 'Kx'), '=');
+    } elseif (str_starts_with($a, '--mot-de-passe=')) {
+        $commun = substr($a, 15);
+        if (mb_strlen($commun) < 10) {
+            exit("Mot de passe trop court : 10 caractères au moins.\n");
+        }
     } elseif ($a === '--essai') {
         $essai = true;
     } elseif ($a === '--envoyer') {
@@ -37,7 +48,8 @@ foreach (array_slice($argv, 1) as $a) {
     }
 }
 if (!$fichier || !is_file($fichier)) {
-    exit("Usage : php install/creer_comptes_personnel.php fichier.xlsx [--role=\"Formation\"] [--essai] [--envoyer]\n");
+    exit(($fichier ? "Fichier introuvable : $fichier\n" : '')
+        . "Usage : php install/creer_comptes_personnel.php fichier.xlsx [--role=\"Formation\"] [--meme-mot-de-passe | --mot-de-passe=\"…\"] [--essai] [--envoyer]\n");
 }
 
 $role = row('SELECT * FROM roles WHERE LOWER(TRIM(nom)) = LOWER(?) AND systeme = 0', [$nomRole]);
@@ -162,7 +174,7 @@ foreach (array_slice($lignes, $debut) as $l) {
     }
     $vus[$email] = true;
     [$nom, $prenom] = decouper_nom($complet);
-    $motDePasse = rtrim(strtr(base64_encode(random_bytes(9)), '+/', 'Kx'), '='); // 12 caractères
+    $motDePasse = $commun ?? rtrim(strtr(base64_encode(random_bytes(9)), '+/', 'Kx'), '='); // 12 caractères
     $u = ['role' => 'personnel', 'role_id' => (int) $role['id'], 'nom' => $nom, 'prenom' => $prenom, 'email' => $email,
         'mot_de_passe' => password_hash($motDePasse, PASSWORD_DEFAULT), 'actif' => 1];
     if (!$essai) {
@@ -199,7 +211,8 @@ if ($crees && !$essai) {
     audit('personnel', 'Création en lot de comptes du personnel', count($crees) . " compte(s) avec le rôle « {$role['nom']} »", 'succes',
         ['fichier' => basename($fichier), 'emails' => implode(', ', array_column($crees, 2))],
         ['id' => null, 'role' => 'personnel', 'role_id' => null, 'prenom' => '', 'nom' => 'Script en ligne de commande'], 'admin');
-    echo "\nMots de passe provisoires : install/" . basename($sortie) . "\n"
+    echo ($commun !== null ? "\nMot de passe provisoire commun à tous les comptes : $commun" : '')
+        . "\nMots de passe provisoires : install/" . basename($sortie) . "\n"
         . ($envoyer ? "E-mails envoyés (voir « E-mails envoyés » dans l’administration).\n" : '')
         . "Transmettez-les, puis supprimez ce fichier.\n";
 }
