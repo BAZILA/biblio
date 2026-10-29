@@ -28,3 +28,7 @@ Desktop.ini
 
 # Envois faits depuis l'administration sur le serveur (vidéos du diaporama)
 /images/videos/
+
+# Comptes créés en lot (mots de passe provisoires) et listes de personnes
+/install/COMPTES_*.csv
+*.xlsx
