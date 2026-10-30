@@ -8,7 +8,10 @@
 if ($action === 'exemplaires') {
     exiger('prets.ajouter', 'reservations.remettre');
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(exemplaires_pretables((int) get_str('ouvrage'), (int) get_str('lecteur')), JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'exemplaires' => exemplaires_pretables((int) get_str('ouvrage'), (int) get_str('lecteur')),
+        'attente' => attente_ouvrage((int) get_str('ouvrage'), (int) get_str('lecteur')),
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -46,6 +49,31 @@ function exemplaires_pretables(int $ouvrageId, int $lecteurId): array
                  ORDER BY pour_lui DESC, FIELD(e.etat, 'neuf', 'bon', 'use', 'abime'), e.code", [$lecteurId, $ouvrageId]);
 }
 
+/**
+ * Réservations en cours sur un ouvrage, pour prévenir l'agent avant d'enregistrer un prêt :
+ * combien de lecteurs attendent (hors celui du guichet), qui est en tête, et ce que ce lecteur a lui-même réservé.
+ */
+function attente_ouvrage(int $ouvrageId, int $lecteurId): array
+{
+    $vide = ['nb' => 0, 'mis_de_cote' => 0, 'premier' => '', 'depuis' => '', 'sien' => ''];
+    if (!$ouvrageId) {
+        return $vide;
+    }
+    $autres = row("SELECT COUNT(*) AS nb, COALESCE(SUM(r.statut = 'disponible'), 0) AS mis_de_cote FROM reservations r
+                   WHERE r.ouvrage_id = ? AND r.lecteur_id <> ? AND r.statut IN ('en_attente','disponible')", [$ouvrageId, $lecteurId]);
+    $premier = row("SELECT u.prenom, u.nom, r.demandee_le FROM reservations r JOIN utilisateurs u ON u.id = r.lecteur_id
+                    WHERE r.ouvrage_id = ? AND r.lecteur_id <> ? AND r.statut IN ('en_attente','disponible')
+                    ORDER BY FIELD(r.statut, 'disponible', 'en_attente'), r.demandee_le, r.id LIMIT 1", [$ouvrageId, $lecteurId]);
+    return [
+        'nb' => (int) $autres['nb'],
+        'mis_de_cote' => (int) $autres['mis_de_cote'],
+        'premier' => $premier ? trim($premier['prenom'] . ' ' . $premier['nom']) : '',
+        'depuis' => $premier ? date_fr($premier['demandee_le']) : '',
+        'sien' => (string) val("SELECT statut FROM reservations WHERE ouvrage_id = ? AND lecteur_id = ? AND statut IN ('en_attente','disponible')
+                                ORDER BY FIELD(statut, 'disponible', 'en_attente') LIMIT 1", [$ouvrageId, $lecteurId]),
+    ];
+}
+
 if ($action === 'pret') {
     exiger_post();
     exiger('prets.ajouter', 'reservations.remettre');
@@ -74,9 +102,15 @@ if ($action === 'pret') {
                 'etat'     => post_str('etat'),
                 'notes'    => post_str('notes'),
             ]);
-            $p = prets('p.id = ?', [$pretId])[0];
+            $p = prets('p.id = ?', [$pretId], 'p.date_pret DESC', null, 0, true)[0];
             flash('succes', "Prêt enregistré : « {$p['titre']} » (exemplaire {$p['exemplaire_code']}) pour " . trim($p['prenom'] . ' ' . $p['nom'])
                 . ', à rendre le ' . date_fr($p['date_retour_prevue']) . '.' . ($p['email'] ? '' : ' Lecteur sans e-mail : indiquez-lui la date de retour.'));
+            // Rappel à l'agent : d'autres lecteurs attendent toujours cet ouvrage
+            $reste = attente_ouvrage((int) val('SELECT ouvrage_id FROM exemplaires WHERE code = ?', [$code]), $lecteurId);
+            if ($reste['nb']) {
+                flash('info', pluriel($reste['nb'], 'lecteur attend', 'lecteurs attendent') . ' encore « ' . $p['titre'] . ' »'
+                    . ($reste['premier'] !== '' ? ', à commencer par ' . $reste['premier'] : '') . '.');
+            }
         } catch (RuntimeException $ex) {
             flash('erreur', $ex->getMessage());
             redirect(admin_url('guichet', array_filter(['lecteur' => $lecteurId, 'ouvrage' => $ouvrageId])));
@@ -94,7 +128,7 @@ if ($action === 'retour') {
         if (!$pretId) {
             throw new RuntimeException('Choisissez le prêt à clore dans la liste.');
         }
-        $p = prets('p.id = ? AND p.date_retour IS NULL', [$pretId])[0] ?? null;
+        $p = prets('p.id = ? AND p.date_retour IS NULL', [$pretId], 'p.date_pret DESC', null, 0, true)[0] ?? null;
         if (!$p) {
             throw new RuntimeException('Ce prêt est introuvable ou déjà rendu.');
         }
@@ -120,8 +154,8 @@ $pretsLecteur = $reservationsLecteur = [];
 if (get_str('lecteur') !== '') {
     $lecteur = row("SELECT * FROM utilisateurs WHERE id = ? AND role = 'lecteur'", [(int) get_str('lecteur')]);
     if ($lecteur) {
-        $pretsLecteur = prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$lecteur['id']], 'p.date_retour_prevue');
-        $reservationsLecteur = reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$lecteur['id']]);
+        $pretsLecteur = prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$lecteur['id']], 'p.date_retour_prevue', null, 0, true);
+        $reservationsLecteur = reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$lecteur['id']], 'r.demandee_le', true);
     }
 }
 $rapide = $_SESSION['lecteur_rapide'] ?? null;
@@ -132,7 +166,7 @@ admin_page('guichet', [
     'ouvrageChoisi' => (int) get_str('ouvrage'),
     'lecteurs' => rows("SELECT id, nom, prenom, matricule, categorie, actif FROM utilisateurs WHERE role = 'lecteur' AND (actif = 1 OR id = ?)
                         ORDER BY nom, prenom", [(int) ($lecteur['id'] ?? 0)]),
-    'ouvrages' => enrichir(rows(OUVRAGE_SELECT . ' WHERE o.actif = 1 ORDER BY o.titre')),
+    'ouvrages' => enrichir(rows(OUVRAGE_SELECT . ' WHERE o.actif = 1' . filtre_site('o.site_id') . ' ORDER BY o.titre')),
     'pretsEnCours' => prets('p.date_retour IS NULL', [], 'u.nom, u.prenom, o.titre'),
     'pretsLecteur' => $pretsLecteur,
     'reservationsLecteur' => $reservationsLecteur,

@@ -9,9 +9,9 @@ $u = user();
 // Compteurs des pastilles, calculés seulement pour les rubriques visibles
 $compte = fn(string $perm, string $sql) => peut($perm) ? (int) val($sql) : 0;
 $compteurs = [
-    'retards'      => $compte('prets.voir', 'SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()'),
-    'demandes'     => $compte('demandes.voir', "SELECT COUNT(*) FROM demandes_prolongation WHERE statut = 'en_attente'"),
-    'reservations' => $compte('reservations.voir', "SELECT COUNT(*) FROM reservations WHERE statut IN ('en_attente','disponible')"),
+    'retards'      => $compte('prets.voir', 'SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()' . filtre_site_prets()),
+    'demandes'     => $compte('demandes.voir', "SELECT COUNT(*) FROM demandes_prolongation dp JOIN prets p ON p.id = dp.pret_id WHERE dp.statut = 'en_attente'" . filtre_site_prets()),
+    'reservations' => $compte('reservations.voir', "SELECT COUNT(*) FROM reservations r JOIN ouvrages o ON o.id = r.ouvrage_id WHERE r.statut IN ('en_attente','disponible')" . filtre_site('o.site_id')),
     'inscriptions' => $compte('lecteurs.voir', "SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND en_attente = 1"),
     'messages'     => $compte('messages.voir', 'SELECT COUNT(*) FROM messages WHERE lu = 0'),
 ];
@@ -45,6 +45,7 @@ $menu = [
         ['messages', 'messages', 'fa-envelope', 'Messages', $pastille('messages'), ['messages.voir']],
     ],
     'Configuration' => [
+        ['sites', 'sites', 'fa-building-columns', 'Centres documentaires', null, ['sites.voir']],
         ['reglages', 'reglages', 'fa-sliders', 'Réglages', null, ['reglages.voir']],
         ['mails', 'mails', 'fa-paper-plane', 'E-mails envoyés', null, ['mails.voir']],
         ['personnel', 'personnel', 'fa-user-shield', 'Comptes du personnel', null, ['personnel.voir']],

@@ -41,6 +41,7 @@ require APP_DIR . '/lib/helpers.php';
 require APP_DIR . '/lib/audit.php';
 require APP_DIR . '/lib/auth.php';
 require APP_DIR . '/lib/permissions.php';
+require APP_DIR . '/lib/sites.php';
 require APP_DIR . '/lib/catalogue.php';
 require APP_DIR . '/lib/prets.php';
 require APP_DIR . '/lib/mail.php';

@@ -363,12 +363,35 @@
   var choixOuvrage = document.getElementById('choix-ouvrage');
   var choixExemplaire = document.getElementById('choix-exemplaire');
   var choixLecteur = document.getElementById('choix-lecteur');
+  var avisAttente = document.getElementById('attente-reservations');
+  // Prévient l'agent que d'autres lecteurs ont réservé l'ouvrage qu'il s'apprête à prêter
+  function afficherAttente(a) {
+    if (!avisAttente) { return; }
+    var phrases = [];
+    if (a && a.sien === 'disponible') { phrases.push('Cet ouvrage est mis de côté pour ce lecteur : ce prêt solde sa réservation.'); }
+    else if (a && a.sien === 'en_attente') { phrases.push('Ce lecteur avait réservé cet ouvrage : ce prêt solde sa réservation.'); }
+    if (a && a.nb > 0) {
+      var qui = a.premier ? ' — en tête de file : ' + a.premier + (a.depuis ? ' (depuis le ' + a.depuis + ')' : '') : '';
+      phrases.push((a.nb > 1 ? a.nb + ' lecteurs attendent' : '1 lecteur attend') + ' cet ouvrage' + qui + '.');
+      if (a.mis_de_cote > 0) {
+        phrases.push(a.mis_de_cote > 1
+          ? a.mis_de_cote + ' exemplaires leur sont déjà mis de côté : ne les prêtez pas à quelqu’un d’autre.'
+          : 'Un exemplaire lui est déjà mis de côté : ne le prêtez pas à quelqu’un d’autre.');
+      }
+    }
+    avisAttente.className = 'flash ' + (a && a.nb > 0 ? 'info' : 'succes');
+    avisAttente.textContent = phrases.join(' ');
+    avisAttente.hidden = phrases.length === 0;
+  }
   function chargerExemplaires() {
     if (!choixOuvrage || !choixExemplaire) { return; }
     choixExemplaire.length = 1; // garde « Automatique »
+    afficherAttente(null);
     if (!choixOuvrage.value) { return; }
     var url = choixOuvrage.getAttribute('data-url-exemplaires') + '?ouvrage=' + choixOuvrage.value + '&lecteur=' + (choixLecteur ? choixLecteur.value : '');
-    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (liste) {
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (reponse) {
+      var liste = reponse.exemplaires || [];
+      afficherAttente(reponse.attente);
       var etats = { neuf: 'neuf', bon: 'bon état', use: 'usé', abime: 'abîmé' };
       liste.forEach(function (x) {
         var o = document.createElement('option');

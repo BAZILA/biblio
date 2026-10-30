@@ -74,6 +74,7 @@ $controleurs = [
     'types'        => 'crud',
     'collections'  => 'crud',
     'dewey'        => 'crud',
+    'sites'        => 'crud',
     'slides'       => 'crud',
     'citations'    => 'crud',
     'personnel'    => 'personnel',
@@ -98,7 +99,7 @@ if (!isset($controleurs[$section])) {
 $acces = [
     'tableau' => ['tableau.voir'], 'guichet' => ['guichet.voir'], 'prets' => ['prets.voir', 'demandes.voir'], 'reservations' => ['reservations.voir'],
     'lecteurs' => ['lecteurs.voir'], 'ouvrages' => ['ouvrages.voir'], 'exemplaires' => ['ouvrages.voir'],
-    'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'], 'collections' => ['collections.voir'], 'dewey' => ['dewey.voir'],
+    'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'], 'collections' => ['collections.voir'], 'dewey' => ['dewey.voir'], 'sites' => ['sites.voir'],
     'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],
     'import' => ['import.auteurs', 'import.ouvrages', 'import.etudiants', 'import.collections'], 'etudiants' => ['etudiants.voir'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
     'personnel' => ['personnel.voir'], 'roles' => ['roles.voir'], 'rapports' => ['rapports.voir'],

@@ -62,7 +62,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
     $p = $action === 'modifier'
         ? (row("SELECT u.* FROM utilisateurs u LEFT JOIN roles r ON r.id = u.role_id WHERE u.id = ? AND u.role = 'personnel'"
               . ' AND ' . roles_visibles_sql(), [$id]) ?? admin_introuvable('Compte'))
-        : ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'role_id' => (int) (array_key_last($attribuables) ?? 0), 'actif' => 1];
+        : ['id' => 0, 'prenom' => '', 'nom' => '', 'email' => '', 'role_id' => (int) (array_key_last($attribuables) ?? 0), 'site_id' => mon_site() ?: null, 'actif' => 1];
     $estMoi = (int) $p['id'] === (int) $moi['id'];
     // Un compte dont le rôle dépasse mes droits n'est modifiable que par un administrateur (sauf le mien, pour mes coordonnées)
     if ($p['id'] && !$estMoi && $p['role_id'] && !isset($attribuables[$p['role_id']])) {
@@ -80,6 +80,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
         $ancienActif = (int) $p['actif'];
         if (!$estMoi) {
             $p['role_id'] = (int) post_str('role_id', '0');
+            // Centre de rattachement : seul un agent « tous les centres » peut le choisir
+            $p['site_id'] = mon_site() ?: ((int) post_str('site_id', '0') ?: null);
             // Désactiver ou réactiver relève du droit « desactiver » : sans lui, l'état actuel est conservé (actif pour un nouveau compte)
             $p['actif'] = peut('personnel.desactiver') ? (isset($_POST['actif']) ? 1 : 0) : (int) $p['actif'];
         }
@@ -111,7 +113,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
         }
         if (!$erreurs) {
             $data = ['prenom' => $p['prenom'], 'nom' => $p['nom'], 'email' => $p['email'], 'role' => 'personnel',
-                'role_id' => $p['role_id'], 'actif' => $p['actif']];
+                'role_id' => $p['role_id'], 'site_id' => $p['site_id'] ?: null, 'actif' => $p['actif']];
             if ($mdp !== '') {
                 $data['mot_de_passe'] = password_hash($mdp, PASSWORD_DEFAULT);
             }
@@ -125,6 +127,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
         }
     }
     admin_page('personnel_form', ['p' => $p, 'erreurs' => $erreurs, 'roles' => $attribuables, 'estMoi' => $estMoi,
+        'sites' => mon_site() === 0 ? sites_options() : [],
         'roleActuel' => $p['role_id'] ? row('SELECT * FROM roles WHERE id = ?', [$p['role_id']]) : null],
         $p['id'] ? 'Modifier un compte' : 'Nouveau compte', 'personnel');
 }

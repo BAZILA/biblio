@@ -114,9 +114,9 @@ if ($action === 'voir') {
     admin_page('lecteur_voir', [
         'l' => $l,
         'mdpProvisoire' => $mdpProvisoire,
-        'enCours' => prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$id], 'p.date_retour_prevue'),
-        'reservations' => reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$id]),
-        'historique' => prets('p.lecteur_id = ? AND p.date_retour IS NOT NULL', [$id], 'p.date_retour DESC', 50),
+        'enCours' => prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$id], 'p.date_retour_prevue', null, 0, true),
+        'reservations' => reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$id], 'r.demandee_le', true),
+        'historique' => prets('p.lecteur_id = ? AND p.date_retour IS NOT NULL', [$id], 'p.date_retour DESC', 50, 0, true),
     ], nom_complet($l), 'lecteurs');
 }
 

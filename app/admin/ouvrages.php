@@ -1,13 +1,25 @@
 <?php
 /** Gestion des ouvrages et de leurs exemplaires. */
 
+/** Interrompt l'action si l'ouvrage appartient à un autre centre documentaire. */
+function exiger_site(array $ouvrage): void
+{
+    if (!site_modifiable($ouvrage['site_id'] ?? null)) {
+        flash('erreur', '« ' . ($ouvrage['titre'] ?? 'Cet ouvrage') . ' » appartient à ' . (nom_site((int) $ouvrage['site_id']) ?: 'un autre centre')
+            . ' : vous pouvez le consulter, pas le modifier.');
+        redirect(admin_url('ouvrages'));
+    }
+}
+
 // ---------- Exemplaires (section « exemplaires ») ----------
 if ($section === 'exemplaires') {
     exiger_post();
     // « Remettre » relève du droit de retirer, « Remplacer » de celui d'ajouter, « Renuméroter » de celui de modifier
     exiger('exemplaires.' . (['remettre' => 'retirer', 'remplacer' => 'ajouter', 'renumeroter' => 'modifier'][$action] ?? $action));
     if ($action === 'ajouter') {
-        $o = enregistrer_cote_saisie(row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage'));
+        $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
+        exiger_site($o);
+        $o = enregistrer_cote_saisie($o);
         $n = max(1, min(50, (int) ($_POST['nombre'] ?? 1)));
         $prefixe = prefixe_exemplaire($o);
         $num = 1;
@@ -26,7 +38,9 @@ if ($section === 'exemplaires') {
 
     // La cote a changé : on recale les codes des exemplaires dessus (cote-1, cote-2…)
     if ($action === 'renumeroter') {
-        $o = enregistrer_cote_saisie(row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage'));
+        $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
+        exiger_site($o);
+        $o = enregistrer_cote_saisie($o);
         $prefixe = prefixe_exemplaire($o);
         $liste = rows('SELECT id, code FROM exemplaires WHERE ouvrage_id = ? AND remplace_par IS NULL ORDER BY code, id', [$id]);
         $ids = array_column($liste, 'id');
@@ -56,6 +70,7 @@ if ($section === 'exemplaires') {
     }
 
     $ex = row('SELECT * FROM exemplaires WHERE id = ?', [$id]) ?? admin_introuvable('Exemplaire');
+    exiger_site(row('SELECT * FROM ouvrages WHERE id = ?', [$ex['ouvrage_id']]) ?? []);
     $retourOuvrage = admin_url('ouvrages/modifier/' . $ex['ouvrage_id']) . '#exemplaires';
 
     if ($action === 'modifier') {
@@ -189,12 +204,20 @@ if ($action === 'nouveau' || $action === 'modifier') {
     $vide = [
         'id' => 0, 'titre' => '', 'sous_titre' => '', 'slug' => '', 'domaine_id' => '', 'type_id' => '', 'resume' => '', 'description' => '',
         'collection' => '', 'numero_collection' => '', 'editeur' => '', 'annee' => '', 'edition' => '', 'tome' => '', 'volume' => '',
+        'site_id' => site_par_defaut(),
         'isbn' => '', 'issn' => '', 'indice_dewey' => '', 'cote' => '', 'emplacement' => reglage('emplacement_defaut'),
         'pages' => '', 'langue' => 'Français', 'image' => '',
         'consultation_sur_place' => 0, 'coup_de_coeur' => 0, 'publie' => 1, 'actif' => 1, 'auteurs_txt' => '',
     ];
     if ($action === 'modifier') {
         $o = ouvrage_par_id($id) ?? admin_introuvable('Ouvrage');
+        // Fiche d'un autre centre : invisible, sauf droit « catalogue des autres centres » qui l'ouvre en lecture seule
+        if (!site_modifiable($o['site_id'])) {
+            if (!peut('sites.catalogue')) {
+                admin_introuvable('Ouvrage');
+            }
+            $lectureSeule = true;
+        }
         $o['auteurs_txt'] = implode("\n", array_column($o['auteurs'], 'nom'));
         $o['collection'] = (string) ($o['collection_nom'] ?? ''); // saisie libre, comme les auteurs
         // Les paragraphes simples sont présentés en texte brut pour l'édition
@@ -210,6 +233,15 @@ if ($action === 'nouveau' || $action === 'modifier') {
     if (is_post()) {
         csrf_verify();
         exiger($action === 'nouveau' ? 'ouvrages.ajouter' : 'ouvrages.modifier');
+        if ($lectureSeule) {
+            flash('erreur', 'Cet ouvrage appartient à un autre centre documentaire : vous pouvez le consulter, pas le modifier.');
+            redirect(admin_url('ouvrages/modifier/' . $id));
+        }
+        // Centre : celui de l'agent ; seul un agent « tous les centres » peut le choisir
+        $o['site_id'] = mon_site() ?: ((int) post_str('site_id') ?: (int) $o['site_id']);
+        if ($o['site_id'] && !val('SELECT 1 FROM sites WHERE id = ?', [(int) $o['site_id']])) {
+            $erreurs['site_id'] = 'Choisissez un centre documentaire.';
+        }
         foreach (['titre', 'sous_titre', 'slug', 'domaine_id', 'type_id', 'collection', 'numero_collection', 'resume', 'description',
                   'editeur', 'annee', 'edition', 'tome', 'volume', 'isbn', 'issn', 'indice_dewey', 'cote', 'emplacement',
                   'pages', 'langue', 'auteurs_txt'] as $k) {
@@ -272,6 +304,7 @@ if ($action === 'nouveau' || $action === 'modifier') {
         if (!$erreurs) {
             $data = [
                 'titre' => $o['titre'], 'sous_titre' => $o['sous_titre'], 'slug' => $o['slug'], 'domaine_id' => (int) $o['domaine_id'],
+                'site_id' => (int) $o['site_id'] ?: null,
                 'type_id' => (int) $o['type_id'],
                 'collection_id' => collection_par_nom($o['collection']), 'numero_collection' => $o['numero_collection'],
                 // Texte simple ou HTML léger, nettoyé (pas de scripts ni d'attributs d'événement)
@@ -314,7 +347,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
                 flash('info', 'Un autre ouvrage de ce domaine porte déjà ce titre : l’adresse web de cette fiche est « ' . $slugAjuste . ' ».');
             }
             // Les codes déjà attribués ne bougent pas tout seuls : on propose de les recaler sur la nouvelle cote
-            if ($coteAvant !== $o['cote'] && val('SELECT 1 FROM exemplaires WHERE ouvrage_id = ? AND remplace_par IS NULL', [(int) $o['id']])) {
+            if ($action === 'modifier' && $coteAvant !== $o['cote']
+                && val('SELECT 1 FROM exemplaires WHERE ouvrage_id = ? AND remplace_par IS NULL', [(int) $o['id']])) {
                 flash('info', 'La cote a changé : les codes des exemplaires portent encore l’ancienne. Le bouton « Renuméroter d’après la cote », sous la liste des exemplaires, les recale en '
                     . prefixe_exemplaire($o) . '-1, ' . prefixe_exemplaire($o) . '-2…');
             }
@@ -334,6 +368,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
         'exemplaires' => $exemplaires,
         'domaines' => rows('SELECT id, nom FROM domaines ORDER BY ordre, nom'),
         'types' => rows('SELECT id, nom FROM types ORDER BY ordre, nom'),
+        // Choix du centre : réservé aux agents qui travaillent sur tous les centres
+        'sites' => mon_site() === 0 ? sites_options() : [],
         'file' => $o['id'] ? reservations("r.ouvrage_id = ? AND r.statut IN ('en_attente','disponible')", [$o['id']]) : [],
     ], $o['id'] ? $o['titre'] : 'Nouvel ouvrage', 'ouvrages');
 }
@@ -343,8 +379,17 @@ $q = get_str('q', '');
 $domaine = (int) ($_GET['domaine'] ?? 0);
 $type = (int) ($_GET['type'] ?? 0);
 $etat = get_str('etat', '');
+$site = (int) ($_GET['site'] ?? 0);
 $where = ['1'];
 $params = [];
+// Cloisonnement : un agent ne voit que le fonds de son centre, sauf droit « catalogue des autres centres »
+if (mon_site() && !peut('sites.catalogue')) {
+    $where[] = 'o.site_id = ?';
+    $params[] = mon_site();
+} elseif ($site) {
+    $where[] = 'o.site_id = ?';
+    $params[] = $site;
+}
 if ($q !== '') {
     $where[] = '(o.titre LIKE ? OR o.sous_titre LIKE ? OR o.cote LIKE ? OR o.indice_dewey LIKE ? OR o.isbn LIKE ? OR o.issn LIKE ? OR o.editeur LIKE ?
                  OR EXISTS (SELECT 1 FROM collections c2 WHERE c2.id = o.collection_id AND c2.nom LIKE ?)
@@ -374,8 +419,10 @@ $pg = pagination_admin((int) val("SELECT COUNT(*) FROM ouvrages o WHERE $w", $pa
 $liste = enrichir(rows(OUVRAGE_SELECT . " WHERE $w ORDER BY o.titre LIMIT {$pg['parPage']} OFFSET {$pg['offset']}", $params));
 
 admin_page('ouvrages', [
-    'liste' => $liste, 'pg' => $pg, 'q' => $q, 'domaine' => $domaine, 'type' => $type, 'etat' => $etat,
+    'liste' => $liste, 'pg' => $pg, 'q' => $q, 'domaine' => $domaine, 'type' => $type, 'etat' => $etat, 'site' => $site,
     'domaines' => rows('SELECT id, nom FROM domaines ORDER BY ordre, nom'),
     'types' => rows('SELECT id, nom FROM types ORDER BY ordre, nom'),
-    'sansType' => (int) val('SELECT COUNT(*) FROM ouvrages WHERE type_id IS NULL'),
+    // Filtre par centre : seulement si l'agent en voit plusieurs
+    'sites' => (mon_site() === 0 || peut('sites.catalogue')) && count(sites()) > 1 ? sites_options(false) : [],
+    'sansType' => (int) val('SELECT COUNT(*) FROM ouvrages WHERE type_id IS NULL' . filtre_site('site_id')),
 ], 'Ouvrages', 'ouvrages');

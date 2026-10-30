@@ -1,4 +1,4 @@
-<?php /** Liste des caractéristiques d'un ouvrage (même balisage que les champs Joomla d'origine). @var array $o */ ?>
+<?php /** Caractéristiques d'un ouvrage (la localisation est présentée à part, voir _localisation.php). @var array $o */ ?>
 <ul class="fields-container">
 <?php
 $collection = trim(($o['collection_nom'] ?? '') . (($o['numero_collection'] ?? '') !== '' ? ', n° ' . $o['numero_collection'] : ''), ', ');
@@ -14,8 +14,6 @@ $champs = [
     'isbn'          => ['ISBN', $o['isbn']],
     'issn'          => ['ISSN', $o['issn'] ?? ''],
     'indice-dewey'  => ['Indice Dewey', $o['indice_dewey'] ?? ''],
-    'cote'          => ['Cote', $o['cote']],
-    'emplacement'   => ['Où le trouver', $o['emplacement'] ?? ''],
     'pages'         => ['Nombre de pages', $o['pages']],
     'langue'        => ['Langue', $o['langue']],
     'exemplaires'   => ['Exemplaires', $o['nb_ex']],

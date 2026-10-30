@@ -31,6 +31,10 @@ $groupes = [
         'pret_max_personnel'      => ['Prêts simultanés — personnel', 'number', 0],
         'pret_max_externe'        => ['Prêts simultanés — lecteur externe', 'number', 0],
         'reservation_delai_jours' => ['Délai de retrait d’une réservation (jours)', 'number', 1],
+        'quota_par_centre'        => ['Compte des prêts simultanés', 'select', [
+            '0' => 'Une seule limite, tous centres confondus',
+            '1' => 'Une limite par centre documentaire',
+        ]],
     ],
     'Catalogue' => [
         'emplacement_defaut' => ['Emplacement proposé pour un nouvel ouvrage', 'text'],

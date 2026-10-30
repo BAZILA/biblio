@@ -1,4 +1,4 @@
-<?php /** @var array $liste, $pg, $domaines, $types @var string $q, $etat @var int $domaine, $type, $sansType */ ?>
+<?php /** @var array $liste, $pg, $domaines, $types, $sites @var string $q, $etat @var int $domaine, $type, $site, $sansType */ ?>
 <div class="entete">
 	<h1>Ouvrages</h1>
 	<div class="actions"><?php if (peut('import.ouvrages')): ?><a class="btn secondaire" href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>"><i class="fa-solid fa-file-import"></i> Importer un fichier</a><?php endif; ?><?php if (peut('ouvrages.ajouter')): ?><a class="btn" href="<?= e(admin_url('ouvrages/nouveau')) ?>"><i class="fa-solid fa-plus"></i> Nouvel ouvrage</a><?php endif; ?></div>
@@ -14,6 +14,12 @@
 		<option value="">Tous les types</option>
 		<?php foreach ($types as $t): ?><option value="<?= $t['id'] ?>"<?= $type === (int) $t['id'] ? ' selected' : '' ?>><?= e($t['nom']) ?></option><?php endforeach; ?>
 	</select>
+<?php if ($sites): ?>
+	<select name="site">
+		<option value="">Tous les centres</option>
+		<?php foreach ($sites as $sid => $snom): ?><option value="<?= $sid ?>"<?= $site === (int) $sid ? ' selected' : '' ?>><?= e($snom) ?></option><?php endforeach; ?>
+	</select>
+<?php endif; ?>
 	<select name="etat">
 		<option value="">Tous</option>
 		<option value="brouillon"<?= $etat === 'brouillon' ? ' selected' : '' ?>>Non publiés</option>
@@ -36,7 +42,7 @@
 	<div class="vide">Aucun ouvrage ne correspond.</div>
 <?php else: ?>
 	<div class="tableau-wrap"><table class="tableau">
-		<thead><tr><th></th><th>Titre</th><th>Domaine</th><th>Type</th><th>Cote</th><th class="num">Exemplaires</th><th></th></tr></thead>
+		<thead><tr><th></th><th>Titre</th><th>Domaine</th><th>Type</th><?php if ($sites): ?><th>Centre</th><?php endif; ?><th>Cote</th><th class="num">Exemplaires</th><th></th></tr></thead>
 		<tbody>
 <?php foreach ($liste as $o): ?>
 			<tr<?= $o['actif'] ? '' : ' class="inactif"' ?>>
@@ -46,6 +52,9 @@
 					<br><small><?= e($o['auteurs_txt']) ?></small></td>
 				<td><?= e($o['domaine_nom']) ?></td>
 				<td><?= e($o['type_nom'] ?? '—') ?></td>
+<?php if ($sites): ?>
+				<td><?= e($o['site_nom'] ?? '—') ?><?= $o['site_campus'] && $o['site_campus'] !== 'autre' ? '<br><small class="doux">' . e(CAMPUS[$o['site_campus']]) . '</small>' : '' ?></td>
+<?php endif; ?>
 				<td><code><?= e($o['cote']) ?></code></td>
 				<td class="num"><?php if ($o['consultation_sur_place']): ?><span class="badge bleu">Sur place</span> <?php endif; ?>
 					<span class="badge <?= $o['nb_dispo'] ? 'vert' : ($o['nb_ex'] ? 'orange' : '') ?>"><?= $o['nb_dispo'] ?> / <?= $o['nb_ex'] ?> dispo.</span></td>

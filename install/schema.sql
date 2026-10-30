@@ -50,6 +50,7 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (2, 'types.voir'), (2, 'types.ajouter'), (2, 'types.modifier'), (2, 'types.supprimer'),
   (2, 'collections.voir'), (2, 'collections.ajouter'), (2, 'collections.modifier'), (2, 'collections.supprimer'),
   (2, 'dewey.voir'), (2, 'dewey.ajouter'), (2, 'dewey.modifier'), (2, 'dewey.supprimer'), (2, 'import.collections'),
+  (2, 'sites.voir'), (2, 'sites.ajouter'), (2, 'sites.modifier'), (2, 'sites.supprimer'), (2, 'sites.tous'),
   (2, 'import.auteurs'), (2, 'import.ouvrages'),
   (2, 'slides.voir'), (2, 'slides.ajouter'), (2, 'slides.modifier'), (2, 'slides.supprimer'),
   (2, 'citations.voir'), (2, 'citations.ajouter'), (2, 'citations.modifier'), (2, 'citations.supprimer'),
@@ -67,11 +68,31 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (4, 'blocs.voir'), (4, 'blocs.modifier'), (4, 'messages.voir'),
   (4, 'actualites.voir'), (4, 'actualites.ajouter'), (4, 'actualites.modifier'), (4, 'actualites.supprimer'), (4, 'actualites.publier');
 
+-- Centres documentaires : bibliothèque centrale, bibliothèques de faculté, centres de service…
+-- Chaque ouvrage appartient à un centre ; un agent ne travaille que sur le sien, sauf droits « sites.tous » / « sites.catalogue ».
+CREATE TABLE sites (
+  id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nom       VARCHAR(150) NOT NULL,
+  slug      VARCHAR(150) NOT NULL,
+  type      VARCHAR(60)  NOT NULL DEFAULT 'Centre documentaire',  -- Bibliothèque, Centre documentaire, Salle de lecture…
+  campus    ENUM('nord','sud','autre') NOT NULL DEFAULT 'autre',
+  adresse   VARCHAR(190) NOT NULL DEFAULT '',
+  telephone VARCHAR(50)  NOT NULL DEFAULT '',
+  central   TINYINT(1)   NOT NULL DEFAULT 0,   -- la bibliothèque centrale : centralise les ouvrages des autres centres
+  ordre     INT          NOT NULL DEFAULT 0,
+  actif     TINYINT(1)   NOT NULL DEFAULT 1,
+  UNIQUE KEY uq_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO sites (id, nom, slug, type, campus, central, ordre) VALUES
+  (1, 'Bibliothèque universitaire centrale', 'bibliotheque-centrale', 'Bibliothèque universitaire', 'autre', 1, 1);
+
 -- Comptes : personnel (avec un rôle) et lecteurs (espace lecteur + prêts)
 CREATE TABLE utilisateurs (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   role          ENUM('personnel','lecteur') NOT NULL DEFAULT 'lecteur',
   role_id       INT UNSIGNED NULL,               -- personnel : rôle et permissions (table roles)
+  site_id       INT UNSIGNED NULL,               -- personnel : centre documentaire de rattachement
   nom           VARCHAR(100) NOT NULL,
   prenom        VARCHAR(100) NOT NULL DEFAULT '',
   email         VARCHAR(190) NULL,               -- facultatif pour un lecteur sans accès en ligne
@@ -88,7 +109,8 @@ CREATE TABLE utilisateurs (
   cree_le       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_email (email),
   UNIQUE KEY uq_matricule (matricule),
-  CONSTRAINT fk_utilisateur_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
+  CONSTRAINT fk_utilisateur_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL,
+  CONSTRAINT fk_utilisateur_site FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Liste officielle des étudiants de l'université (n° de suivi, nom, prénoms, date et lieu de naissance), chargée et mise à jour
@@ -212,6 +234,7 @@ CREATE TABLE ouvrages (
   titre        VARCHAR(255) NOT NULL,
   sous_titre   VARCHAR(255) NOT NULL DEFAULT '',
   slug         VARCHAR(255) NOT NULL,
+  site_id      INT UNSIGNED NULL,             -- centre documentaire qui détient l'ouvrage (NULL = non rattaché)
   domaine_id   INT UNSIGNED NOT NULL,
   type_id      INT UNSIGNED NULL,             -- obligatoire à la saisie ; NULL = fiche ancienne à compléter
   collection_id INT UNSIGNED NULL,
@@ -241,7 +264,9 @@ CREATE TABLE ouvrages (
   UNIQUE KEY uq_slug (domaine_id, slug),
   KEY ix_type (type_id),
   KEY ix_collection (collection_id),
+  KEY ix_site (site_id),
   FULLTEXT KEY ft_recherche (titre, resume, editeur),
+  CONSTRAINT fk_ouvrage_site    FOREIGN KEY (site_id)    REFERENCES sites(id) ON DELETE SET NULL,
   CONSTRAINT fk_ouvrage_domaine FOREIGN KEY (domaine_id) REFERENCES domaines(id),
   CONSTRAINT fk_ouvrage_type    FOREIGN KEY (type_id)    REFERENCES types(id) ON DELETE SET NULL,
   CONSTRAINT fk_ouvrage_collection FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE SET NULL
@@ -462,6 +487,7 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('pret_max_externe', '1'),
   ('pret_max_prolongations', '1'),
   ('reservation_delai_jours', '3'),
+  ('quota_par_centre', '0'),
   ('emplacement_defaut', 'Salle de lecture'),
   ('par_page', '12'),
   ('couverture_defaut', ''),

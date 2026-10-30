@@ -266,6 +266,44 @@ if (!val("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = D
     echo "exemplaires.etat : état « perdu » ajouté\n";
     $etapes++;
 }
+// Centres documentaires : table, rattachement des ouvrages et du personnel, droits
+if (!table_existe('sites')) {
+    $sqlSites = file_get_contents(__DIR__ . '/schema.sql');
+    preg_match('/CREATE TABLE sites \(.*?\) ENGINE=[^;]+;/s', $sqlSites, $m);
+    db()->exec(rtrim($m[0], ';'));
+    preg_match('/INSERT INTO sites .*?;/s', $sqlSites, $m);
+    db()->exec(rtrim($m[0], ';'));
+    echo "table sites créée (Bibliothèque universitaire centrale)\n";
+    $etapes++;
+}
+if (!colonne_existe('ouvrages', 'site_id')) {
+    db()->exec('ALTER TABLE ouvrages ADD COLUMN site_id INT UNSIGNED NULL AFTER slug, ADD KEY ix_site (site_id)');
+    db()->exec('ALTER TABLE ouvrages ADD CONSTRAINT fk_ouvrage_site FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE SET NULL');
+    $central = (int) val('SELECT id FROM sites WHERE central = 1 ORDER BY id LIMIT 1');
+    q('UPDATE ouvrages SET site_id = ? WHERE site_id IS NULL', [$central]);
+    echo "ouvrages.site_id ajouté : le fonds existant est rattaché à la bibliothèque centrale\n";
+    $etapes++;
+}
+if (!colonne_existe('utilisateurs', 'site_id')) {
+    db()->exec('ALTER TABLE utilisateurs ADD COLUMN site_id INT UNSIGNED NULL AFTER role_id');
+    db()->exec('ALTER TABLE utilisateurs ADD CONSTRAINT fk_utilisateur_site FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE SET NULL');
+    echo "utilisateurs.site_id ajouté (centre de rattachement du personnel)\n";
+    $etapes++;
+}
+if (!val("SELECT COUNT(*) FROM role_permissions WHERE permission LIKE 'sites.%'")) {
+    $roleId = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', ['Bibliothécaire']);
+    foreach ($roleId ? ['sites.voir', 'sites.ajouter', 'sites.modifier', 'sites.supprimer', 'sites.tous'] : [] as $p) {
+        q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$roleId, $p]);
+    }
+    echo "droits Centres documentaires ajoutés\n";
+    $etapes++;
+}
+if (!val('SELECT COUNT(*) FROM reglages WHERE cle = ?', ['quota_par_centre'])) {
+    q('INSERT INTO reglages (cle, valeur) VALUES (?, ?)', ['quota_par_centre', '0']);
+    echo "réglage quota_par_centre ajouté\n";
+    $etapes++;
+}
+
 // Remplacement d'un exemplaire : la ligne retirée garde son historique et pointe vers l'exemplaire neuf qui a repris son code
 if (!colonne_existe('exemplaires', 'remplace_par')) {
     db()->exec('ALTER TABLE exemplaires ADD COLUMN remplace_par INT UNSIGNED NULL AFTER notes, ADD KEY ix_remplace (remplace_par)');

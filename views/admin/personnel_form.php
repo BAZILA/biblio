@@ -1,4 +1,4 @@
-<?php /** @var array $p, $erreurs, $roles @var bool $estMoi @var array|null $roleActuel */ ?>
+<?php /** @var array $p, $erreurs, $roles, $sites @var bool $estMoi @var array|null $roleActuel */ ?>
 <div class="fil"><a href="<?= e(admin_url('personnel')) ?>">Comptes du personnel</a> ›</div>
 <div class="entete"><h1><?= $p['id'] ? e(nom_complet($p)) : 'Nouveau compte' ?></h1></div>
 <form method="post" class="carte" style="max-width:680px" autocomplete="off">
@@ -25,6 +25,12 @@
 		<div class="aide">Seuls les rôles dont vous possédez vous-même tous les droits sont proposés.<?php if (peut('roles.voir')): ?> <a href="<?= e(admin_url('roles')) ?>" target="_blank" rel="noopener">Voir le détail des rôles ↗</a><?php endif; ?></div>
 		<?php if (isset($erreurs['role_id'])): ?><div class="erreur"><?= e($erreurs['role_id']) ?></div><?php endif; ?>
 	</div>
+<?php endif; ?>
+<?php if (!$estMoi && $sites): ?>
+	<?= champ('site_id', 'Centre documentaire', $p['site_id'] ?? '', $erreurs, ['type' => 'select', 'options' => ['' => '— Tous les centres —'] + $sites,
+		'aide' => 'La personne ne voit que les ouvrages, prêts, réservations et rapports de ce centre. « Tous les centres » = bibliothèque centrale.']) ?>
+<?php elseif (!$estMoi && ($p['site_id'] ?? 0)): ?>
+	<div class="champ"><label>Centre documentaire</label><p><span class="badge bleu"><?= e(nom_site((int) $p['site_id'], true)) ?></span></p></div>
 <?php endif; ?>
 	<?= champ('mot_de_passe', $p['id'] ? 'Nouveau mot de passe' : 'Mot de passe initial', '', $erreurs, ['type' => 'password', 'autocomplete' => 'new-password',
 		'aide' => ($p['id'] ? 'Laisser vide pour le conserver. ' : '') . '10 caractères minimum ; la personne pourra le changer dans « Mon compte ».']) ?>

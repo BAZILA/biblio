@@ -62,19 +62,33 @@ function quota_prets(array $lecteur): int
     return reglage_int('pret_max_' . ($lecteur['categorie'] ?: 'etudiant'), 3);
 }
 
-function nb_prets_en_cours(int $lecteurId): int
+/**
+ * Quota : par défaut le lecteur a une seule limite, tous centres confondus.
+ * Le réglage « quota_par_centre » la fait compter centre par centre ; $siteId est alors celui de l'ouvrage demandé.
+ */
+function filtre_quota_centre(?int $siteId): string
 {
-    return (int) val('SELECT COUNT(*) FROM prets WHERE lecteur_id = ? AND date_retour IS NULL', [$lecteurId]);
+    return ($siteId && reglage('quota_par_centre') === '1')
+        ? ' AND EXISTS (SELECT 1 FROM exemplaires _e JOIN ouvrages _o ON _o.id = _e.ouvrage_id
+                        WHERE _e.id = prets.exemplaire_id AND _o.site_id = ' . (int) $siteId . ')' : '';
 }
 
-function nb_retards(int $lecteurId): int
+function nb_prets_en_cours(int $lecteurId, ?int $siteId = null): int
 {
-    return (int) val('SELECT COUNT(*) FROM prets WHERE lecteur_id = ? AND date_retour IS NULL AND date_retour_prevue < CURDATE()', [$lecteurId]);
+    return (int) val('SELECT COUNT(*) FROM prets WHERE lecteur_id = ? AND date_retour IS NULL' . filtre_quota_centre($siteId), [$lecteurId]);
+}
+
+function nb_retards(int $lecteurId, ?int $siteId = null): int
+{
+    return (int) val('SELECT COUNT(*) FROM prets WHERE lecteur_id = ? AND date_retour IS NULL AND date_retour_prevue < CURDATE()'
+        . filtre_quota_centre($siteId), [$lecteurId]);
 }
 
 /** Prêts avec ouvrage, exemplaire et lecteur ; $where porte sur l'alias « p ». */
-function prets(string $where = '1', array $params = [], string $ordre = 'p.date_pret DESC', ?int $limite = null, int $offset = 0): array
+/** $tousSites : vrai pour voir les prêts de tous les centres (situation d'un lecteur au guichet). */
+function prets(string $where = '1', array $params = [], string $ordre = 'p.date_pret DESC', ?int $limite = null, int $offset = 0, bool $tousSites = false): array
 {
+    $where .= $tousSites ? '' : filtre_site('o.site_id');
     $sql = "SELECT p.*, e.code AS exemplaire_code, e.etat AS exemplaire_etat, e.statut AS exemplaire_statut, o.id AS ouvrage_id, o.titre, o.slug, o.image,
                    d.slug AS domaine_slug, u.nom, u.prenom, u.matricule, u.email, u.telephone,
                    DATEDIFF(CURDATE(), p.date_retour_prevue) AS jours_retard
@@ -90,8 +104,9 @@ function prets(string $where = '1', array $params = [], string $ordre = 'p.date_
     return rows($sql, $params);
 }
 
-function reservations(string $where = '1', array $params = [], string $ordre = 'r.demandee_le'): array
+function reservations(string $where = '1', array $params = [], string $ordre = 'r.demandee_le', bool $tousSites = false): array
 {
+    $where .= $tousSites ? '' : filtre_site('o.site_id');
     return rows("SELECT r.*, o.titre, o.slug, o.image, d.slug AS domaine_slug, e.code AS exemplaire_code, e.etat AS exemplaire_etat,
                         u.nom, u.prenom, u.matricule, u.email,
                         (SELECT COUNT(*) FROM reservations r2 WHERE r2.ouvrage_id = r.ouvrage_id
@@ -135,7 +150,7 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId,
     if ($etatSortie !== '' && !isset(ETATS_EXEMPLAIRE[$etatSortie])) {
         throw new RuntimeException('État de l’exemplaire invalide.');
     }
-    $ex = row('SELECT e.*, o.titre, o.consultation_sur_place, o.actif AS ouvrage_actif FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE e.code = ?', [trim($codeExemplaire)]);
+    $ex = row('SELECT e.*, o.titre, o.site_id, o.consultation_sur_place, o.actif AS ouvrage_actif FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE e.code = ?', [trim($codeExemplaire)]);
     if (!$ex) {
         throw new RuntimeException("Aucun exemplaire ne porte le code « $codeExemplaire ».");
     }
@@ -152,6 +167,11 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId,
     if ($ex['consultation_sur_place']) {
         throw new RuntimeException("« {$ex['titre']} » est en consultation sur place uniquement.");
     }
+    // Cloisonnement : chaque centre prête son propre fonds
+    if (!site_modifiable($ex['site_id'])) {
+        throw new RuntimeException("« {$ex['titre']} » appartient à " . (nom_site((int) $ex['site_id']) ?: 'un autre centre')
+            . ' : le prêt doit y être enregistré.');
+    }
 
     $reservation = null;
     if ($ex['statut'] === 'reserve') {
@@ -167,11 +187,11 @@ function enregistrer_pret(string $codeExemplaire, int $lecteurId, ?int $agentId,
         throw new RuntimeException('Cet exemplaire figure déjà dans un prêt en cours : enregistrez d’abord son retour.');
     }
 
-    if (nb_retards($lecteurId) > 0) {
+    if (nb_retards($lecteurId, (int) $ex['site_id']) > 0) {
         throw new RuntimeException('Ce lecteur a des prêts en retard : enregistrez d’abord leur retour.');
     }
     $quota = quota_prets($lecteur);
-    if (nb_prets_en_cours($lecteurId) >= $quota) {
+    if (nb_prets_en_cours($lecteurId, (int) $ex['site_id']) >= $quota) {
         throw new RuntimeException("Quota atteint : $quota prêt(s) simultané(s) au maximum pour ce lecteur.");
     }
 

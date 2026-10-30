@@ -5,11 +5,13 @@
 const OUVRAGE_SELECT = '
     SELECT o.*, d.nom AS domaine_nom, d.slug AS domaine_slug,
            t.nom AS type_nom, t.slug AS type_slug,
-           c.nom AS collection_nom
+           c.nom AS collection_nom,
+           s.nom AS site_nom, s.campus AS site_campus, s.adresse AS site_adresse
     FROM ouvrages o
     JOIN domaines d ON d.id = o.domaine_id
     LEFT JOIN types t ON t.id = o.type_id
-    LEFT JOIN collections c ON c.id = o.collection_id';
+    LEFT JOIN collections c ON c.id = o.collection_id
+    LEFT JOIN sites s ON s.id = o.site_id';
 
 function domaines(): array
 {

@@ -1,5 +1,5 @@
 <?php
-/** Fiche d'édition d'un ouvrage. @var array $o, $erreurs, $exemplaires, $domaines, $types, $file @var bool $lectureSeule */
+/** Fiche d'édition d'un ouvrage. @var array $o, $erreurs, $exemplaires, $domaines, $types, $sites, $file @var bool $lectureSeule */
 $exModifier = peut('exemplaires.modifier');
 $optDomaines = ['' => '— Choisir —'] + array_column($domaines, 'nom', 'id');
 $optTypes = ['' => '— Choisir —'] + array_column($types, 'nom', 'id');
@@ -31,6 +31,7 @@ $codesDecales = count(array_filter($exemplaires, fn($x) => !$x['remplace_par'] &
 	<div class="actions">
 		<?php if ($o['actif'] && !$o['consultation_sur_place'] && $disponibles && peut('prets.ajouter')): ?><a class="btn" href="<?= e(admin_url('guichet', ['ouvrage' => $o['id']])) ?>"><i class="fa-solid fa-right-left"></i> Prêter</a><?php endif; ?>
 		<?php if ($o['publie']): ?><a class="btn secondaire" href="<?= e(ouvrage_url($o)) ?>" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i> Voir sur le site</a><?php endif; ?>
+		<?php if (peut('ouvrages.ajouter')): ?><a class="btn secondaire" href="<?= e(admin_url('ouvrages/nouveau', $o['domaine_id'] ? ['domaine' => $o['domaine_id']] : [])) ?>" title="Enchaîner une nouvelle saisie dans le même domaine"><i class="fa-solid fa-plus"></i> Ajouter un autre ouvrage</a><?php endif; ?>
 	</div>
 <?php endif; ?>
 </div>
@@ -137,6 +138,15 @@ $codesDecales = count(array_filter($exemplaires, fn($x) => !$x['remplace_par'] &
 
 		<section class="carte">
 			<h2><i class="fa-solid fa-hashtag"></i> Classement et emplacement</h2>
+<?php if ($sites): ?>
+			<div class="ligne">
+				<?= champ('site_id', 'Centre documentaire', $o['site_id'], $erreurs, ['type' => 'select', 'options' => ['' => '— Choisir —'] + $sites,
+					'aide' => 'À qui appartient l’ouvrage : bibliothèque centrale, bibliothèque de faculté, centre de service.']) ?>
+			</div>
+<?php elseif ($o['site_id']): ?>
+			<p class="doux"><i class="fa-solid fa-building-columns"></i> Centre documentaire : <strong><?= e(nom_site((int) $o['site_id'], true)) ?></strong>
+				— l’ouvrage y est rattaché automatiquement.</p>
+<?php endif; ?>
 			<div class="ligne">
 				<div class="champ<?= isset($erreurs['indice_dewey']) ? ' en-erreur' : '' ?>">
 					<label for="indice_dewey-saisie">Indice Dewey</label>
@@ -249,7 +259,11 @@ $codesDecales = count(array_filter($exemplaires, fn($x) => !$x['remplace_par'] &
 <?php endif; ?>
 
 	<div class="barre-actions">
-		<span class="doux"><?= $lectureSeule ? 'Lecture seule : votre rôle ne permet pas de modifier les ouvrages.' : ($o['id'] ? 'Modifications non enregistrées tant que vous ne cliquez pas sur Enregistrer.' : 'Nouvel ouvrage') ?></span>
+		<span class="doux"><?= $lectureSeule
+			? ($o['id'] && !site_modifiable($o['site_id'])
+				? 'Lecture seule : cet ouvrage appartient à ' . e(nom_site((int) $o['site_id'], true)) . '.'
+				: 'Lecture seule : votre rôle ne permet pas de modifier les ouvrages.')
+			: ($o['id'] ? 'Modifications non enregistrées tant que vous ne cliquez pas sur Enregistrer.' : 'Nouvel ouvrage') ?></span>
 		<a class="btn secondaire" href="<?= e(admin_url('ouvrages')) ?>"><?= $lectureSeule ? 'Retour à la liste' : 'Annuler' ?></a>
 <?php if (!$lectureSeule): ?>
 		<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>

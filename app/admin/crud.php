@@ -46,6 +46,30 @@ $ressources = [
         'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrages o JOIN dewey d ON d.code = o.indice_dewey WHERE d.id = ?', [$id])
             ? 'Des ouvrages portent cet indice : changez-le sur leurs fiches avant de le supprimer.' : null,
     ],
+    'sites' => [
+        'table' => 'sites', 'modifier' => 'Modifier le centre', 'titre' => 'Centres documentaires', 'nouveau' => 'Nouveau centre', 'ordre' => 'ordre, nom',
+        'liste' => ['nom' => 'Nom', 'type' => 'Type', 'campus_libelle' => 'Campus', 'nb' => 'Ouvrages'],
+        'intro' => 'Bibliothèque centrale, bibliothèques de faculté, centres documentaires de service. Chaque ouvrage enregistré est rattaché au centre de l’agent qui le saisit : '
+            . 'chacun gère son fonds, ses prêts et ses rapports, et la bibliothèque centrale voit l’ensemble. Le rattachement d’un agent se règle sur sa fiche, dans Comptes du personnel.',
+        'requete' => "SELECT s.*, CASE s.campus WHEN 'nord' THEN 'Campus Nord' WHEN 'sud' THEN 'Campus Sud' ELSE '—' END AS campus_libelle,
+                      (SELECT COUNT(*) FROM ouvrages o WHERE o.site_id = s.id) AS nb FROM sites s ORDER BY s.ordre, s.nom",
+        'defauts' => ['actif' => 1, 'campus' => 'autre', 'type' => 'Centre documentaire'],
+        'champs' => [
+            'nom' => ['Nom', 'text', ['required' => true, 'aide' => 'ex. Bibliothèque de la Faculté des Sciences de la Santé']],
+            'slug' => ['Adresse (URL)', 'slug', ['aide' => 'Rempli automatiquement à partir du nom.']],
+            'type' => ['Type', 'text', ['aide' => 'ex. Bibliothèque de faculté, Centre documentaire, Salle de lecture']],
+            'campus' => ['Campus', 'select', ['options' => ['autre' => 'Hors campus / non précisé', 'nord' => 'Campus Nord', 'sud' => 'Campus Sud']]],
+            'adresse' => ['Bâtiment ou adresse', 'text', ['aide' => 'Affiché au lecteur pour qu’il trouve le document.']],
+            'telephone' => ['Téléphone', 'tel', []],
+            'central' => ['Bibliothèque centrale', 'case', ['aide' => 'Le centre qui centralise : à cocher pour un seul d’entre eux.']],
+            'ordre' => ['Ordre d’affichage', 'number', []],
+            'actif' => ['Centre actif', 'case', ['aide' => 'Décochez pour un centre fermé : il n’est plus proposé à la saisie, son fonds reste visible.']],
+        ],
+        'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrages WHERE site_id = ?', [$id])
+            ? 'Des ouvrages appartiennent à ce centre : transférez-les avant de le supprimer (ou désactivez-le).'
+            : (val('SELECT COUNT(*) FROM utilisateurs WHERE site_id = ?', [$id])
+                ? 'Des agents sont rattachés à ce centre : changez leur rattachement avant de le supprimer.' : null),
+    ],
     'collections' => [
         'table' => 'collections', 'modifier' => 'Modifier la collection', 'titre' => 'Collections', 'nouveau' => 'Nouvelle collection',
         'importer' => 'collections', 'ordre' => 'ordre, nom',
@@ -152,8 +176,11 @@ if ($action === 'nouveau' || $action === 'modifier') {
     $lectureSeule = $action === 'modifier' && !peut("$section.modifier");
     $ligne = $action === 'modifier'
         ? (row("SELECT * FROM $table WHERE id = ?", [$id]) ?? admin_introuvable())
-        : array_fill_keys(array_keys($res['champs']), '') + ['id' => 0, 'publie' => 1]
-          + (isset($res['champs']['ordre']) ? ['ordre' => (int) val("SELECT COALESCE(MAX(ordre), 0) + 1 FROM $table")] : []);
+        : array_replace(
+            array_fill_keys(array_keys($res['champs']), '') + ['id' => 0, 'publie' => 1]
+              + (isset($res['champs']['ordre']) ? ['ordre' => (int) val("SELECT COALESCE(MAX(ordre), 0) + 1 FROM $table")] : []),
+            $res['defauts'] ?? []
+        );
     $erreurs = [];
 
     if (is_post()) {

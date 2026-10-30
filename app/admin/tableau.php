@@ -81,27 +81,27 @@ $voit = fn(string $cle) => in_array($cle, $affiches, true);
 $donnees = ['blocs' => $blocs, 'affiches' => $affiches, 'role' => role_de()];
 if ($voit('chiffres')) {
     $donnees['stats'] = [
-        'ouvrages'    => (int) val('SELECT COUNT(*) FROM ouvrages'),
-        'exemplaires' => (int) val("SELECT COUNT(*) FROM exemplaires WHERE statut <> 'retire'"),
-        'dispo'       => (int) val("SELECT COUNT(*) FROM exemplaires WHERE statut = 'disponible'"),
-        'prets'       => (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL'),
-        'retards'     => (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()'),
+        'ouvrages'    => (int) val('SELECT COUNT(*) FROM ouvrages WHERE 1' . filtre_site('site_id')),
+        'exemplaires' => (int) val("SELECT COUNT(*) FROM exemplaires e WHERE e.statut <> 'retire'" . filtre_site_exemplaires()),
+        'dispo'       => (int) val("SELECT COUNT(*) FROM exemplaires e WHERE e.statut = 'disponible'" . filtre_site_exemplaires()),
+        'prets'       => (int) val('SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL' . filtre_site_prets()),
+        'retards'     => (int) val('SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()' . filtre_site_prets()),
         'lecteurs'    => (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND actif = 1"),
         'a_valider'   => (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND en_attente = 1"),
-        'prets_mois'  => (int) val("SELECT COUNT(*) FROM prets WHERE date_pret >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"),
+        'prets_mois'  => (int) val("SELECT COUNT(*) FROM prets p WHERE p.date_pret >= DATE_FORMAT(CURDATE(), '%Y-%m-01')" . filtre_site_prets()),
         'actualites'  => peut('actualites.voir') ? (int) val('SELECT COUNT(*) FROM actualites a WHERE ' . ACTUALITE_VISIBLE) : 0,
     ];
 }
 if ($voit('retards')) {
     $donnees['retards'] = prets('p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()', [], 'p.date_retour_prevue', 8);
-    $donnees['nbRetards'] = (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()');
+    $donnees['nbRetards'] = (int) val('SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()' . filtre_site_prets());
 }
 if ($voit('demandes')) {
     $donnees['demandes'] = demandes_prolongation("dp.statut = 'en_attente'", [], 'dp.demandee_le LIMIT 5');
 }
 if ($voit('reservations')) {
     $donnees['aRetirer'] = reservations("r.statut = 'disponible'", [], 'r.expire_le');
-    $donnees['enAttente'] = (int) val("SELECT COUNT(*) FROM reservations WHERE statut = 'en_attente'");
+    $donnees['enAttente'] = (int) val("SELECT COUNT(*) FROM reservations r JOIN ouvrages o ON o.id = r.ouvrage_id WHERE r.statut = 'en_attente'" . filtre_site('o.site_id'));
 }
 if ($voit('echeances')) {
     $donnees['echeances'] = prets('p.date_retour IS NULL AND p.date_retour_prevue BETWEEN CURDATE() AND CURDATE() + INTERVAL 2 DAY', [], 'p.date_retour_prevue', 8);
@@ -114,8 +114,8 @@ if ($voit('messages')) {
 }
 if ($voit('populaires')) {
     $donnees['populaires'] = rows('SELECT o.id, o.titre, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id
-                                   JOIN ouvrages o ON o.id = e.ouvrage_id WHERE p.date_pret >= CURDATE() - INTERVAL 1 YEAR
-                                   GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 5');
+                                   JOIN ouvrages o ON o.id = e.ouvrage_id WHERE p.date_pret >= CURDATE() - INTERVAL 1 YEAR'
+                                   . filtre_site('o.site_id') . ' GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 5');
 }
 if ($voit('actualites')) {
     $donnees['actus'] = [

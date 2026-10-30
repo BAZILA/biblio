@@ -41,15 +41,23 @@ $lecteur = user();
 						</dl>
 		</aside>
 
-<?= render(__DIR__ . '/_champs.php', ['o' => $o]) ?>
-
-					<figure class="pull-left item-image">
+<div class="biblio-fiche">
+	<div class="biblio-fiche-visuel">
+				<figure class="item-image">
     <img src="<?= e(couverture($o['image'])) ?>" alt="Couverture : <?= e($o['titre']) ?>">    </figure>
+<?= render(__DIR__ . '/_localisation.php', ['o' => $o]) ?>
+	</div>
+	<div class="biblio-fiche-infos">
+<?= render(__DIR__ . '/_champs.php', ['o' => $o]) ?>
+	</div>
+</div>
 
-			<section class="article-content clearfix" itemprop="articleBody">
+<?php if (trim(strip_tags((string) $o['resume'] . (string) $o['description'])) !== ''): ?>
+			<section class="article-content" itemprop="articleBody">
 				<?= $o['resume'] ?>
 				<?= $o['description'] ?>
 			</section>
+<?php endif; ?>
 
 			<section class="biblio-pret box-shadow">
 				<h3><i class="fa fa-book" aria-hidden="true"></i> Emprunter cet ouvrage</h3>

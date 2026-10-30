@@ -263,3 +263,44 @@
 .biblio-compte-boite .biblio-aide { display: block; margin-top: 4px; }
 @media (max-width: 480px) { .biblio-profils { grid-template-columns: 1fr; } .biblio-profils a + a { border-left: 0; border-top: 1px solid #e3e7ef; } }
 .biblio-compte-boite .form-control { width: 100%; max-width: 100%; box-sizing: border-box; }
+
+/* ---------------------------------------------------------------------------
+   Fiche d'un ouvrage : couverture et localisation à gauche, caractéristiques à
+   droite, présentation en pleine largeur dessous (le texte ne se glisse plus
+   dans la colonne étroite à côté de la couverture).
+   --------------------------------------------------------------------------- */
+.item-page .biblio-fiche::after { content: ''; display: table; clear: none; }
+.item-page .biblio-fiche-visuel { float: left; width: 280px; margin: 0 35px 25px 0; }
+.item-page .biblio-fiche .item-image { float: none !important; max-width: none; margin: 0; }
+.item-page .biblio-fiche .fields-container { float: none !important; width: auto; margin: 0 0 22px; }
+/* overflow:hidden = le bloc des caractéristiques se place à côté de la couverture sans passer dessous */
+.item-page .biblio-fiche-infos { overflow: hidden; min-width: 0; }
+
+/* Caractéristiques : libellé et valeur alignés en deux colonnes, valeurs longues coupées proprement */
+.item-page .fields-container .field-entry { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 2px 14px; align-items: baseline; }
+.item-page .fields-container .field-label { min-width: 0; }
+.item-page .fields-container .field-value { overflow-wrap: anywhere; }
+
+/* Où le trouver : l'information que le lecteur cherche avant de se déplacer */
+.biblio-ou { margin-top: 20px; padding: 16px 18px; background: #fff7e0; border-left: 4px solid var(--uk-gold); border-radius: 4px; }
+.biblio-ou h3 { margin: 0 0 10px; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--uk-navy); }
+.biblio-ou h3 .fa { color: #b85c00; margin-right: 6px; }
+.biblio-ou p { margin: 0 0 7px; line-height: 1.45; }
+.biblio-ou p:last-child { margin-bottom: 0; }
+.biblio-ou-centre { font-weight: 700; color: var(--uk-navy); font-size: 16px; }
+.biblio-ou-campus { display: inline-block; margin-left: 4px; padding: 1px 9px; border-radius: 20px; background: var(--uk-blue); color: #fff; font-size: 12px; font-weight: 700; vertical-align: middle; }
+.biblio-ou-ligne { color: #4a5362; font-size: 14px; }
+.biblio-ou-ligne .fa { width: 16px; margin-right: 4px; color: #b85c00; }
+.biblio-ou-cote { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e4cf9a; }
+.biblio-ou-cote span { font-size: 13px; color: #7a6a3f; margin-right: 6px; }
+.biblio-ou-cote strong { display: inline-block; padding: 3px 12px; border-radius: 4px; background: var(--uk-navy); color: #fff; font-family: Consolas, "Courier New", monospace; letter-spacing: .04em; }
+
+/* Présentation : elle remplit la place laissée à droite, puis reprend toute la largeur sous la couverture */
+.item-page .article-content { overflow-wrap: anywhere; }
+.item-page .article-content p { margin-bottom: 1.1em; }
+.item-page .article-content img { max-width: 100%; height: auto; }
+
+@media (max-width: 767px) {
+  .item-page .biblio-fiche-visuel { float: none; width: auto; max-width: 240px; margin: 0 auto 22px; }
+  .item-page .fields-container .field-entry { grid-template-columns: 1fr; }
+}

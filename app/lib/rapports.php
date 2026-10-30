@@ -53,46 +53,46 @@ function statistiques(string $du, string $au): array
     $p = [$du, $au];
     $entre = 'BETWEEN ? AND ?';
     $s = [];
-    $s['prets'] = (int) val("SELECT COUNT(*) FROM prets WHERE date_pret $entre", $p);
-    $s['retours'] = (int) val("SELECT COUNT(*) FROM prets WHERE date_retour $entre", $p);
-    $s['retours_en_retard'] = (int) val("SELECT COUNT(*) FROM prets WHERE date_retour $entre AND date_retour > date_retour_prevue", $p);
+    $s['prets'] = (int) val("SELECT COUNT(*) FROM prets p WHERE p.date_pret $entre" . filtre_site_prets(), $p);
+    $s['retours'] = (int) val("SELECT COUNT(*) FROM prets p WHERE p.date_retour $entre" . filtre_site_prets(), $p);
+    $s['retours_en_retard'] = (int) val("SELECT COUNT(*) FROM prets p WHERE p.date_retour $entre AND p.date_retour > p.date_retour_prevue" . filtre_site_prets(), $p);
     $s['taux_a_temps'] = $s['retours'] ? round(100 * ($s['retours'] - $s['retours_en_retard']) / $s['retours']) : null;
-    $s['duree_moyenne'] = val("SELECT ROUND(AVG(DATEDIFF(date_retour, date_pret)), 1) FROM prets WHERE date_retour $entre", $p);
-    $s['emprunteurs'] = (int) val("SELECT COUNT(DISTINCT lecteur_id) FROM prets WHERE date_pret $entre", $p);
+    $s['duree_moyenne'] = val("SELECT ROUND(AVG(DATEDIFF(p.date_retour, p.date_pret)), 1) FROM prets p WHERE p.date_retour $entre" . filtre_site_prets(), $p);
+    $s['emprunteurs'] = (int) val("SELECT COUNT(DISTINCT p.lecteur_id) FROM prets p WHERE p.date_pret $entre" . filtre_site_prets(), $p);
     $s['nouveaux_lecteurs'] = (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND DATE(cree_le) $entre", $p);
-    $s['reservations'] = (int) val("SELECT COUNT(*) FROM reservations WHERE DATE(demandee_le) $entre", $p);
-    $s['reservations_honorees'] = (int) val("SELECT COUNT(*) FROM reservations WHERE DATE(demandee_le) $entre AND statut = 'honoree'", $p);
-    $s['demandes'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation WHERE DATE(demandee_le) $entre", $p);
-    $s['demandes_acceptees'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation WHERE DATE(demandee_le) $entre AND statut = 'acceptee'", $p);
-    $s['demandes_refusees'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation WHERE DATE(demandee_le) $entre AND statut = 'refusee'", $p);
+    $s['reservations'] = (int) val("SELECT COUNT(*) FROM reservations r JOIN ouvrages o ON o.id = r.ouvrage_id WHERE DATE(r.demandee_le) $entre" . filtre_site('o.site_id'), $p);
+    $s['reservations_honorees'] = (int) val("SELECT COUNT(*) FROM reservations r JOIN ouvrages o ON o.id = r.ouvrage_id WHERE DATE(r.demandee_le) $entre AND r.statut = 'honoree'" . filtre_site('o.site_id'), $p);
+    $s['demandes'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation dp JOIN prets p ON p.id = dp.pret_id WHERE DATE(dp.demandee_le) $entre" . filtre_site_prets(), $p);
+    $s['demandes_acceptees'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation dp JOIN prets p ON p.id = dp.pret_id WHERE DATE(dp.demandee_le) $entre AND dp.statut = 'acceptee'" . filtre_site_prets(), $p);
+    $s['demandes_refusees'] = (int) val("SELECT COUNT(*) FROM demandes_prolongation dp JOIN prets p ON p.id = dp.pret_id WHERE DATE(dp.demandee_le) $entre AND dp.statut = 'refusee'" . filtre_site_prets(), $p);
     // Situation à ce jour
-    $s['en_cours'] = (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL');
-    $s['en_retard'] = (int) val('SELECT COUNT(*) FROM prets WHERE date_retour IS NULL AND date_retour_prevue < CURDATE()');
+    $s['en_cours'] = (int) val('SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL' . filtre_site_prets());
+    $s['en_retard'] = (int) val('SELECT COUNT(*) FROM prets p WHERE p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()' . filtre_site_prets());
     $s['lecteurs_actifs'] = (int) val("SELECT COUNT(*) FROM utilisateurs WHERE role = 'lecteur' AND actif = 1");
-    $s['ouvrages'] = (int) val('SELECT COUNT(*) FROM ouvrages WHERE actif = 1');
-    $s['exemplaires'] = (int) val("SELECT COUNT(*) FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE o.actif = 1 AND e.statut <> 'retire'");
-    $s['disponibles'] = (int) val("SELECT COUNT(*) FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE o.actif = 1 AND e.statut = 'disponible'");
-    $s['retires'] = (int) val("SELECT COUNT(*) FROM exemplaires WHERE statut = 'retire'");
+    $s['ouvrages'] = (int) val('SELECT COUNT(*) FROM ouvrages WHERE actif = 1' . filtre_site('site_id'));
+    $s['exemplaires'] = (int) val("SELECT COUNT(*) FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE o.actif = 1 AND e.statut <> 'retire'" . filtre_site('o.site_id'));
+    $s['disponibles'] = (int) val("SELECT COUNT(*) FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id WHERE o.actif = 1 AND e.statut = 'disponible'" . filtre_site('o.site_id'));
+    $s['retires'] = (int) val("SELECT COUNT(*) FROM exemplaires e WHERE e.statut = 'retire'" . filtre_site_exemplaires());
     $s['taux_occupation'] = $s['exemplaires'] ? round(100 * $s['en_cours'] / $s['exemplaires']) : null;
 
     // Répartitions des prêts de la période
-    $s['par_mois'] = rows("SELECT DATE_FORMAT(date_pret, '%Y-%m') AS cle, COUNT(*) AS nb FROM prets WHERE date_pret $entre GROUP BY cle ORDER BY cle", $p);
+    $s['par_mois'] = rows("SELECT DATE_FORMAT(p.date_pret, '%Y-%m') AS cle, COUNT(*) AS nb FROM prets p WHERE p.date_pret $entre" . filtre_site_prets() . " GROUP BY cle ORDER BY cle", $p);
     $s['par_domaine'] = rows("SELECT d.nom AS cle, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
-                              JOIN domaines d ON d.id = o.domaine_id WHERE p.date_pret $entre GROUP BY d.id ORDER BY nb DESC, d.nom", $p);
+                              JOIN domaines d ON d.id = o.domaine_id WHERE p.date_pret $entre" . filtre_site('o.site_id') . " GROUP BY d.id ORDER BY nb DESC, d.nom", $p);
     $s['par_type'] = rows("SELECT COALESCE(t.nom, 'Sans type') AS cle, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
-                            LEFT JOIN types t ON t.id = o.type_id WHERE p.date_pret $entre GROUP BY t.id ORDER BY nb DESC", $p);
+                            LEFT JOIN types t ON t.id = o.type_id WHERE p.date_pret $entre" . filtre_site('o.site_id') . " GROUP BY t.id ORDER BY nb DESC", $p);
     $s['par_categorie'] = array_map(fn($r) => ['cle' => LIBELLES_CATEGORIE[$r['cle']] ?? 'Non précisée', 'nb' => $r['nb']],
-        rows("SELECT u.categorie AS cle, COUNT(*) AS nb FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id WHERE p.date_pret $entre GROUP BY u.categorie ORDER BY nb DESC", $p));
+        rows("SELECT u.categorie AS cle, COUNT(*) AS nb FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id WHERE p.date_pret $entre" . filtre_site_prets() . " GROUP BY u.categorie ORDER BY nb DESC", $p));
     $s['par_faculte'] = rows("SELECT COALESCE(NULLIF(u.faculte, ''), 'Non précisée') AS cle, COUNT(*) AS nb FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id
-                              WHERE p.date_pret $entre AND u.categorie = 'etudiant' GROUP BY cle ORDER BY nb DESC LIMIT 12", $p);
+                              WHERE p.date_pret $entre AND u.categorie = 'etudiant'" . filtre_site_prets() . " GROUP BY cle ORDER BY nb DESC LIMIT 12", $p);
     $s['constats'] = array_map(fn($r) => ['cle' => ETATS_RETOUR[$r['cle']] ?? 'Non renseigné', 'nb' => $r['nb']],
-        rows("SELECT etat_retour AS cle, COUNT(*) AS nb FROM prets WHERE date_retour $entre GROUP BY etat_retour ORDER BY nb DESC", $p));
+        rows("SELECT p.etat_retour AS cle, COUNT(*) AS nb FROM prets p WHERE p.date_retour $entre" . filtre_site_prets() . " GROUP BY p.etat_retour ORDER BY nb DESC", $p));
     $s['top_ouvrages'] = rows("SELECT o.titre AS cle, COUNT(*) AS nb FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
-                               WHERE p.date_pret $entre GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 10", $p);
+                               WHERE p.date_pret $entre" . filtre_site('o.site_id') . " GROUP BY o.id ORDER BY nb DESC, o.titre LIMIT 10", $p);
     $s['top_lecteurs'] = rows("SELECT CONCAT(u.nom, ' ', u.prenom) AS cle, COUNT(*) AS nb, u.id, u.categorie, u.faculte, u.parcours,
                                       COUNT(DISTINCT e.ouvrage_id) AS titres
                                FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id JOIN exemplaires e ON e.id = p.exemplaire_id
-                               WHERE p.date_pret $entre GROUP BY u.id ORDER BY nb DESC, titres DESC, u.nom LIMIT 10", $p);
+                               WHERE p.date_pret $entre" . filtre_site_prets() . " GROUP BY u.id ORDER BY nb DESC, titres DESC, u.nom LIMIT 10", $p);
     // Facultés : tous les lecteurs rattachés (étudiants et enseignants), prêts et nombre de lecteurs différents
     $s['facultes'] = rows("SELECT u.faculte AS cle, COUNT(*) AS nb, COUNT(DISTINCT u.id) AS lecteurs FROM prets p JOIN utilisateurs u ON u.id = p.lecteur_id
                             WHERE p.date_pret $entre AND u.faculte <> '' GROUP BY u.faculte ORDER BY nb DESC LIMIT 12", $p);
@@ -224,7 +224,7 @@ function rapport_pdf(string $type, string $du, string $au): never
                               SUM(e.statut = 'disponible') AS dispo, SUM(e.statut = 'prete') AS pretes, SUM(e.statut = 'reserve') AS reserves,
                               SUM(e.statut = 'retire') AS retires, COUNT(e.id) AS total
                        FROM ouvrages o JOIN domaines d ON d.id = o.domaine_id LEFT JOIN types t ON t.id = o.type_id
-                       LEFT JOIN exemplaires e ON e.ouvrage_id = o.id WHERE o.actif = 1 GROUP BY o.id ORDER BY d.nom, o.titre");
+                       LEFT JOIN exemplaires e ON e.ouvrage_id = o.id WHERE o.actif = 1" . filtre_site('o.site_id') . " GROUP BY o.id ORDER BY d.nom, o.titre");
             $pdf->paragraphe(pluriel(count($l), 'ouvrage', 'ouvrages') . ', ' . pluriel((int) array_sum(array_column($l, 'total')), 'exemplaire', 'exemplaires') . '.', 10, true);
             $lignes = array_map(fn($o) => [$o['cote'], $o['titre'], $o['auteurs'], $o['domaine'], $o['type'], $o['annee'],
                 (int) $o['total'], (int) $o['dispo'], (int) $o['pretes'], (int) $o['reserves'], (int) $o['retires']], $l);
@@ -250,7 +250,7 @@ function rapport_pdf(string $type, string $du, string $au): never
 
         case 'hors-circulation':
             $retires = rows("SELECT e.code, e.etat, e.notes, o.titre, o.cote FROM exemplaires e JOIN ouvrages o ON o.id = e.ouvrage_id
-                             WHERE e.statut = 'retire' ORDER BY o.titre, e.code");
+                             WHERE e.statut = 'retire'" . filtre_site('o.site_id') . " ORDER BY o.titre, e.code");
             $pdf->titreSection('Exemplaires retirés de la circulation (' . count($retires) . ')');
             $pdf->tableau([['Exemplaire', 2, 'G'], ['Ouvrage', 6, 'G'], ['État', 1.6, 'G'], ['Motif / remarque', 8, 'G']],
                 array_map(fn($e) => [$e['code'], $e['titre'], ETATS_EXEMPLAIRE_TOUS[$e['etat']] ?? $e['etat'], $e['notes']], $retires));

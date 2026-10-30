@@ -68,6 +68,12 @@ const PERMISSIONS = [
         'messages' => ['Messages reçus', ['voir' => 'Voir', 'supprimer' => 'Supprimer'], '« Supprimer » = corbeille de la liste et bouton de la fiche message.'],
     ],
     'Configuration' => [
+        'sites' => ['Centres documentaires', ACTIONS_STANDARD + [
+            'tous' => 'Travailler sur tous les centres',
+            'catalogue' => 'Consulter le catalogue des autres centres (lecture seule)',
+        ], 'Bibliothèque centrale, bibliothèques de faculté, centres de service. Un agent ne voit que les ouvrages, prêts, réservations '
+            . 'et rapports de son centre. « Travailler sur tous les centres » = la bibliothèque centrale, qui voit et gère tout ; '
+            . '« Consulter le catalogue des autres centres » = voir où se trouve un ouvrage ailleurs, sans pouvoir le modifier ni le prêter.'],
         'reglages' => ['Réglages', [
             'voir' => 'Voir', 'modifier' => 'Modifier',
             'mails' => 'Modifier la configuration des e-mails (serveur SMTP, mot de passe)',

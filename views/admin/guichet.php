@@ -50,6 +50,8 @@ $misDeCote = $lecteur ? array_column(array_filter($reservationsLecteur, fn($r) =
 					<option value="<?= (int) $o['id'] ?>"<?= $pretable ? '' : ' disabled' ?><?= $ouvrageChoisi === (int) $o['id'] ? ' selected' : '' ?> data-recherche="<?= e(mb_strtolower($o['titre'] . ' ' . $o['auteurs_txt'] . ' ' . $o['cote'])) ?>"><?= e($o['titre']) ?><?= $o['auteurs_txt'] !== '' ? ' — ' . e(tronquer($o['auteurs_txt'], 40, '…')) : '' ?> · <?= $o['consultation_sur_place'] ? 'sur place uniquement' : ($pourLui ? 'mis de côté pour ce lecteur' : $o['nb_dispo'] . '/' . $o['nb_ex'] . ' disponible(s)') ?></option>
 <?php endforeach; ?>
 				</select>
+				<?php /* Rempli par admin.js dès qu'un ouvrage est choisi : réservations en cours sur cet ouvrage */ ?>
+				<div id="attente-reservations" class="flash info" role="status" hidden style="margin:10px 0 0"></div>
 			</div>
 
 			<div class="champ">

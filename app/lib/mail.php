@@ -127,7 +127,7 @@ function bonjour(array $u): string
 
 function mail_pret_enregistre(int $pretId): void
 {
-    $p = prets('p.id = ?', [$pretId])[0] ?? null;
+    $p = prets('p.id = ?', [$pretId], 'p.date_pret DESC', null, 0, true)[0] ?? null;
     if (!$p) {
         return;
     }
@@ -154,7 +154,7 @@ function mail_retard(array $p): void
 
 function mail_reservation_disponible(int $reservationId): void
 {
-    $r = reservations('r.id = ?', [$reservationId])[0] ?? null;
+    $r = reservations('r.id = ?', [$reservationId], 'r.demandee_le', true)[0] ?? null;
     if (!$r || $r['statut'] !== 'disponible') {
         return;
     }
@@ -165,7 +165,7 @@ function mail_reservation_disponible(int $reservationId): void
 
 function mail_reservation_annulee(int $reservationId): void
 {
-    $r = reservations('r.id = ?', [$reservationId])[0] ?? null;
+    $r = reservations('r.id = ?', [$reservationId], 'r.demandee_le', true)[0] ?? null;
     if (!$r) {
         return;
     }
@@ -261,14 +261,14 @@ function taches_quotidiennes(bool $forcer = false): array
     $bilan = ['reservations_expirees' => expirer_reservations(), 'rappels' => 0, 'relances' => 0];
     $avant = reglage_int('rappel_jours_avant', 2);
     foreach (prets("p.date_retour IS NULL AND p.rappel_envoye_le IS NULL
-                    AND p.date_retour_prevue BETWEEN CURDATE() AND CURDATE() + INTERVAL ? DAY", [$avant]) as $p) {
+                    AND p.date_retour_prevue BETWEEN CURDATE() AND CURDATE() + INTERVAL ? DAY", [$avant], 'p.date_pret DESC', null, 0, true) as $p) {
         mail_rappel($p);
         q('UPDATE prets SET rappel_envoye_le = CURDATE() WHERE id = ?', [$p['id']]);
         $bilan['rappels']++;
     }
     $intervalle = max(1, reglage_int('relance_tous_les_jours', 7));
     foreach (prets("p.date_retour IS NULL AND p.date_retour_prevue < CURDATE()
-                    AND (p.relance_envoyee_le IS NULL OR p.relance_envoyee_le <= CURDATE() - INTERVAL ? DAY)", [$intervalle]) as $p) {
+                    AND (p.relance_envoyee_le IS NULL OR p.relance_envoyee_le <= CURDATE() - INTERVAL ? DAY)", [$intervalle], 'p.date_pret DESC', null, 0, true) as $p) {
         mail_retard($p);
         q('UPDATE prets SET relance_envoyee_le = CURDATE() WHERE id = ?', [$p['id']]);
         $bilan['relances']++;

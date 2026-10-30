@@ -206,9 +206,9 @@ switch ($action) {
         page('compte/tableau', [
             'u' => $u,
             'demandes' => $demandes,
-            'prets' => prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$u['id']], 'p.date_retour_prevue'),
-            'reservations' => reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$u['id']]),
-            'historique' => prets('p.lecteur_id = ? AND p.date_retour IS NOT NULL', [$u['id']], 'p.date_retour DESC', 20),
+            'prets' => prets('p.lecteur_id = ? AND p.date_retour IS NULL', [$u['id']], 'p.date_retour_prevue', null, 0, true),
+            'reservations' => reservations("r.lecteur_id = ? AND r.statut IN ('en_attente','disponible')", [$u['id']], 'r.demandee_le', true),
+            'historique' => prets('p.lecteur_id = ? AND p.date_retour IS NOT NULL', [$u['id']], 'p.date_retour DESC', 20, 0, true),
         ], $gabarit + ['titre' => 'Mon espace lecteur']);
 
     default:

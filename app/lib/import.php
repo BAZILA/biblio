@@ -367,6 +367,7 @@ function importer_ouvrages(array $analyse): array
             }
             $id = insert('ouvrages', [
                 'titre' => $l['titre'], 'sous_titre' => $l['sous_titre'], 'slug' => $slug, 'domaine_id' => $domaineId, 'type_id' => $typeId,
+                'site_id' => site_par_defaut(),   // le fichier importé alimente le centre de l'agent
                 'collection_id' => $collectionId, 'numero_collection' => $l['numero_collection'],
                 'resume' => texte_vers_html($l['resume']), 'description' => '', 'editeur' => $l['editeur'], 'annee' => $l['annee'],
                 'edition' => $l['edition'], 'tome' => $l['tome'], 'volume' => $l['volume'],

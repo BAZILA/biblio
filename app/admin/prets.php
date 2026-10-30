@@ -78,7 +78,7 @@ if ($q !== '') {
     $params = array_fill(0, 4, "%$q%");
 }
 $total = (int) val("SELECT COUNT(*) FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id
-                    JOIN utilisateurs u ON u.id = p.lecteur_id WHERE $where", $params);
+                    JOIN utilisateurs u ON u.id = p.lecteur_id WHERE $where" . filtre_site('o.site_id'), $params);
 $pg = pagination_admin($total, 30);
 $ordre = $filtre === 'rendus' ? 'p.date_retour DESC, p.id DESC' : ($filtre === 'tous' ? 'p.id DESC' : 'p.date_retour_prevue, p.id');
 $liste = prets($where, $params, $ordre, $pg['parPage'], $pg['offset']);
