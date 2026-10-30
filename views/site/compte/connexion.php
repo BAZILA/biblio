@@ -1,6 +1,9 @@
 <?php /** Connexion à l'espace lecteur. @var string $email @var string $retour @var string $erreur */ ?>
 <div class="biblio-compte biblio-compte-etroit">
 	<h1>Espace lecteur</h1>
+<?php if (reglage('aide_inscription') !== ''): ?>
+	<p class="biblio-aide-guichet"><i class="fa fa-life-ring" aria-hidden="true"></i> <?= e(reglage('aide_inscription')) ?></p>
+<?php endif; ?>
 	<p>Connectez-vous pour suivre vos prêts, prolonger un emprunt et réserver des ouvrages.</p>
 	<div class="biblio-contact-form box-shadow biblio-compte-boite">
 		<?php if ($erreur): ?><div class="biblio-alert biblio-alert-erreur"><?= e($erreur) ?></div><?php endif; ?>

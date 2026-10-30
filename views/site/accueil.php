@@ -232,7 +232,11 @@ $styleCarrousel = fn(string $classe) => "<style type=\"text/css\">.$classe.owl-c
 	<nav class="wrap t3-navhelper ">
 		<div class="container">
 <div class="mod-custom custom">
-    <?= bloc('appel_contact') ?></div>
+    <?= bloc('appel_contact') ?>
+<?php if (reglage('cairn_lien') !== '' && reglage('cairn_texte') !== ''): ?>
+    <p class="biblio-numerique"><i class="fa fa-globe" aria-hidden="true"></i> <?= e(reglage('cairn_texte')) ?>
+        <a href="<?= e(reglage('cairn_lien')) ?>" target="_blank" rel="noopener">Ouvrir la bibliothèque numérique ↗</a></p>
+<?php endif; ?></div>
 		</div>
 	</nav>
 	<!-- //NAV HELPER -->

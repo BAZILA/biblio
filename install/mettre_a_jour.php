@@ -266,6 +266,30 @@ if (!val("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = D
     echo "exemplaires.etat : état « perdu » ajouté\n";
     $etapes++;
 }
+// Inscription des lecteurs : charte a accepter, code de verification, lien de la bibliotheque numerique
+foreach ([
+    'verification_email' => '1',
+    'charte_fichier' => '',
+    'charte_titre' => 'Charte du lecteur',
+    'aide_inscription' => 'Une difficulté pour créer votre compte ou vous connecter ? Présentez-vous à la bibliothèque avec votre carte d’étudiant ou une pièce d’identité : un agent vous aidera à finaliser votre inscription.',
+    'code_duree_minutes' => '15',
+    'cairn_lien' => 'https://shs.cairn.info/',
+    'cairn_texte' => 'L’ouvrage est peut-être disponible en version numérique sur Cairn. Consultez-le en ligne, puis passez à la bibliothèque pour la suite.',
+] as $cle => $valeur) {
+    if (!val('SELECT COUNT(*) FROM reglages WHERE cle = ?', [$cle])) {
+        q('INSERT INTO reglages (cle, valeur) VALUES (?, ?)', [$cle, $valeur]);
+        echo "réglage $cle ajouté
+";
+        $etapes++;
+    }
+}
+if (!colonne_existe('utilisateurs', 'charte_acceptee_le')) {
+    db()->exec('ALTER TABLE utilisateurs ADD COLUMN charte_acceptee_le DATETIME NULL AFTER en_attente');
+    echo "utilisateurs.charte_acceptee_le ajoutée
+";
+    $etapes++;
+}
+
 // Centres documentaires : table, rattachement des ouvrages et du personnel, droits
 if (!table_existe('sites')) {
     $sqlSites = file_get_contents(__DIR__ . '/schema.sql');

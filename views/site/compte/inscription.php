@@ -17,9 +17,23 @@ $motsDePasse = '<div class="biblio-form-2col">'
     . $champ('mot_de_passe2', 'Confirmer le mot de passe', 'password', 'required minlength="8" autocomplete="new-password"')
     . '</div>';
 $piege = '<div class="biblio-hp" aria-hidden="true"><label>Ne pas remplir <input type="text" name="site_web" tabindex="-1" autocomplete="off"></label></div>';
+// Charte du lecteur : chargee par la bibliotheque dans Reglages ; sans fichier, l'etape n'est pas demandee
+$charteFichier = reglage('charte_fichier');
+$charte = $charteFichier === '' ? '' : '<div class="biblio-charte' . (isset($erreurs['charte']) ? ' en-erreur' : '') . '">'
+    . '<p><i class="fa fa-file-text-o" aria-hidden="true"></i> Avant de continuer, lisez la <strong>'
+    . e(reglage('charte_titre', 'Charte du lecteur')) . '</strong> : '
+    . '<a href="' . e(media($charteFichier)) . '" target="_blank" rel="noopener">l’ouvrir dans un nouvel onglet ↗</a></p>'
+    . '<label class="biblio-charte-case"><input type="checkbox" name="charte" value="1"' . (isset($_POST['charte']) ? ' checked' : '') . ' required> '
+    . 'J’ai lu la charte et j’en accepte les règles.</label>'
+    . (isset($erreurs['charte']) ? '<span class="help-inline">' . e($erreurs['charte']) . '</span>' : '')
+    . '</div>';
+$aide = reglage('aide_inscription');
 ?>
 <div class="biblio-compte biblio-compte-etroit">
 	<h1>Créer un compte lecteur</h1>
+<?php if ($aide !== ''): ?>
+	<p class="biblio-aide-guichet"><i class="fa fa-life-ring" aria-hidden="true"></i> <?= e($aide) ?></p>
+<?php endif; ?>
 	<nav class="biblio-profils" aria-label="Vous êtes">
 		<a href="<?= e(url('compte/inscription')) ?>" class="<?= $profil === 'etudiant' ? 'actif' : '' ?>"<?= $profil === 'etudiant' ? ' aria-current="page"' : '' ?>>
 			<i class="fa fa-graduation-cap" aria-hidden="true"></i> Étudiant de l’université</a>
@@ -58,6 +72,7 @@ $piege = '<div class="biblio-hp" aria-hidden="true"><label>Ne pas remplir <input
 				<?= $champ('telephone', 'Téléphone (facultatif)', 'tel', 'autocomplete="tel"') ?>
 			</div>
 			<?= $motsDePasse ?>
+			<?= $charte ?>
 			<?= $piege ?>
 			<div class="control-group">
 				<div class="controls"><button type="submit" class="btn btn-primary">Créer mon compte</button></div>
@@ -103,6 +118,7 @@ $piege = '<div class="biblio-hp" aria-hidden="true"><label>Ne pas remplir <input
 			})();
 			</script>
 			<?= $motsDePasse ?>
+			<?= $charte ?>
 			<?= $piege ?>
 			<div class="control-group">
 				<div class="controls"><button type="submit" class="btn btn-primary">Envoyer ma demande</button></div>

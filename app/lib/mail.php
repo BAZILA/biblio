@@ -213,6 +213,18 @@ function mail_compte_valide(array $u): void
         . identifiants_compte($u), 'compte');
 }
 
+/** Code à 6 chiffres envoyé pour vérifier qu'une adresse e-mail fonctionne, avant création du compte. */
+function mail_code_verification(string $email, string $prenom, string $code): void
+{
+    $minutes = max(5, reglage_int('code_duree_minutes', 15));
+    envoyer_mail($email, 'Votre code de vérification : ' . $code,
+        ($prenom !== '' ? "Bonjour $prenom," : 'Bonjour,') . "\n\n"
+        . "Voici le code qui confirme votre adresse e-mail pour la bibliothèque de l’Université de Kara :\n\n"
+        . "        $code\n\n"
+        . "Saisissez-le sur la page ouverte dans votre navigateur. Il est valable $minutes minutes.\n\n"
+        . "Si vous n’êtes pas à l’origine de cette demande, ignorez ce message : aucun compte n’a été créé.", 'compte');
+}
+
 function mail_compte_etudiant_cree(array $u): void
 {
     envoyer_mail($u['email'], 'Votre compte lecteur est créé',

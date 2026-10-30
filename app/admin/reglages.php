@@ -38,6 +38,18 @@ $groupes = [
     ],
     'Catalogue' => [
         'emplacement_defaut' => ['Emplacement proposé pour un nouvel ouvrage', 'text'],
+        'cairn_lien'         => ['Lien vers la bibliothèque numérique (Cairn…)', 'url'],
+        'cairn_texte'        => ['Phrase affichée avec ce lien', 'text'],
+    ],
+    'Inscription des lecteurs' => [
+        'verification_email' => ['Vérification de l’adresse e-mail', 'select', [
+            '1' => 'Activée : un code est envoyé, le compte n’est créé qu’après saisie',
+            '0' => 'Désactivée : le compte est créé directement',
+        ]],
+        'charte_fichier'     => ['Charte du lecteur (PDF à lire et accepter)', 'document'],
+        'charte_titre'       => ['Nom de la charte', 'text'],
+        'aide_inscription'   => ['Message d’aide affiché sur l’inscription et la connexion', 'textarea'],
+        'code_duree_minutes' => ['Durée de validité du code envoyé par e-mail (minutes)', 'number', 5],
     ],
     'E-mails aux lecteurs' => [
         'mail_mode'              => ['Envoi des e-mails', 'select', ['journal' => 'Désactivé (messages seulement consignés dans le journal)', 'smtp' => 'Activé, par serveur SMTP']],
@@ -66,6 +78,19 @@ if (is_post()) {
         }
         foreach ($champs as $cle => $def) {
             [$libelle, $type] = $def;
+            if ($type === 'document') {
+                try {
+                    $chemin = televerser_document($cle, str_replace('_', '-', $cle));
+                    if ($chemin) {
+                        q('REPLACE INTO reglages (cle, valeur) VALUES (?, ?)', [$cle, $chemin]);
+                    } elseif (isset($_POST[$cle . '_retirer'])) {
+                        q('REPLACE INTO reglages (cle, valeur) VALUES (?, ?)', [$cle, '']);
+                    }
+                } catch (RuntimeException $ex) {
+                    $erreur = $libelle . ' : ' . $ex->getMessage();
+                }
+                continue;
+            }
             if ($type === 'image') {
                 try {
                     $chemin = televerser_image($cle, 'biblio', str_replace('_', '-', $cle));

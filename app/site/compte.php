@@ -7,6 +7,53 @@
 $action = $segments[1] ?? '';
 $gabarit = ['actif' => 'compte', 'classeHtml' => 'view-compte'];
 
+/**
+ * Met l'inscription en attente d'un code envoyé par e-mail : rien n'est créé tant que le lecteur
+ * n'a pas recopié le code, ce qui prouve que son adresse fonctionne.
+ */
+function inscription_en_attente(array $attente): void
+{
+    // Vérification désactivée dans les Réglages : le compte (ou la demande) est créé tout de suite
+    if (reglage('verification_email', '1') !== '1') {
+        finaliser_inscription($attente);
+    }
+    $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $_SESSION['inscription'] = $attente;
+    $_SESSION['inscription']['code'] = $code;
+    $_SESSION['inscription']['expire'] = time() + 60 * max(5, reglage_int('code_duree_minutes', 15));
+    $_SESSION['inscription']['essais'] = 0;
+    mail_code_verification($attente['email'], $attente['prenom'] ?? '', $code);
+    flash('info', 'Un code à 6 chiffres vient d’être envoyé à ' . $attente['email'] . '.');
+    redirect(url('compte/verification'));
+}
+
+/** Cree le compte (ou la demande) une fois l'adresse verifiee. */
+function finaliser_inscription(array $a): void
+{
+    unset($_SESSION['inscription']);
+    if (($a['profil'] ?? '') === 'etudiant') {
+        $donnees = $a['donnees'] + ['charte_acceptee_le' => $a['charte']];
+        if ($a['fiche_id']) {
+            update('utilisateurs', (int) $a['fiche_id'], $donnees);
+            $id = (int) $a['fiche_id'];
+        } else {
+            $id = insert('utilisateurs', $a['creation'] + $donnees);
+        }
+        q('DELETE FROM tentatives_connexion WHERE email = ?', [$a['cle_essai']]);
+        mail_compte_etudiant_cree(row('SELECT * FROM utilisateurs WHERE id = ?', [$id]));
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $id;
+        q('UPDATE utilisateurs SET derniere_connexion = NOW() WHERE id = ?', [$id]);
+        flash('succes', 'Bienvenue ! Votre adresse est vérifiée et votre compte lecteur est créé. '
+            . 'Votre identifiant de connexion est votre adresse e-mail : ' . $a['email'] . '.');
+        redirect(url('compte'));
+    }
+    insert('utilisateurs', $a['creation'] + ['charte_acceptee_le' => $a['charte']]);
+    flash('succes', 'Votre adresse est vérifiée et votre demande est enregistrée. Votre compte sera activé par la bibliothèque '
+        . 'après vérification : vous recevrez alors un e-mail, et votre identifiant de connexion sera votre adresse e-mail.');
+    redirect(url('compte/connexion'));
+}
+
 // Le personnel gère tout depuis l'administration
 if (is_personnel() && !in_array($action, ['deconnexion'], true)) {
     redirect(admin_url());
@@ -52,6 +99,11 @@ switch ($action) {
                 $erreurs['mot_de_passe2'] = 'Les deux mots de passe ne correspondent pas.';
             }
             $robot = ($_POST['site_web'] ?? '') !== '';
+            // Charte du lecteur : a lire et accepter avant toute creation de compte
+            $charte = reglage('charte_fichier') !== '' ? date('Y-m-d H:i:s') : null;
+            if (reglage('charte_fichier') !== '' && !isset($_POST['charte'])) {
+                $erreurs['charte'] = 'Lisez la charte du lecteur et cochez la case pour continuer.';
+            }
 
             if ($profil === 'etudiant') {
                 foreach (['nom', 'prenom', 'numero_suivi', 'date_naissance', 'lieu_naissance', 'parcours', 'email', 'telephone'] as $k) {
@@ -99,18 +151,17 @@ switch ($action) {
                     if ($robot) {
                         redirect(url('compte/connexion'));
                     }
-                    $donnees = ['email' => $saisie['email'], 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT), 'actif' => 1, 'en_attente' => 0,
-                        'faculte' => $etudiant['faculte'], 'parcours' => $saisie['parcours'], 'telephone' => $saisie['telephone']];
-                    if ($fiche) {
-                        update('utilisateurs', (int) $fiche['id'], $donnees);
-                    } else {
-                        insert('utilisateurs', lecteur_depuis_etudiant($etudiant) + $donnees);
-                    }
-                    q('DELETE FROM tentatives_connexion WHERE email = ?', [$cleEssai]);
-                    mail_compte_etudiant_cree(lecteur_par_suivi($etudiant['numero_suivi']));
-                    tenter_connexion($saisie['email'], $mdp);
-                    flash('succes', 'Bienvenue ! Votre compte lecteur est créé. Votre identifiant de connexion est votre adresse e-mail : ' . $saisie['email'] . '.');
-                    redirect(url('compte'));
+                    inscription_en_attente([
+                        'profil' => 'etudiant',
+                        'email' => $saisie['email'],
+                        'prenom' => $saisie['prenom'],
+                        'fiche_id' => (int) ($fiche['id'] ?? 0),
+                        'cle_essai' => $cleEssai,
+                        'charte' => $charte,
+                        'creation' => lecteur_depuis_etudiant($etudiant),
+                        'donnees' => ['email' => $saisie['email'], 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT), 'actif' => 1, 'en_attente' => 0,
+                            'faculte' => $etudiant['faculte'], 'parcours' => $saisie['parcours'], 'telephone' => $saisie['telephone']],
+                    ]);
                 }
             } else {
                 // Enseignant, personnel ou visiteur : tous les champs obligatoires, e-mail compris (les étudiants ont leur propre parcours)
@@ -120,18 +171,51 @@ switch ($action) {
                 }
                 $erreurs += valider_lecteur($saisie, true);
                 if (!$erreurs) {
-                    if (!$robot) {
-                        insert('utilisateurs', lecteur_donnees($saisie) + [
-                            'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1, 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
-                        ]);
+                    if ($robot) {
+                        redirect(url('compte/connexion'));
                     }
-                    flash('succes', 'Votre demande est enregistrée. Votre compte sera activé par la bibliothèque après vérification : '
-                        . 'vous recevrez alors un e-mail, et votre identifiant de connexion sera votre adresse e-mail.');
-                    redirect(url('compte/connexion'));
+                    inscription_en_attente([
+                        'profil' => 'autre',
+                        'email' => $saisie['email'],
+                        'prenom' => $saisie['prenom'],
+                        'charte' => $charte,
+                        'creation' => lecteur_donnees($saisie) + [
+                            'role' => 'lecteur', 'actif' => 0, 'en_attente' => 1, 'mot_de_passe' => password_hash($mdp, PASSWORD_DEFAULT),
+                        ],
+                    ]);
                 }
             }
         }
         page('compte/inscription', compact('saisie', 'erreurs', 'profil', 'listeEtudiants'), $gabarit + ['titre' => 'Créer un compte lecteur']);
+
+    case 'verification':
+        // Le compte n'existe pas encore : il attend le code à 6 chiffres envoyé à l'adresse saisie
+        $attente = $_SESSION['inscription'] ?? null;
+        if (!$attente) {
+            flash('info', 'Reprenez votre inscription : la demande précédente a expiré.');
+            redirect(url('compte/inscription'));
+        }
+        $erreur = '';
+        if (is_post()) {
+            csrf_verify();
+            if (post_str('renvoyer') !== '') {
+                inscription_en_attente($attente); // nouveau code, nouvelle validité
+            }
+            $code = preg_replace('/[^0-9]/', '', post_str('code', ''));
+            $_SESSION['inscription']['essais'] = (int) $attente['essais'] + 1;
+            if ((int) $_SESSION['inscription']['essais'] > 6) {
+                unset($_SESSION['inscription']);
+                flash('erreur', 'Trop de codes erronés. Recommencez votre inscription, ou présentez-vous à la bibliothèque.');
+                redirect(url('compte/inscription'));
+            } elseif (time() > (int) $attente['expire']) {
+                $erreur = 'Ce code a expiré. Demandez-en un nouveau.';
+            } elseif ($code === '' || !hash_equals((string) $attente['code'], $code)) {
+                $erreur = 'Code incorrect. Vérifiez l’e-mail reçu, sans espace.';
+            } else {
+                finaliser_inscription($attente);
+            }
+        }
+        page('compte/verification', compact('attente', 'erreur'), $gabarit + ['titre' => 'Vérifier votre adresse e-mail']);
 
     case 'deconnexion':
         if (is_post()) {

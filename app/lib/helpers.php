@@ -152,6 +152,7 @@ function bloc(string $cle): string
         '{base}'      => base_url(),
         '{recherche}' => formulaire_recherche(),
         '{photo_apropos}' => media(reglage('photo_apropos', 'images/biblio/apropos.jpg')),
+        '{cairn}'     => reglage('cairn_lien'),
     ]);
 }
 

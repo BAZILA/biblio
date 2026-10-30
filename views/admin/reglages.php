@@ -29,6 +29,16 @@ $auMoinsUn = (bool) array_filter(array_keys($groupes), $modifiable); ?>
 				</div>
 			</div>
 		</div>
+		<?php elseif ($type === 'document'):
+			$fichier = reglage($cle); ?>
+		<div class="champ">
+			<label for="f_<?= $cle ?>"><?= e($libelle) ?></label>
+			<input type="file" id="f_<?= $cle ?>" name="<?= $cle ?>" accept="application/pdf">
+			<div class="aide">PDF, 8 Mo maximum. Le lecteur doit l’ouvrir et cocher « j’accepte » avant que son compte ne soit créé.
+				<?php if ($fichier !== ''): ?><br>Actuelle : <a href="<?= e(media($fichier)) ?>" target="_blank" rel="noopener"><?= e(basename($fichier)) ?></a><?php else: ?><br><strong>Aucune charte chargée : l’étape d’acceptation n’est pas demandée.</strong><?php endif; ?>
+			</div>
+			<?php if ($fichier !== ''): ?><label class="case" style="margin-top:6px"><input type="checkbox" name="<?= $cle ?>_retirer" value="1"> Retirer la charte</label><?php endif; ?>
+		</div>
 		<?php elseif ($type === 'select'): ?>
 		<?= champ($cle, $libelle, reglage($cle), [], ['type' => 'select', 'options' => $def[2]]) ?>
 		<?php elseif ($type === 'password'): ?>

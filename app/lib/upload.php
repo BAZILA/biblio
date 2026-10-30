@@ -114,3 +114,41 @@ function televerser_image(string $champ, string $dossier, string $nomBase): ?str
     }
     return "images/$dossier/$nom";
 }
+
+const DOCUMENTS_AUTORISES = ['application/pdf' => 'pdf'];
+const DOCUMENT_TAILLE_MAX = 8 * 1024 * 1024;
+
+/**
+ * Téléverse un document PDF (charte du lecteur, règlement) dans images/documents et renvoie son chemin.
+ * Renvoie null si aucun fichier n'a été envoyé.
+ */
+function televerser_document(string $champ, string $nomBase): ?string
+{
+    $f = $_FILES[$champ] ?? null;
+    if (!$f || $f['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($f['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('L’envoi du document a échoué (fichier trop lourd ?).');
+    }
+    if ($f['size'] > DOCUMENT_TAILLE_MAX) {
+        throw new RuntimeException('Document trop lourd : 8 Mo maximum.');
+    }
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+    if (!isset(DOCUMENTS_AUTORISES[$mime])) {
+        throw new RuntimeException('Format non accepté : PDF uniquement.');
+    }
+    $repertoire = ROOT_DIR . '/images/documents';
+    if (!is_dir($repertoire) && !mkdir($repertoire, 0755, true)) {
+        throw new RuntimeException('Dossier des documents inaccessible.');
+    }
+    $base = slugify($nomBase) ?: 'document';
+    $nom = "$base.pdf";
+    for ($i = 2; is_file("$repertoire/$nom"); $i++) {
+        $nom = "$base-$i.pdf";
+    }
+    if (!move_uploaded_file($f['tmp_name'], "$repertoire/$nom")) {
+        throw new RuntimeException('Impossible d’enregistrer le document.');
+    }
+    return "images/documents/$nom";
+}

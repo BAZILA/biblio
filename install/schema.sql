@@ -104,6 +104,7 @@ CREATE TABLE utilisateurs (
   telephone     VARCHAR(50)  NOT NULL DEFAULT '',
   actif         TINYINT(1)   NOT NULL DEFAULT 1,
   en_attente    TINYINT(1)   NOT NULL DEFAULT 0,   -- inscription en ligne pas encore validée
+  charte_acceptee_le DATETIME NULL,                -- date d'acceptation de la charte du lecteur
   derniere_connexion DATETIME NULL,
   preferences   TEXT NULL,                         -- réglages personnels (JSON) : tableau de bord…
   cree_le       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -489,6 +490,13 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('reservation_delai_jours', '3'),
   ('quota_par_centre', '0'),
   ('emplacement_defaut', 'Salle de lecture'),
+  ('verification_email', '1'),
+  ('charte_fichier', ''),
+  ('charte_titre', 'Charte du lecteur'),
+  ('aide_inscription', 'Une difficulté pour créer votre compte ou vous connecter ? Présentez-vous à la bibliothèque avec votre carte d’étudiant ou une pièce d’identité : un agent vous aidera à finaliser votre inscription.'),
+  ('code_duree_minutes', '15'),
+  ('cairn_lien', 'https://shs.cairn.info/'),
+  ('cairn_texte', 'L’ouvrage est peut-être disponible en version numérique sur Cairn. Consultez-le en ligne, puis passez à la bibliothèque pour la suite.'),
   ('par_page', '12'),
   ('couverture_defaut', ''),
   ('photo_apropos', 'images/biblio/apropos-rayonnages.jpg'),
