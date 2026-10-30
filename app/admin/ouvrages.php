@@ -169,6 +169,7 @@ if ($action === 'desactiver' || $action === 'reactiver') {
     exiger_post();
     exiger('ouvrages.desactiver');
     $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
+    exiger_site($o);
     if ($action === 'desactiver') {
         $n = desactiver_ouvrage($id);
         $enCours = (int) val('SELECT COUNT(*) FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE e.ouvrage_id = ? AND p.date_retour IS NULL', [$id]);
@@ -187,6 +188,7 @@ if ($action === 'supprimer') {
     exiger_post();
     exiger('ouvrages.supprimer');
     $o = row('SELECT * FROM ouvrages WHERE id = ?', [$id]) ?? admin_introuvable('Ouvrage');
+    exiger_site($o);
     if (val('SELECT COUNT(*) FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id WHERE e.ouvrage_id = ?', [$id])) {
         flash('erreur', 'Cet ouvrage a un historique de prêts : désactivez-le plutôt que de le supprimer.');
         redirect(admin_url('ouvrages/modifier/' . $id));

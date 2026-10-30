@@ -422,8 +422,9 @@ function prolonger_pret(int $pretId, ?string $date = null, bool $forcer = false)
 }
 
 /** Demandes de prolongation avec le prêt, l'ouvrage et le lecteur ; $where porte sur l'alias « dp ». */
-function demandes_prolongation(string $where = '1', array $params = [], string $ordre = 'dp.demandee_le'): array
+function demandes_prolongation(string $where = '1', array $params = [], string $ordre = 'dp.demandee_le', bool $tousSites = false): array
 {
+    $where .= $tousSites ? '' : filtre_site('o.site_id');
     return rows("SELECT dp.*, p.lecteur_id, p.exemplaire_id, p.date_pret, p.date_retour_prevue, p.date_retour, p.prolongations,
                         e.code AS exemplaire_code, o.id AS ouvrage_id, o.titre, o.slug, d.slug AS domaine_slug,
                         u.nom, u.prenom, u.matricule, u.email

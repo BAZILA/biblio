@@ -176,7 +176,7 @@ function mail_reservation_annulee(int $reservationId): void
 
 function mail_decision_prolongation(int $demandeId): void
 {
-    $d = demandes_prolongation('dp.id = ?', [$demandeId])[0] ?? null;
+    $d = demandes_prolongation('dp.id = ?', [$demandeId], 'dp.demandee_le', true)[0] ?? null;
     if (!$d || !in_array($d['statut'], ['acceptee', 'refusee'], true)) {
         return;
     }

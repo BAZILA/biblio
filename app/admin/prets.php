@@ -4,9 +4,20 @@
  * et traitement des demandes de prolongation faites par les lecteurs (prets/demandes).
  */
 
+/** Interrompt l'action si le prêt porte sur un ouvrage d'un autre centre documentaire. */
+function exiger_site_pret(int $pretId): void
+{
+    $site = val('SELECT o.site_id FROM prets p JOIN exemplaires e ON e.id = p.exemplaire_id JOIN ouvrages o ON o.id = e.ouvrage_id WHERE p.id = ?', [$pretId]);
+    if ($site !== null && !site_modifiable((int) $site)) {
+        flash('erreur', 'Ce prêt porte sur un ouvrage de ' . (nom_site((int) $site) ?: 'un autre centre') . ' : il s’y enregistre.');
+        redirect(admin_url('prets'));
+    }
+}
+
 if ($action === 'rendre') {
     exiger_post();
     exiger('prets.retour');
+    exiger_site_pret($id);
     try {
         $devenir = enregistrer_retour($id, constat_retour_post((int) $moi['id']));
         flash('succes', 'Retour enregistré. ' . DEVENIR_EXEMPLAIRE[$devenir]);
@@ -19,6 +30,7 @@ if ($action === 'rendre') {
 if ($action === 'prolonger') {
     exiger_post();
     exiger('prets.prolonger');
+    exiger_site_pret($id);
     if (isset($_POST['forcer'])) {
         exiger('prets.forcer');
     }
@@ -37,6 +49,9 @@ if ($action === 'demande') {
     $accepter = post_str('decision') === 'accepter';
     // Accepter malgré une règle (maximum, file d'attente…) revient à forcer la prolongation
     $pretDemande = row('SELECT p.* FROM demandes_prolongation dp JOIN prets p ON p.id = dp.pret_id WHERE dp.id = ?', [$id]);
+    if ($pretDemande) {
+        exiger_site_pret((int) $pretDemande['id']);
+    }
     if ($accepter && $pretDemande && obstacles_prolongation($pretDemande)) {
         exiger('prets.forcer');
     }
