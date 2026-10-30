@@ -1,5 +1,5 @@
 <?php
-/** @var string $du, $au @var array $s */
+/** @var string $du, $au, $faculte @var int $site @var array $s, $sites, $facultes */
 $barres = function (array $lignes, ?callable $libelle = null): string {
     if (!$lignes) {
         return '<p class="rien">Aucune donnée sur la période.</p>';
@@ -13,7 +13,8 @@ $barres = function (array $lignes, ?callable $libelle = null): string {
     return $html . '</ul>';
 };
 $pc = fn($v) => $v === null ? '—' : $v . ' %';
-$params = ['du' => $du, 'au' => $au];
+$params = ['du' => $du, 'au' => $au] + ($site ? ['site' => $site] : []) + ($faculte !== '' ? ['faculte' => $faculte] : []);
+$filtres = ($site ? ['site' => $site] : []) + ($faculte !== '' ? ['faculte' => $faculte] : []);
 ?>
 <div class="entete">
 	<h1>Statistiques et rapports</h1>
@@ -22,15 +23,34 @@ $params = ['du' => $du, 'au' => $au];
 <form class="carte filtre-periode" method="get">
 	<div class="champ"><label for="du">Du</label><input type="date" id="du" name="du" value="<?= e($du) ?>" max="<?= date('Y-m-d') ?>"></div>
 	<div class="champ"><label for="au">Au</label><input type="date" id="au" name="au" value="<?= e($au) ?>"></div>
+<?php if ($sites): ?>
+	<div class="champ"><label for="site">Centre</label>
+		<select id="site" name="site">
+			<option value="">Tous les centres</option>
+<?php foreach ($sites as $sid => $snom): ?>
+			<option value="<?= (int) $sid ?>"<?= $site === (int) $sid ? ' selected' : '' ?>><?= e($snom) ?></option>
+<?php endforeach; ?>
+		</select></div>
+<?php endif; ?>
+<?php if ($facultes): ?>
+	<div class="champ"><label for="faculte">Faculté</label>
+		<select id="faculte" name="faculte">
+			<option value="">Toutes les facultés</option>
+<?php foreach ($facultes as $fac): ?>
+			<option value="<?= e($fac) ?>"<?= $faculte === $fac ? ' selected' : '' ?>><?= e($fac) ?></option>
+<?php endforeach; ?>
+		</select></div>
+<?php endif; ?>
 	<button class="btn" type="submit"><i class="fa-solid fa-rotate"></i> Actualiser</button>
 	<div class="periodes-rapides">
 <?php foreach (periodes_rapides() as $lib => [$d, $a]): ?>
-		<a class="<?= $d === $du && $a === $au ? 'actif' : '' ?>" href="<?= e(admin_url('rapports', ['du' => $d, 'au' => $a])) ?>"><?= e($lib) ?></a>
+		<a class="<?= $d === $du && $a === $au ? 'actif' : '' ?>" href="<?= e(admin_url('rapports', ['du' => $d, 'au' => $a] + $filtres)) ?>"><?= e($lib) ?></a>
 <?php endforeach; ?>
 	</div>
 </form>
 
-<h2 class="titre-zone"><i class="fa-solid fa-calendar"></i> Période <?= e(libelle_periode($du, $au)) ?></h2>
+<h2 class="titre-zone"><i class="fa-solid fa-calendar"></i> Période <?= e(libelle_periode($du, $au)) ?><?php
+	if ($site || $faculte !== ''): ?> <small class="doux">— <?= e(trim(($site ? nom_site($site, true) : '') . ($site && $faculte !== '' ? ' · ' : '') . $faculte)) ?></small><?php endif; ?></h2>
 <div class="stats">
 	<div class="stat"><i class="fa-solid fa-book-open"></i><div class="valeur"><?= $s['prets'] ?></div><div class="libelle">prêts enregistrés</div></div>
 	<div class="stat"><i class="fa-solid fa-rotate-left"></i><div class="valeur"><?= $s['retours'] ?></div><div class="libelle">retours · <?= $pc($s['taux_a_temps']) ?> à temps</div></div>
@@ -82,6 +102,38 @@ $params = ['du' => $du, 'au' => $au];
 	<div class="stat"><i class="fa-solid fa-chart-pie"></i><div class="valeur"><?= $pc($s['taux_occupation']) ?></div><div class="libelle">taux d’occupation</div></div>
 	<div class="stat"><i class="fa-solid fa-users"></i><div class="valeur"><?= $s['lecteurs_actifs'] ?></div><div class="libelle">lecteurs actifs</div></div>
 </div>
+
+<h2 class="titre-zone"><i class="fa-solid fa-triangle-exclamation"></i> Lecteurs à relancer</h2>
+<section class="carte">
+<?php if (!$s['mauvais']): ?>
+	<p class="rien">Aucun incident sur la période : tous les ouvrages ont été rendus à temps et en bon état.</p>
+<?php else: ?>
+	<p class="doux">Retards, ouvrages abîmés ou perdus sur la période. Le score pèse un ouvrage perdu 6, un ouvrage abîmé 3,
+		un prêt encore en retard 2 et un retour tardif 1.</p>
+	<div class="tableau-wrap"><table class="tableau">
+		<thead><tr><th>Lecteur</th><th>Catégorie / faculté</th><th>Contact</th><th class="num">Prêts</th><th class="num">Retards</th>
+			<th class="num">Jours</th><th class="num">Abîmés</th><th class="num">Perdus</th><th class="num">En retard</th><th class="num">Score</th></tr></thead>
+		<tbody>
+<?php foreach ($s['mauvais'] as $m): ?>
+			<tr>
+				<td><?php if (peut('lecteurs.voir')): ?><a href="<?= e(admin_url('lecteurs/voir/' . $m['id'])) ?>"><strong><?= e($m['cle']) ?></strong></a><?php else: ?><strong><?= e($m['cle']) ?></strong><?php endif; ?>
+					<?= $m['matricule'] ? '<br><small class="doux">' . e($m['matricule']) . '</small>' : '' ?></td>
+				<td><?= e(LIBELLES_CATEGORIE[$m['categorie']] ?? '—') ?><?= $m['faculte'] !== '' ? '<br><small class="doux">' . e($m['faculte']) . '</small>' : '' ?></td>
+				<td><small><?= e($m['email'] ?: '—') ?><?= $m['telephone'] !== '' ? '<br>' . e($m['telephone']) : '' ?></small></td>
+				<td class="num"><?= (int) $m['total'] ?></td>
+				<td class="num"><?= (int) $m['retards'] ?></td>
+				<td class="num"><?= (int) $m['jours'] ?></td>
+				<td class="num"><?= (int) $m['abimes'] ? '<span class="badge orange">' . (int) $m['abimes'] . '</span>' : '0' ?></td>
+				<td class="num"><?= (int) $m['perdus'] ? '<span class="badge rouge">' . (int) $m['perdus'] . '</span>' : '0' ?></td>
+				<td class="num"><?= (int) $m['encours'] ? '<span class="badge orange">' . (int) $m['encours'] . '</span>' : '0' ?></td>
+				<td class="num"><strong><?= (int) $m['score'] ?></strong></td>
+			</tr>
+<?php endforeach; ?>
+		</tbody>
+	</table></div>
+	<p class="aide">Les huit premiers sont affichés ici ; le rapport PDF « Lecteurs à relancer » les reprend tous avec leurs coordonnées.</p>
+<?php endif; ?>
+</section>
 
 <div class="grille grille-2" style="margin-top:20px">
 	<section class="carte"><h2><i class="fa-solid fa-medal"></i> Meilleurs lecteurs</h2>
