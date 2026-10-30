@@ -23,7 +23,8 @@ $id       = isset($segments[2]) ? (int) $segments[2] : 0;
 // Journal d'audit : toute page consultée et toute action de l'administration (sauf les recherches techniques en arrière-plan)
 const ESPACE_ADMIN = true;
 audit_requete(fn() => audit_libelle_admin($segments, $_SERVER['REQUEST_METHOD'] ?? 'GET'), true,
-    ($section === 'auteurs' && $action === 'chercher') || ($section === 'guichet' && in_array($action, ['exemplaires', 'etudiants'], true)));
+    ($action === 'chercher' && in_array($section, ['auteurs', 'collections', 'dewey'], true))
+    || ($section === 'guichet' && in_array($action, ['exemplaires', 'etudiants'], true)));
 
 /** Affiche une page d'administration dans le gabarit et termine. */
 function admin_page(string $vue, array $vars, string $titre, string $section): never
@@ -71,6 +72,8 @@ $controleurs = [
     'auteurs'      => 'crud',
     'domaines'     => 'crud',
     'types'        => 'crud',
+    'collections'  => 'crud',
+    'dewey'        => 'crud',
     'slides'       => 'crud',
     'citations'    => 'crud',
     'personnel'    => 'personnel',
@@ -95,9 +98,9 @@ if (!isset($controleurs[$section])) {
 $acces = [
     'tableau' => ['tableau.voir'], 'guichet' => ['guichet.voir'], 'prets' => ['prets.voir', 'demandes.voir'], 'reservations' => ['reservations.voir'],
     'lecteurs' => ['lecteurs.voir'], 'ouvrages' => ['ouvrages.voir'], 'exemplaires' => ['ouvrages.voir'],
-    'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'],
+    'auteurs' => ['auteurs.voir'], 'domaines' => ['domaines.voir'], 'types' => ['types.voir'], 'collections' => ['collections.voir'], 'dewey' => ['dewey.voir'],
     'slides' => ['slides.voir'], 'citations' => ['citations.voir'], 'blocs' => ['blocs.voir'], 'messages' => ['messages.voir'],
-    'import' => ['import.auteurs', 'import.ouvrages', 'import.etudiants'], 'etudiants' => ['etudiants.voir'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
+    'import' => ['import.auteurs', 'import.ouvrages', 'import.etudiants', 'import.collections'], 'etudiants' => ['etudiants.voir'], 'mails' => ['mails.voir'], 'reglages' => ['reglages.voir'],
     'personnel' => ['personnel.voir'], 'roles' => ['roles.voir'], 'rapports' => ['rapports.voir'],
     'audit' => ['audit.voir'], 'actualites' => ['actualites.voir'],
 ];
@@ -112,8 +115,9 @@ if ($section === '' && !peut('tableau.voir')) {
     }
     redirect(admin_url($page));
 }
-if ($section === 'auteurs' && $action === 'chercher') {
-    exiger('auteurs.voir', 'ouvrages.ajouter', 'ouvrages.modifier'); // suggestions d'auteurs dans la fiche ouvrage
+if ($action === 'chercher' && in_array($section, ['auteurs', 'collections', 'dewey'], true)) {
+    // Suggestions d'auteurs, de collections et d'indices Dewey dans la fiche d'un ouvrage
+    exiger("$section.voir", 'ouvrages.ajouter', 'ouvrages.modifier');
 } elseif ($section === 'lecteurs' && $action === 'rapide') {
     exiger('lecteurs.ajouter');
 } elseif ($section === 'guichet' && in_array($action, ['pret', 'retour', 'exemplaires'], true)) {

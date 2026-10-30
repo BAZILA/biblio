@@ -256,6 +256,10 @@ body.page-connexion { background: #fff; }
 .puce button { border: 0; background: rgba(0, 0, 0, .08); color: inherit; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; line-height: 1; }
 .puces input { flex: 1 1 160px; border: 0 !important; outline: none !important; padding: 4px 6px !important; min-width: 120px; }
 .puces .suggestions { top: calc(100% + 4px); }
+/* Champ à valeur unique (collection, indice Dewey) : la puce peut porter un libellé long */
+.champ-choix .puce { max-width: 100%; white-space: normal; text-align: left; }
+.champ-choix .puce button { flex: 0 0 auto; }
+.suggestions button small { color: var(--doux); }
 .suggestions .proposition-nouveau { color: var(--orange); }
 .suggestions button.actif { background: #f0f3fb; }
 
@@ -369,6 +373,15 @@ dialog.modale[open] { animation: modale-entree .18s ease-out; }
 .tableau-exemplaires td input, .tableau-exemplaires td select { width: 100%; min-width: 0; }
 .tableau-exemplaires td:nth-child(4) { min-width: 220px; }
 .tableau-exemplaires td.actions { width: 1%; white-space: nowrap; }
+/* Champ suivi d'un bouton (cote proposée depuis l'indice Dewey) */
+.champ-avec-bouton { display: flex; gap: 6px; align-items: stretch; }
+.champ-avec-bouton input { flex: 1; min-width: 0; }
+.champ-avec-bouton .btn { white-space: nowrap; }
+/* Témoin d'enregistrement automatique d'une ligne d'exemplaire */
+.etat-enregistrement { display: inline-block; min-width: 112px; font-size: .78rem; color: var(--doux); vertical-align: middle; }
+.etat-enregistrement.ok { color: var(--vert); }
+.etat-enregistrement.ok::before { content: "\2713"; font-weight: 700; margin-right: 5px; }
+.etat-enregistrement.erreur { color: var(--rouge); }
 .btn.lien-danger { background: none; border: 0; color: var(--rouge); padding: 0 4px; text-decoration: underline; font-weight: 500; box-shadow: none; }
 .btn.lien-danger:hover { background: none; color: #8f231b; }
 tr.inactif td { opacity: .6; }

@@ -11,7 +11,7 @@ if ($etudiants && count($analyse) > $limite) {
     $erreurs = array_filter($analyse, fn($l) => $l['statut'] === 'erreur');
     $affichees = array_merge($erreurs, array_slice(array_filter($analyse, fn($l) => $l['statut'] !== 'erreur'), 0, max(50, $limite - count($erreurs))));
 }
-$libelles = ['auteurs' => 'auteurs', 'ouvrages' => 'ouvrages', 'etudiants' => 'étudiants'];
+$libelles = ['auteurs' => 'auteurs', 'collections' => 'collections', 'ouvrages' => 'ouvrages', 'etudiants' => 'étudiants'];
 ?>
 <div class="fil"><a href="<?= e(admin_url('import', ['quoi' => $quoi])) ?>">Importer</a> ›</div>
 <div class="entete">
@@ -34,6 +34,7 @@ $libelles = ['auteurs' => 'auteurs', 'ouvrages' => 'ouvrages', 'etudiants' => '�
 	<div class="tableau-wrap"><table class="tableau">
 		<thead><tr><th>Ligne</th><th>État</th>
 			<?php if ($quoi === 'auteurs'): ?><th>Nom</th>
+			<?php elseif ($quoi === 'collections'): ?><th>Nom</th><th>Éditeur</th>
 			<?php elseif ($etudiants): ?><th>N° de suivi</th><th>Nom et prénoms</th><th>Naissance</th><th>Faculté</th>
 			<?php else: ?><th>Titre</th><th>Auteurs</th><th>Domaine</th><th>Type</th><th>Cote</th><th class="num">Ex.</th><?php endif; ?>
 			<th>Remarque</th></tr></thead>
@@ -44,6 +45,9 @@ $libelles = ['auteurs' => 'auteurs', 'ouvrages' => 'ouvrages', 'etudiants' => '�
 				<td><span class="badge <?= $b[0] ?>"><?= e($b[1]) ?></span></td>
 <?php if ($quoi === 'auteurs'): ?>
 				<td><?= e($l['nom']) ?></td>
+<?php elseif ($quoi === 'collections'): ?>
+				<td><strong><?= e($l['nom']) ?></strong></td>
+				<td><?= e($l['editeur']) ?></td>
 <?php elseif ($etudiants): ?>
 				<td><code><?= e($l['numero_suivi']) ?></code></td>
 				<td><strong><?= e($l['nom']) ?></strong> <?= e($l['prenom']) ?></td>

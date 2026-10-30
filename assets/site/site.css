@@ -20,6 +20,7 @@
 .biblio-dispo-emprunte { color: #b85c00; font-weight: 700; }
 
 /* Panneau « Emprunter cet ouvrage » sur la fiche */
+.biblio-sous-titre { margin: -6px 0 10px; font-size: 18px; font-style: italic; color: #555; }
 .biblio-pret { clear: both; margin: 30px 0; padding: 22px 26px; background: #fff; border-top: 4px solid var(--uk-green); border-radius: 4px; }
 .biblio-pret h3 { margin-top: 0; font-size: 20px; }
 .biblio-pret h3 .fa { color: var(--uk-green); margin-right: 6px; }

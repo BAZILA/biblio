@@ -4,10 +4,12 @@
 /** Colonnes et jointures communes à toutes les listes d'ouvrages. */
 const OUVRAGE_SELECT = '
     SELECT o.*, d.nom AS domaine_nom, d.slug AS domaine_slug,
-           t.nom AS type_nom, t.slug AS type_slug
+           t.nom AS type_nom, t.slug AS type_slug,
+           c.nom AS collection_nom
     FROM ouvrages o
     JOIN domaines d ON d.id = o.domaine_id
-    LEFT JOIN types t ON t.id = o.type_id';
+    LEFT JOIN types t ON t.id = o.type_id
+    LEFT JOIN collections c ON c.id = o.collection_id';
 
 function domaines(): array
 {
@@ -158,8 +160,8 @@ function ouvrages_voisins(array $o): array
 }
 
 /**
- * Recherche plein texte simple : chaque mot doit apparaître dans le titre,
- * le résumé, l'éditeur, la cote, l'ISBN ou le nom d'un auteur.
+ * Recherche plein texte simple : chaque mot doit apparaître dans le titre, le sous-titre,
+ * le résumé, l'éditeur, la collection, la cote, l'ISBN, l'ISSN ou le nom d'un auteur.
  */
 function rechercher(string $q): array
 {
@@ -172,10 +174,11 @@ function rechercher(string $q): array
     $params = [];
     foreach ($mots as $m) {
         $like = '%' . $m . '%';
-        $conds[] = '(o.titre LIKE ? OR o.resume LIKE ? OR o.editeur LIKE ? OR o.cote LIKE ? OR o.isbn LIKE ?
+        $conds[] = '(o.titre LIKE ? OR o.sous_titre LIKE ? OR o.resume LIKE ? OR o.editeur LIKE ? OR o.cote LIKE ? OR o.isbn LIKE ? OR o.issn LIKE ?
+                    OR EXISTS (SELECT 1 FROM collections c2 WHERE c2.id = o.collection_id AND c2.nom LIKE ?)
                     OR EXISTS (SELECT 1 FROM ouvrage_auteur oa JOIN auteurs a ON a.id = oa.auteur_id
                                WHERE oa.ouvrage_id = o.id AND a.nom LIKE ?))';
-        array_push($params, $like, $like, $like, $like, $like, $like);
+        array_push($params, ...array_fill(0, 9, $like));
     }
     $ouvrages = ouvrages(implode(' AND ', $conds), $params);
 

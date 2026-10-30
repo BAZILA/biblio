@@ -20,6 +20,9 @@ $lecteur = user();
 					<a href="<?= e($o['url']) ?>" itemprop="url" title="<?= e($o['titre']) ?>">
 				<?= e($o['titre']) ?></a>
 			</h1>
+<?php if (($o['sous_titre'] ?? '') !== ''): ?>
+	<p class="biblio-sous-titre"><?= e($o['sous_titre']) ?></p>
+<?php endif; ?>
 			</header>
 
 				<aside class="article-aside clearfix">

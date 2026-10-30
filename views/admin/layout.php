@@ -33,7 +33,9 @@ $menu = [
         ['auteurs', 'auteurs', 'fa-feather', 'Auteurs', null, ['auteurs.voir']],
         ['domaines', 'domaines', 'fa-layer-group', 'Domaines', null, ['domaines.voir']],
         ['types', 'types', 'fa-tags', 'Types de documents', null, ['types.voir']],
-        ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages', 'import.etudiants']],
+        ['collections', 'collections', 'fa-boxes-stacked', 'Collections', null, ['collections.voir']],
+        ['dewey', 'dewey', 'fa-hashtag', 'Indexation Dewey', null, ['dewey.voir']],
+        ['import', 'import', 'fa-file-import', 'Importer un fichier', null, ['import.auteurs', 'import.ouvrages', 'import.etudiants', 'import.collections']],
     ],
     'Site' => [
         ['actualites', 'actualites', 'fa-newspaper', 'Actualités et évènements', null, ['actualites.voir']],

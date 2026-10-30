@@ -253,7 +253,7 @@ function rapport_pdf(string $type, string $du, string $au): never
                              WHERE e.statut = 'retire' ORDER BY o.titre, e.code");
             $pdf->titreSection('Exemplaires retirés de la circulation (' . count($retires) . ')');
             $pdf->tableau([['Exemplaire', 2, 'G'], ['Ouvrage', 6, 'G'], ['État', 1.6, 'G'], ['Motif / remarque', 8, 'G']],
-                array_map(fn($e) => [$e['code'], $e['titre'], ETATS_EXEMPLAIRE[$e['etat']] ?? $e['etat'], $e['notes']], $retires));
+                array_map(fn($e) => [$e['code'], $e['titre'], ETATS_EXEMPLAIRE_TOUS[$e['etat']] ?? $e['etat'], $e['notes']], $retires));
             $constats = prets("p.etat_retour IN ('abime', 'perdu')", [], 'p.date_retour DESC');
             $pdf->titreSection('Constats « abîmé » ou « perdu » aux retours (' . count($constats) . ')');
             $pdf->tableau([['Rendu le', 1.8, 'C'], ['Exemplaire', 2, 'G'], ['Ouvrage', 5, 'G'], ['Lecteur', 3.5, 'G'], ['Constat', 1.8, 'G'], ['Description', 6, 'G']],

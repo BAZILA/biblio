@@ -2,16 +2,23 @@
 /** Fiche d'édition d'un ouvrage. @var array $o, $erreurs, $exemplaires, $domaines, $types, $file @var bool $lectureSeule */
 $exModifier = peut('exemplaires.modifier');
 $optDomaines = ['' => '— Choisir —'] + array_column($domaines, 'nom', 'id');
-$optTypes = ['' => '— Aucun —'] + array_column($types, 'nom', 'id');
+$optTypes = ['' => '— Choisir —'] + array_column($types, 'nom', 'id');
+$deweyActuel = $o['indice_dewey'] !== '' ? (string) val('SELECT libelle FROM dewey WHERE code = ?', [$o['indice_dewey']]) : '';
 $langues = ['Français', 'Anglais', 'Arabe', 'Espagnol', 'Allemand', 'Autre'];
 $enCirculation = count(array_filter($exemplaires, fn($x) => $x['statut'] !== 'retire'));
 $disponibles = count(array_filter($exemplaires, fn($x) => $x['statut'] === 'disponible'));
 $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
+// Codes qui ne suivent plus la cote (cote modifiée après coup) : on propose alors la renumérotation
+$prefixe = $o['id'] ? prefixe_exemplaire($o) : '';
+$codesDecales = count(array_filter($exemplaires, fn($x) => !$x['remplace_par'] && !str_starts_with((string) $x['code'], $prefixe . '-')));
 ?>
 <div class="fil"><a href="<?= e(admin_url('ouvrages')) ?>">Ouvrages</a> ›</div>
 <div class="entete">
 	<div>
 		<h1><?= $o['id'] ? e($o['titre']) : 'Nouvel ouvrage' ?></h1>
+<?php if ($o['id'] && $o['sous_titre'] !== ''): ?>
+		<div class="sous-titre"><?= e($o['sous_titre']) ?></div>
+<?php endif; ?>
 <?php if ($o['id']): ?>
 		<div class="sous-titre">
 			<?= !$o['actif'] ? '<span class="badge rouge">Désactivé</span>' : ($o['publie'] ? '<span class="badge vert">Publié</span>' : '<span class="badge orange">Non publié</span>') ?>
@@ -74,6 +81,7 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 		<section class="carte">
 			<h2><i class="fa-solid fa-book"></i> Informations</h2>
 			<?= champ('titre', 'Titre', $o['titre'], $erreurs, ['required' => true]) ?>
+			<?= champ('sous_titre', 'Sous-titre', $o['sous_titre'], $erreurs, ['aide' => 'Complément du titre, ex. « une introduction à la linguistique africaine ».']) ?>
 			<div class="champ">
 				<label for="auteurs-saisie">Auteur(s)</label>
 				<div class="champ-auteurs" data-url="<?= e(admin_url('auteurs/chercher')) ?>">
@@ -83,7 +91,7 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 			</div>
 			<div class="ligne">
 				<?= champ('domaine_id', 'Domaine', $o['domaine_id'], $erreurs, ['type' => 'select', 'options' => $optDomaines, 'required' => true]) ?>
-				<?= champ('type_id', 'Type de document', $o['type_id'], $erreurs, ['type' => 'select', 'options' => $optTypes]) ?>
+				<?= champ('type_id', 'Type de document', $o['type_id'], $erreurs, ['type' => 'select', 'options' => $optTypes, 'required' => true]) ?>
 			</div>
 		</section>
 
@@ -101,10 +109,59 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 				<?= champ('langue', 'Langue', $o['langue'], $erreurs, ['type' => 'select', 'options' => array_combine($langues, $langues)]) ?>
 			</div>
 			<div class="ligne">
-				<?= champ('cote', 'Cote', $o['cote'], $erreurs, ['aide' => 'Préfixe des codes d’exemplaires (ex. INF-001-1).']) ?>
-				<?= champ('isbn', 'ISBN', $o['isbn'], $erreurs) ?>
+				<div class="champ<?= isset($erreurs['collection']) ? ' en-erreur' : '' ?>">
+					<label for="collection-saisie">Collection</label>
+					<div class="champ-choix" data-url="<?= e(admin_url('collections/chercher')) ?>"
+						data-placeholder="Rechercher ou ajouter une collection…"
+						<?= peut('collections.ajouter') ? 'data-nouveau="nouvelle collection"' : '' ?>>
+						<input type="hidden" name="collection" value="<?= e($o['collection']) ?>">
+					</div>
+					<div class="aide"><?= peut('collections.ajouter')
+						? 'Tapez un nom : choisissez-en un dans la liste, ou ajoutez le vôtre, il sera créé.'
+						: 'Choisissez une collection de la liste.' ?></div>
+					<?php if (isset($erreurs['collection'])): ?><div class="erreur"><?= e($erreurs['collection']) ?></div><?php endif; ?>
+				</div>
+				<?= champ('numero_collection', 'N° dans la collection', $o['numero_collection'], $erreurs, ['placeholder' => 'ex. 1234']) ?>
+				<?= champ('edition', 'Mention d’édition', $o['edition'], $erreurs, ['placeholder' => 'ex. 3e éd. revue et corrigée']) ?>
+			</div>
+			<div class="ligne">
+				<?= champ('tome', 'Tome', $o['tome'], $erreurs, ['placeholder' => 'ex. II']) ?>
+				<?= champ('volume', 'N° de volume', $o['volume'], $erreurs, ['placeholder' => 'ex. 2']) ?>
 				<?= champ('pages', 'Pages', $o['pages'], $erreurs, ['type' => 'number', 'attrs' => 'min="1"']) ?>
 			</div>
+			<div class="ligne">
+				<?= champ('isbn', 'ISBN', $o['isbn'], $erreurs, ['aide' => 'Livres.']) ?>
+				<?= champ('issn', 'ISSN', $o['issn'], $erreurs, ['aide' => 'Revues, périodiques et collections.', 'placeholder' => 'ex. 0317-8471']) ?>
+			</div>
+		</section>
+
+		<section class="carte">
+			<h2><i class="fa-solid fa-hashtag"></i> Classement et emplacement</h2>
+			<div class="ligne">
+				<div class="champ<?= isset($erreurs['indice_dewey']) ? ' en-erreur' : '' ?>">
+					<label for="indice_dewey-saisie">Indice Dewey</label>
+					<div class="champ-choix" data-url="<?= e(admin_url('dewey/chercher')) ?>"
+						data-placeholder="Chercher un sujet ou taper un indice…" data-nouveau="indice hors index" data-min="1">
+						<input type="hidden" name="indice_dewey" value="<?= e($o['indice_dewey']) ?>" data-dewey
+							data-detail="<?= e($deweyActuel) ?>">
+					</div>
+					<div class="aide">Le sujet du document en chiffres : 500 sciences, 530 physique, 005.1 programmation.</div>
+					<?php if (isset($erreurs['indice_dewey'])): ?><div class="erreur"><?= e($erreurs['indice_dewey']) ?></div><?php endif; ?>
+				</div>
+				<div class="champ<?= isset($erreurs['cote']) ? ' en-erreur' : '' ?>">
+					<label for="f_cote">Cote</label>
+					<div class="champ-avec-bouton">
+						<input type="text" id="f_cote" name="cote" value="<?= e($o['cote']) ?>" data-cote>
+						<button type="button" class="btn secondaire petit" data-cote-proposer>Proposer</button>
+					</div>
+					<div class="aide">Où le document est rangé, et préfixe des codes d’exemplaires (ex. 005.1 CAR → 005.1 CAR-1).</div>
+					<?php if (isset($erreurs['cote'])): ?><div class="erreur"><?= e($erreurs['cote']) ?></div><?php endif; ?>
+				</div>
+				<?= champ('emplacement', 'Emplacement dans la bibliothèque', $o['emplacement'], $erreurs, ['placeholder' => 'ex. Salle de lecture, rayon B3',
+					'aide' => 'Proposé par défaut dans Réglages ; indiquez la salle, le rayon ou l’étagère.']) ?>
+			</div>
+			<p class="doux"><i class="fa-solid fa-circle-info"></i> L’indice Dewey classe par <strong>sujet</strong> : les ouvrages qui parlent de la même chose portent le même indice et se retrouvent côte à côte sur l’étagère.
+				La cote le complète par les trois premières lettres du nom de l’auteur, pour ranger les livres d’un même sujet dans l’ordre alphabétique.</p>
 		</section>
 
 	</div>
@@ -116,20 +173,27 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 <?php if (!$exemplaires): ?>
 			<p class="doux">Aucun exemplaire : l’ouvrage apparaît comme indisponible sur le site.</p>
 <?php else: ?>
+			<p class="doux">L’état se met à jour tout seul : <strong>neuf</strong> à la création, puis <strong>bon état</strong>, <strong>usé</strong>, <strong>abîmé</strong> ou <strong>perdu</strong> selon le constat fait à chaque retour.
+				Corrigez-le ici seulement en cas d’erreur. Les modifications de cette liste sont <strong>enregistrées automatiquement</strong>.</p>
 			<div class="tableau-wrap"><table class="tableau tableau-exemplaires">
 				<thead><tr><th>Code</th><th>État</th><th>Statut</th><th>Notes</th><th></th></tr></thead>
 				<tbody>
 <?php foreach ($exemplaires as $x): $fid = 'ex' . $x['id']; ?>
-					<tr>
+					<tr data-auto-enregistrer="<?= $fid ?>">
 						<td><input form="<?= $fid ?>" type="text" name="code" value="<?= e($x['code']) ?>" class="code"<?= $exModifier ? '' : ' disabled' ?>></td>
-						<td><select form="<?= $fid ?>" name="etat"<?= $exModifier ? '' : ' disabled' ?>><?php foreach (ETATS_EXEMPLAIRE as $k => $lib): ?><option value="<?= $k ?>"<?= $x['etat'] === $k ? ' selected' : '' ?>><?= e($lib) ?></option><?php endforeach; ?></select></td>
-						<td><?= badge_exemplaire($x['statut']) ?><?= $x['emprunteur'] ? '<br><small>' . e($x['emprunteur']) . '</small>' : '' ?><br><small><?= e(pluriel((int) $x['nb_prets'], 'prêt')) ?> au total</small></td>
+						<td><select form="<?= $fid ?>" name="etat"<?= $exModifier ? '' : ' disabled' ?>><?php foreach (ETATS_EXEMPLAIRE_TOUS as $k => $lib): ?><option value="<?= $k ?>"<?= $x['etat'] === $k ? ' selected' : '' ?>><?= e($lib) ?></option><?php endforeach; ?></select></td>
+						<td><?= badge_exemplaire($x['statut']) ?><?= $x['emprunteur'] ? '<br><small>' . e($x['emprunteur']) . '</small>' : '' ?><br><small><?= e(pluriel((int) $x['nb_prets'], 'prêt')) ?> au total</small><?php if ($x['code_remplacant']): ?><br><small class="doux">remplacé par <?= e($x['code_remplacant']) ?></small><?php endif; ?></td>
 						<td><input form="<?= $fid ?>" type="text" name="notes" value="<?= e($x['notes']) ?>" placeholder="Remarque (emplacement, dégâts…)"<?= $exModifier ? '' : ' disabled' ?>></td>
 						<td class="actions">
-							<?php if ($exModifier): ?><button form="<?= $fid ?>" class="btn secondaire petit" type="submit" title="Enregistrer"><i class="fa-solid fa-circle-check"></i></button><?php endif; ?>
-							<?php if (!peut('exemplaires.retirer')): ?>
+							<?php if ($exModifier): ?><span class="etat-enregistrement" data-pour="<?= $fid ?>" aria-live="polite"></span>
+							<button form="<?= $fid ?>" class="btn secondaire petit sans-auto" type="submit" title="Enregistrer"><i class="fa-solid fa-circle-check"></i></button><?php endif; ?>
+							<?php if ($x['code_remplacant']): ?>
+							<?php elseif (!peut('exemplaires.retirer')): ?>
 							<?php elseif ($x['statut'] === 'retire'): ?>
 								<button form="<?= $fid ?>-remettre" class="btn secondaire petit" type="submit">Remettre</button>
+								<?php if (peut('exemplaires.ajouter')): ?>
+								<button form="<?= $fid ?>-remplacer" class="btn secondaire petit" type="submit" title="Un exemplaire neuf reprend ce code">Remplacer</button>
+								<?php endif; ?>
 							<?php elseif ($x['statut'] !== 'prete'): ?>
 								<button form="<?= $fid ?>-retirer" class="btn secondaire petit" type="submit">Retirer</button>
 							<?php endif; ?>
@@ -142,11 +206,21 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 				</tbody>
 			</table></div>
 <?php endif; ?>
-<?php if (peut('exemplaires.ajouter')): ?>
+<?php if (peut('exemplaires.ajouter') || ($exemplaires && $exModifier)): ?>
 			<div class="form-actions" style="margin-top:14px">
+<?php if (peut('exemplaires.ajouter')): ?>
 				<input form="ajout-ex" type="number" name="nombre" value="1" min="1" max="50" style="width:80px">
 				<button form="ajout-ex" class="btn secondaire" type="submit"><i class="fa-solid fa-plus"></i> Ajouter des exemplaires</button>
+<?php endif; ?>
+<?php if ($exemplaires && $exModifier): ?>
+				<button form="renum-ex" class="btn secondaire" type="submit"><i class="fa-solid fa-arrow-down-1-9"></i> Renuméroter d’après la cote</button>
+<?php endif; ?>
 			</div>
+<?php if ($exemplaires && $exModifier): ?>
+			<p class="doux">Les exemplaires ajoutés prennent la cote du moment : <strong><?= e($prefixe) ?>-1</strong>, <strong><?= e($prefixe) ?>-2</strong>…
+				« Renuméroter » recale dessus les codes déjà attribués<?= $codesDecales ? ' — ' . e(pluriel($codesDecales, 'code ne la suit plus', 'codes ne la suivent plus')) : '' ?>, étiquettes à refaire en conséquence.
+				Ces deux boutons prennent la cote telle qu’elle est affichée plus haut et l’enregistrent, même sans passer par « Enregistrer ».</p>
+<?php endif; ?>
 <?php endif; ?>
 		</section>
 
@@ -189,9 +263,14 @@ $dejaPrete = array_sum(array_column($exemplaires, 'nb_prets')) > 0;
 <form id="<?= $fid ?>" method="post" action="<?= e(admin_url('exemplaires/modifier/' . $x['id'])) ?>"><?= csrf_field() ?></form>
 <form id="<?= $fid ?>-retirer" method="post" action="<?= e(admin_url('exemplaires/retirer/' . $x['id'])) ?>" data-confirmer="Retirer l’exemplaire <?= e($x['code']) ?> de la circulation (perdu, abîmé, désherbé) ?"><?= csrf_field() ?></form>
 <form id="<?= $fid ?>-remettre" method="post" action="<?= e(admin_url('exemplaires/remettre/' . $x['id'])) ?>"><?= csrf_field() ?></form>
+<form id="<?= $fid ?>-remplacer" method="post" action="<?= e(admin_url('exemplaires/remplacer/' . $x['id'])) ?>" data-confirmer="Un exemplaire neuf va reprendre le code <?= e($x['code']) ?>, avec zéro prêt à son compteur. L’ancien sera archivé sous « <?= e($x['code']) ?> (ancien) » et gardera son historique. Continuer ?"><?= csrf_field() ?></form>
 <form id="<?= $fid ?>-supprimer" method="post" action="<?= e(admin_url('exemplaires/supprimer/' . $x['id'])) ?>" data-confirmer="Supprimer définitivement l’exemplaire <?= e($x['code']) ?> ?"><?= csrf_field() ?></form>
 <?php endforeach; ?>
-<form id="ajout-ex" method="post" action="<?= e(admin_url('exemplaires/ajouter/' . $o['id'])) ?>"><?= csrf_field() ?></form>
+<?php /* data-cote-jointe : ces deux boutons emportent la cote affichée (bouton « Proposer ») et l'enregistrent au passage */ ?>
+<form id="ajout-ex" method="post" action="<?= e(admin_url('exemplaires/ajouter/' . $o['id'])) ?>" data-cote-jointe><?= csrf_field() ?><input type="hidden" name="cote" value="<?= e($o['cote']) ?>"></form>
+<form id="renum-ex" method="post" action="<?= e(admin_url('exemplaires/renumeroter/' . $o['id'])) ?>" data-cote-jointe
+	data-confirmer-modele="Renuméroter les exemplaires en {cote}-1, {cote}-2… ? La cote sera enregistrée et les codes écrits sur les livres devront être refaits."
+	data-confirmer="Renuméroter les exemplaires en <?= e($prefixe) ?>-1, <?= e($prefixe) ?>-2… ? Les codes écrits sur les livres devront être refaits."><?= csrf_field() ?><input type="hidden" name="cote" value="<?= e($o['cote']) ?>"></form>
 <form id="suppr-ouvrage" method="post" action="<?= e(admin_url('ouvrages/supprimer/' . $o['id'])) ?>" data-confirmer="Supprimer définitivement « <?= e($o['titre']) ?> » et ses exemplaires ? Cette action est irréversible."><?= csrf_field() ?></form>
 <form id="desactiver-ouvrage" method="post" action="<?= e(admin_url('ouvrages/desactiver/' . $o['id'])) ?>" data-confirmer="Désactiver « <?= e($o['titre']) ?> » ? Il sera retiré du site, du prêt et des réservations."><?= csrf_field() ?></form>
 <form id="reactiver-ouvrage" method="post" action="<?= e(admin_url('ouvrages/reactiver/' . $o['id'])) ?>"><?= csrf_field() ?></form>

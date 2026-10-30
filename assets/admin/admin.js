@@ -156,6 +156,119 @@
     dessiner();
   });
 
+  // Champ à valeur unique avec suggestions sous le champ, même présentation que les auteurs
+  // (collection, indice Dewey) : une puce pour la valeur choisie, le champ caché reste la valeur envoyée
+  document.querySelectorAll('.champ-choix').forEach(function (bloc) {
+    var cache = bloc.querySelector('input[type=hidden]');
+    var nouveau = bloc.getAttribute('data-nouveau');          // libellé de la proposition « + Ajouter … »
+    var mini = parseInt(bloc.getAttribute('data-min') || '2', 10);
+    var valeur = cache.value.trim();
+    var afficheDetail = cache.hasAttribute('data-detail');    // Dewey : la puce porte « 530 — Physique »
+    var detail = cache.getAttribute('data-detail') || '';
+    var connue = valeur !== '';                               // valeur déjà en base (puce bleue) ou nouvelle (puce orange)
+
+    var puces = document.createElement('div');
+    puces.className = 'puces';
+    var saisie = document.createElement('input');
+    saisie.type = 'text';
+    saisie.id = cache.name + '-saisie';
+    saisie.placeholder = bloc.getAttribute('data-placeholder') || 'Rechercher…';
+    saisie.autocomplete = 'off';
+    var liste = document.createElement('div');
+    liste.className = 'suggestions';
+    bloc.appendChild(puces);
+    var minuterie, propositions = [], actif = -1;
+
+    function dessiner() {
+      puces.innerHTML = '';
+      if (valeur) {
+        var p = document.createElement('span');
+        p.className = 'puce' + (connue ? '' : ' nouveau');
+        p.title = connue ? '' : 'Sera créé avec l’ouvrage';
+        p.appendChild(document.createTextNode(valeur + (afficheDetail && detail ? ' — ' + detail : '')));
+        var x = document.createElement('button');
+        x.type = 'button';
+        x.setAttribute('aria-label', 'Retirer ' + valeur);
+        x.textContent = '×';
+        x.addEventListener('click', function () { choisir('', '', true); saisie.focus(); });
+        p.appendChild(x);
+        puces.appendChild(p);
+      }
+      saisie.placeholder = valeur ? 'Remplacer…' : (bloc.getAttribute('data-placeholder') || 'Rechercher…');
+      puces.appendChild(saisie);
+      puces.appendChild(liste);
+    }
+    function choisir(v, d, existe) {
+      valeur = v.trim();
+      detail = valeur ? (d || '') : '';
+      connue = valeur === '' || existe;
+      cache.value = valeur;
+      saisie.value = '';
+      liste.classList.remove('ouvert');
+      dessiner();
+    }
+    function afficher(q, resultats) {
+      liste.innerHTML = '';
+      propositions = resultats.map(function (r) {
+        var d = r.libelle || [r.editeur, r.nb ? r.nb + ' ouvrage(s)' : ''].filter(Boolean).join(' · ');
+        return { nom: r.nom, detail: d, existe: true };
+      });
+      var exact = resultats.some(function (r) { return r.nom.toLowerCase() === q.toLowerCase(); });
+      if (nouveau && !exact) { propositions.push({ nom: q, detail: nouveau, existe: false }); }
+      propositions.forEach(function (p) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        if (!p.existe) { b.className = 'proposition-nouveau'; }
+        b.innerHTML = '<strong></strong> <small></small>';
+        b.querySelector('strong').textContent = p.existe ? p.nom : '+ Ajouter « ' + p.nom + ' »';
+        b.querySelector('small').textContent = p.detail;
+        b.addEventListener('mousedown', function (ev) { ev.preventDefault(); choisir(p.nom, p.existe ? p.detail : '', p.existe); });
+        liste.appendChild(b);
+      });
+      actif = propositions.length ? 0 : -1;
+      surligner();
+      liste.classList.toggle('ouvert', propositions.length > 0);
+    }
+    function surligner() {
+      Array.prototype.forEach.call(liste.children, function (el, i) { el.classList.toggle('actif', i === actif); });
+    }
+
+    saisie.addEventListener('input', function () {
+      clearTimeout(minuterie);
+      var q = saisie.value.trim();
+      if (q.length < mini) { liste.classList.remove('ouvert'); return; }
+      minuterie = setTimeout(function () { chercherJson(bloc.getAttribute('data-url'), q).then(function (r) { afficher(q, r); }); }, 180);
+    });
+    saisie.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+        if (!propositions.length) { return; }
+        ev.preventDefault();
+        actif = (actif + (ev.key === 'ArrowDown' ? 1 : propositions.length - 1)) % propositions.length;
+        surligner();
+      } else if (ev.key === 'Enter') {
+        ev.preventDefault();
+        if (actif >= 0 && propositions[actif] && liste.classList.contains('ouvert')) {
+          choisir(propositions[actif].nom, propositions[actif].existe ? propositions[actif].detail : '', propositions[actif].existe);
+        } else if (saisie.value.trim()) {
+          choisir(saisie.value, '', false);
+        }
+      } else if (ev.key === 'Backspace' && saisie.value === '' && valeur) {
+        choisir('', '', true);
+      } else if (ev.key === 'Escape') {
+        liste.classList.remove('ouvert');
+      }
+    });
+    // Texte tapé sans rien choisir : on le garde quand même (il sera créé à l'enregistrement)
+    saisie.addEventListener('blur', function () {
+      setTimeout(function () {
+        liste.classList.remove('ouvert');
+        if (saisie.value.trim()) { choisir(saisie.value, '', false); }
+      }, 150);
+    });
+    puces.addEventListener('click', function (ev) { if (ev.target === puces) { saisie.focus(); } });
+    dessiner();
+  });
+
   // Choix d'une icône dans une grille (domaines) : le champ texte reste la valeur envoyée
   document.querySelectorAll('.champ-icone').forEach(function (bloc) {
     var champ = bloc.querySelector('input[type=text]');
@@ -531,6 +644,78 @@
     tousDroits.addEventListener('change', majTousDroits);
     majTousDroits();
   }
+  // Fiche ouvrage : proposer la cote à partir de l'indice Dewey et du premier auteur (« 005.1 CAR »)
+  document.querySelectorAll('[data-cote-proposer]').forEach(function (bouton) {
+    var cote = document.querySelector('[data-cote]');
+    var indice = document.querySelector('[data-dewey]');
+    var auteurs = document.querySelector('.champ-auteurs textarea');
+    bouton.addEventListener('click', function () {
+      var nom = auteurs ? (auteurs.value.split(/\r?\n/)[0] || '').trim() : '';
+      var mots = nom.split(/\s+/).filter(Boolean);
+      var cle = (mots[mots.length - 1] || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+      cote.value = [(indice ? indice.value.trim() : ''), cle].filter(Boolean).join(' ');
+      cote.dispatchEvent(new Event('input', { bubbles: true })); // les boutons des exemplaires suivent la cote affichée
+      cote.focus();
+    });
+  });
+
+  // « Ajouter des exemplaires » et « Renuméroter » emportent la cote affichée : une cote proposée
+  // mais pas encore enregistrée sert quand même de préfixe (elle est enregistrée au passage).
+  document.querySelectorAll('form[data-cote-jointe]').forEach(function (form) {
+    var cote = document.querySelector('[data-cote]');
+    var champ = form.querySelector('input[name="cote"]');
+    var modele = form.getAttribute('data-confirmer-modele');
+    if (!cote || !champ) { return; }
+    function majCote() {
+      champ.value = cote.value.trim();
+      if (modele) { form.setAttribute('data-confirmer', modele.replace(/\{cote\}/g, champ.value || '…')); }
+    }
+    cote.addEventListener('input', majCote);
+    form.addEventListener('submit', majCote); // avant la demande de confirmation, posée sur document
+    majCote();
+  });
+
+  // Exemplaires d'un ouvrage : chaque ligne s'enregistre toute seule dès qu'on la modifie
+  document.querySelectorAll('tr[data-auto-enregistrer]').forEach(function (ligne) {
+    var form = document.getElementById(ligne.getAttribute('data-auto-enregistrer'));
+    var temoin = ligne.querySelector('.etat-enregistrement');
+    if (!form || !temoin) { return; }
+    ligne.querySelectorAll('.sans-auto').forEach(function (b) { b.remove(); }); // le bouton ✓ ne sert qu'en l'absence de JS
+    var attente = null;
+    var dernier = '';
+    function etat(classe, texte) {
+      temoin.className = 'etat-enregistrement ' + classe;
+      temoin.textContent = texte;
+    }
+    function enregistrer() {
+      var donnees = new FormData(form);
+      var signature = new URLSearchParams(donnees).toString();
+      if (signature === dernier) { return; }
+      dernier = signature;
+      etat('en-cours', 'Enregistrement…');
+      fetch(form.action, { method: 'POST', body: donnees, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.ok) {
+            etat('ok', 'Enregistré');
+            window.setTimeout(function () { etat('', ''); }, 2500);
+          } else {
+            dernier = '';
+            etat('erreur', res.erreur || 'Non enregistré');
+          }
+        })
+        .catch(function () { dernier = ''; etat('erreur', 'Non enregistré'); });
+    }
+    dernier = new URLSearchParams(new FormData(form)).toString();
+    ligne.addEventListener('change', enregistrer);                       // listes déroulantes, et champs texte quittés
+    ligne.addEventListener('input', function () {                        // saisie au clavier : on attend une pause
+      window.clearTimeout(attente);
+      attente = window.setTimeout(enregistrer, 900);
+    });
+    form.addEventListener('submit', function (ev) { ev.preventDefault(); enregistrer(); });
+  });
+
   // Listes à ranger (tableau de bord) : flèches monter / descendre ; l'ordre envoyé suit l'ordre affiché
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('[data-monter], [data-descendre]');

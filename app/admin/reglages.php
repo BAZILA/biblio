@@ -32,6 +32,9 @@ $groupes = [
         'pret_max_externe'        => ['Prêts simultanés — lecteur externe', 'number', 0],
         'reservation_delai_jours' => ['Délai de retrait d’une réservation (jours)', 'number', 1],
     ],
+    'Catalogue' => [
+        'emplacement_defaut' => ['Emplacement proposé pour un nouvel ouvrage', 'text'],
+    ],
     'E-mails aux lecteurs' => [
         'mail_mode'              => ['Envoi des e-mails', 'select', ['journal' => 'Désactivé (messages seulement consignés dans le journal)', 'smtp' => 'Activé, par serveur SMTP']],
         'rappel_jours_avant'     => ['Rappel envoyé … jours avant l’échéance', 'number', 0],

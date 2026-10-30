@@ -33,6 +33,36 @@ $ressources = [
         'bloquer' => null, // les ouvrages concernés passent simplement « sans type »
         'voir' => fn($r) => url('types/' . $r['slug']),
     ],
+    'dewey' => [
+        'table' => 'dewey', 'modifier' => 'Modifier l’entrée', 'titre' => 'Indexation décimale (Dewey)', 'nouveau' => 'Nouvelle entrée', 'ordre' => 'code',
+        'liste' => ['code' => 'Indice', 'libelle' => 'Sujet', 'nb' => 'Ouvrages'],
+        'intro' => 'Index de référence proposé sur la fiche d’un ouvrage : les 10 classes de Dewey et leurs divisions. '
+            . 'Ajoutez vos propres subdivisions (ex. 005.1 Programmation) au fur et à mesure du classement de vos rayons.',
+        'requete' => 'SELECT d.*, (SELECT COUNT(*) FROM ouvrages o WHERE o.indice_dewey = d.code) AS nb FROM dewey d ORDER BY d.code',
+        'champs' => [
+            'code' => ['Indice', 'text', ['required' => true, 'unique' => true, 'aide' => 'Chiffres, avec une décimale si besoin : 500, 530, 005.1.']],
+            'libelle' => ['Sujet', 'text', ['required' => true, 'aide' => 'ex. Physique']],
+        ],
+        'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrages o JOIN dewey d ON d.code = o.indice_dewey WHERE d.id = ?', [$id])
+            ? 'Des ouvrages portent cet indice : changez-le sur leurs fiches avant de le supprimer.' : null,
+    ],
+    'collections' => [
+        'table' => 'collections', 'modifier' => 'Modifier la collection', 'titre' => 'Collections', 'nouveau' => 'Nouvelle collection',
+        'importer' => 'collections', 'ordre' => 'ordre, nom',
+        'liste' => ['nom' => 'Nom', 'editeur' => 'Éditeur', 'description' => 'Description', 'nb' => 'Ouvrages'],
+        'intro' => 'Collections éditoriales (« Que sais-je ? », « Folio »). Sur la fiche d’un ouvrage, tapez le nom de la collection : '
+            . 'choisissez-la dans la liste, ou laissez-la telle quelle pour la créer. Vous pouvez aussi en importer une liste.',
+        'requete' => 'SELECT c.*, (SELECT COUNT(*) FROM ouvrages o WHERE o.collection_id = c.id) AS nb FROM collections c ORDER BY c.ordre, c.nom',
+        'champs' => [
+            'nom' => ['Nom de la collection', 'text', ['required' => true, 'aide' => 'ex. Que sais-je ?']],
+            'slug' => ['Adresse (URL)', 'slug', ['prefixe' => 'collection-']],
+            'editeur' => ['Éditeur', 'text', ['aide' => 'Maison d’édition qui publie la collection, ex. Presses universitaires de France.']],
+            'description' => ['Description courte', 'textarea', []],
+            'ordre' => ['Ordre d’affichage', 'number', []],
+        ],
+        'bloquer' => fn($id) => val('SELECT COUNT(*) FROM ouvrages WHERE collection_id = ?', [$id])
+            ? 'Des ouvrages appartiennent à cette collection : retirez-la de leurs fiches avant de la supprimer.' : null,
+    ],
     'auteurs' => [
         'table' => 'auteurs', 'modifier' => "Modifier l’auteur", 'titre' => 'Auteurs', 'nouveau' => 'Nouvel auteur', 'importer' => 'auteurs', 'ordre' => 'nom',
         'liste' => ['nom' => 'Nom', 'nb' => 'Ouvrages'],
@@ -79,12 +109,20 @@ $ressources = [
     ],
 ];
 
-// Auto-complétion des auteurs (fiche ouvrage)
-if ($section === 'auteurs' && $action === 'chercher') {
+// Auto-complétion de la fiche ouvrage : auteurs, collections, indices Dewey
+if ($action === 'chercher') {
     $q = '%' . get_str('q') . '%';
+    $resultats = match ($section) {
+        'auteurs' => rows('SELECT a.nom, (SELECT COUNT(*) FROM ouvrage_auteur oa WHERE oa.auteur_id = a.id) AS nb
+                           FROM auteurs a WHERE a.nom LIKE ? ORDER BY a.nom LIMIT 10', [$q]),
+        'collections' => rows('SELECT c.nom, c.editeur, (SELECT COUNT(*) FROM ouvrages o WHERE o.collection_id = c.id) AS nb
+                               FROM collections c WHERE c.nom LIKE ? OR c.editeur LIKE ? ORDER BY c.nom LIMIT 10', [$q, $q]),
+        'dewey' => rows('SELECT d.code AS nom, d.libelle FROM dewey d WHERE d.code LIKE ? OR d.libelle LIKE ?
+                         ORDER BY d.code LIMIT 12', [$q, $q]),
+        default => admin_introuvable('Page'),
+    };
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(rows('SELECT a.nom, (SELECT COUNT(*) FROM ouvrage_auteur oa WHERE oa.auteur_id = a.id) AS nb
-                           FROM auteurs a WHERE a.nom LIKE ? ORDER BY a.nom LIMIT 10', [$q]), JSON_UNESCAPED_UNICODE);
+    echo json_encode($resultats, JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -141,6 +179,8 @@ if ($action === 'nouveau' || $action === 'modifier') {
             }
             if (($opts['required'] ?? false) && $v === '') {
                 $erreurs[$nom] = 'Champ requis.';
+            } elseif (($opts['unique'] ?? false) && $v !== '' && val("SELECT 1 FROM $table WHERE `$nom` = ? AND id <> ?", [$v, (int) $ligne['id']])) {
+                $erreurs[$nom] = 'Cette valeur est déjà utilisée.';
             }
             $data[$nom] = $v;
             $ligne[$nom] = $v;

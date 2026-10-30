@@ -4,7 +4,7 @@
  * L'analyse est gardée en session entre l'aperçu et la confirmation.
  */
 
-const TYPES_IMPORT = ['ouvrages', 'auteurs', 'etudiants'];
+const TYPES_IMPORT = ['ouvrages', 'auteurs', 'collections', 'etudiants'];
 
 $quoi = get_str('quoi') ?: post_str('quoi');
 $quoi = in_array($quoi, TYPES_IMPORT, true) ? $quoi : 'ouvrages';
@@ -33,7 +33,11 @@ if ($action === 'analyser') {
             $analyse = analyser_etudiants(lire_fichier_import('fichier', IMPORT_ETUDIANTS_LIGNES_MAX, IMPORT_ETUDIANTS_TAILLE_MAX));
         } else {
             $lignes = lire_fichier_import('fichier');
-            $analyse = $quoi === 'auteurs' ? analyser_auteurs($lignes) : analyser_ouvrages($lignes);
+            $analyse = match ($quoi) {
+                'auteurs' => analyser_auteurs($lignes),
+                'collections' => analyser_collections($lignes),
+                default => analyser_ouvrages($lignes),
+            };
         }
         $_SESSION['import'] = ['quoi' => $quoi, 'analyse' => $analyse, 'fichier' => (string) ($_FILES['fichier']['name'] ?? '')];
         redirect(admin_url('import/apercu'));
@@ -63,10 +67,16 @@ if ($action === 'confirmer') {
         flash('succes', pluriel($n, 'auteur importé', 'auteurs importés') . '.');
         redirect(admin_url('auteurs'));
     }
+    if ($import['quoi'] === 'collections') {
+        $n = importer_collections($import['analyse']);
+        flash('succes', pluriel($n, 'collection importée', 'collections importées') . '.');
+        redirect(admin_url(peut('collections.voir') ? 'collections' : 'import', peut('collections.voir') ? [] : ['quoi' => 'collections']));
+    }
     $b = importer_ouvrages($import['analyse']);
     flash('succes', pluriel($b['ouvrages'], 'ouvrage importé', 'ouvrages importés') . ', ' . pluriel($b['exemplaires'], 'exemplaire créé', 'exemplaires créés')
         . ($b['domaines'] ? ', ' . pluriel($b['domaines'], 'domaine créé', 'domaines créés') : '')
-        . ($b['types'] ? ', ' . pluriel($b['types'], 'type créé', 'types créés') : '') . '.');
+        . ($b['types'] ? ', ' . pluriel($b['types'], 'type créé', 'types créés') : '')
+        . ($b['collections'] ? ', ' . pluriel($b['collections'], 'collection créée', 'collections créées') : '') . '.');
     redirect(admin_url('ouvrages'));
 }
 

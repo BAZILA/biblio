@@ -48,6 +48,8 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (2, 'auteurs.voir'), (2, 'auteurs.ajouter'), (2, 'auteurs.modifier'), (2, 'auteurs.supprimer'),
   (2, 'domaines.voir'), (2, 'domaines.ajouter'), (2, 'domaines.modifier'), (2, 'domaines.supprimer'),
   (2, 'types.voir'), (2, 'types.ajouter'), (2, 'types.modifier'), (2, 'types.supprimer'),
+  (2, 'collections.voir'), (2, 'collections.ajouter'), (2, 'collections.modifier'), (2, 'collections.supprimer'),
+  (2, 'dewey.voir'), (2, 'dewey.ajouter'), (2, 'dewey.modifier'), (2, 'dewey.supprimer'), (2, 'import.collections'),
   (2, 'import.auteurs'), (2, 'import.ouvrages'),
   (2, 'slides.voir'), (2, 'slides.ajouter'), (2, 'slides.modifier'), (2, 'slides.supprimer'),
   (2, 'citations.voir'), (2, 'citations.ajouter'), (2, 'citations.modifier'), (2, 'citations.supprimer'),
@@ -58,7 +60,7 @@ INSERT INTO role_permissions (role_id, permission) VALUES
   (3, 'tableau.voir'), (3, 'guichet.voir'),
   (3, 'prets.voir'), (3, 'prets.ajouter'), (3, 'prets.retour'), (3, 'prets.prolonger'),
   (3, 'demandes.voir'), (3, 'reservations.voir'), (3, 'reservations.remettre'),
-  (3, 'lecteurs.voir'), (3, 'lecteurs.ajouter'), (3, 'etudiants.voir'), (3, 'ouvrages.voir'),
+  (3, 'lecteurs.voir'), (3, 'lecteurs.ajouter'), (3, 'etudiants.voir'), (3, 'ouvrages.voir'), (3, 'collections.voir'),
   (4, 'tableau.voir'),
   (4, 'slides.voir'), (4, 'slides.ajouter'), (4, 'slides.modifier'), (4, 'slides.supprimer'),
   (4, 'citations.voir'), (4, 'citations.ajouter'), (4, 'citations.modifier'), (4, 'citations.supprimer'),
@@ -134,18 +136,98 @@ CREATE TABLE auteurs (
   UNIQUE KEY uq_slug (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Classification décimale de Dewey : les 10 classes et leurs 100 divisions (index de référence, complétable)
+CREATE TABLE dewey (
+  id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  code    VARCHAR(12)  NOT NULL,          -- « 005 », « 005.1 »
+  libelle VARCHAR(190) NOT NULL,
+  UNIQUE KEY uq_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO dewey (code, libelle) VALUES
+  ('000', 'Informatique, information et ouvrages généraux'),
+  ('010', 'Bibliographies'), ('020', 'Bibliothéconomie et sciences de l’information'),
+  ('030', 'Encyclopédies générales'), ('040', 'Non attribué'),
+  ('050', 'Publications en série générales'), ('060', 'Organisations générales et muséologie'),
+  ('070', 'Médias d’information, journalisme, édition'), ('080', 'Recueils généraux'),
+  ('090', 'Manuscrits et livres rares'),
+  ('100', 'Philosophie et psychologie'),
+  ('110', 'Métaphysique'), ('120', 'Théorie de la connaissance, genre humain'),
+  ('130', 'Parapsychologie et occultisme'), ('140', 'Écoles et courants philosophiques'),
+  ('150', 'Psychologie'), ('160', 'Logique'), ('170', 'Éthique (philosophie morale)'),
+  ('180', 'Philosophie antique, médiévale et orientale'), ('190', 'Philosophie occidentale moderne'),
+  ('200', 'Religion'),
+  ('210', 'Philosophie et théorie de la religion'), ('220', 'Bible'),
+  ('230', 'Christianisme, théologie chrétienne'), ('240', 'Morale chrétienne et théologie spirituelle'),
+  ('250', 'Ordres chrétiens et Église locale'), ('260', 'Théologie sociale et ecclésiastique'),
+  ('270', 'Histoire du christianisme'), ('280', 'Confessions et sectes chrétiennes'),
+  ('290', 'Autres religions'),
+  ('300', 'Sciences sociales'),
+  ('310', 'Statistiques générales'), ('320', 'Science politique'), ('330', 'Économie'),
+  ('340', 'Droit'), ('350', 'Administration publique et art militaire'),
+  ('360', 'Problèmes et services sociaux'), ('370', 'Éducation'),
+  ('380', 'Commerce, communications et transports'), ('390', 'Coutumes, étiquette, folklore'),
+  ('400', 'Langues'),
+  ('410', 'Linguistique'), ('420', 'Anglais et anglo-saxon'), ('430', 'Langues germaniques, allemand'),
+  ('440', 'Langues romanes, français'), ('450', 'Italien, roumain'), ('460', 'Espagnol et portugais'),
+  ('470', 'Langues italiques, latin'), ('480', 'Langues helléniques, grec classique'),
+  ('490', 'Autres langues'),
+  ('500', 'Sciences de la nature et mathématiques'),
+  ('510', 'Mathématiques'), ('520', 'Astronomie'), ('530', 'Physique'), ('540', 'Chimie'),
+  ('550', 'Sciences de la Terre'), ('560', 'Paléontologie'), ('570', 'Sciences de la vie, biologie'),
+  ('580', 'Plantes (botanique)'), ('590', 'Animaux (zoologie)'),
+  ('600', 'Technologie (sciences appliquées)'),
+  ('610', 'Médecine et santé'), ('620', 'Ingénierie'), ('630', 'Agriculture'),
+  ('640', 'Économie domestique et vie familiale'), ('650', 'Gestion et services auxiliaires'),
+  ('660', 'Génie chimique'), ('670', 'Fabrication industrielle'),
+  ('680', 'Fabrication de produits divers'), ('690', 'Bâtiment et construction'),
+  ('700', 'Arts et loisirs'),
+  ('710', 'Urbanisme et art du paysage'), ('720', 'Architecture'), ('730', 'Arts plastiques, sculpture'),
+  ('740', 'Dessin et arts décoratifs'), ('750', 'Peinture'), ('760', 'Arts graphiques, gravure'),
+  ('770', 'Photographie'), ('780', 'Musique'), ('790', 'Sports, jeux et spectacles'),
+  ('800', 'Littérature'),
+  ('810', 'Littérature américaine'), ('820', 'Littérature anglaise'),
+  ('830', 'Littératures germaniques, allemande'), ('840', 'Littératures romanes, française'),
+  ('850', 'Littératures italienne et roumaine'), ('860', 'Littératures espagnole et portugaise'),
+  ('870', 'Littérature latine'), ('880', 'Littérature grecque'), ('890', 'Littératures d’autres langues'),
+  ('900', 'Histoire et géographie'),
+  ('910', 'Géographie et voyages'), ('920', 'Biographies et généalogie'),
+  ('930', 'Histoire du monde ancien'), ('940', 'Histoire de l’Europe'), ('950', 'Histoire de l’Asie'),
+  ('960', 'Histoire de l’Afrique'), ('970', 'Histoire de l’Amérique du Nord'),
+  ('980', 'Histoire de l’Amérique du Sud'), ('990', 'Histoire des autres régions');
+
+-- Collections éditoriales (« Que sais-je ? », « Folio ») : un ouvrage y porte un numéro
+CREATE TABLE collections (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nom         VARCHAR(190) NOT NULL,
+  slug        VARCHAR(190) NOT NULL,
+  editeur     VARCHAR(190) NOT NULL DEFAULT '',
+  description TEXT NULL,
+  ordre       INT NOT NULL DEFAULT 0,
+  UNIQUE KEY uq_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE ouvrages (
   id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   titre        VARCHAR(255) NOT NULL,
+  sous_titre   VARCHAR(255) NOT NULL DEFAULT '',
   slug         VARCHAR(255) NOT NULL,
   domaine_id   INT UNSIGNED NOT NULL,
-  type_id      INT UNSIGNED NULL,
+  type_id      INT UNSIGNED NULL,             -- obligatoire à la saisie ; NULL = fiche ancienne à compléter
+  collection_id INT UNSIGNED NULL,
+  numero_collection VARCHAR(30) NOT NULL DEFAULT '',  -- n° dans la collection (« n° 1234 »)
   resume       TEXT NULL,                     -- HTML court (listes, cartes)
   description  MEDIUMTEXT NULL,               -- HTML complet (fiche)
   editeur      VARCHAR(190) NOT NULL DEFAULT '',
   annee        VARCHAR(20)  NOT NULL DEFAULT '',
+  edition      VARCHAR(100) NOT NULL DEFAULT '',   -- mention d'édition (« 3e éd. revue et corrigée »)
+  tome         VARCHAR(30)  NOT NULL DEFAULT '',
+  volume       VARCHAR(30)  NOT NULL DEFAULT '',
   isbn         VARCHAR(30)  NOT NULL DEFAULT '',
+  issn         VARCHAR(20)  NOT NULL DEFAULT '',
+  indice_dewey VARCHAR(20)  NOT NULL DEFAULT '',   -- classification décimale (« 005.1 »)
   cote         VARCHAR(50)  NOT NULL DEFAULT '',
+  emplacement  VARCHAR(190) NOT NULL DEFAULT '',   -- où le trouver dans la bibliothèque (salle, rayon)
   pages        INT UNSIGNED NULL,
   langue       VARCHAR(50)  NOT NULL DEFAULT 'Français',
   image        VARCHAR(255) NOT NULL DEFAULT '',
@@ -158,9 +240,11 @@ CREATE TABLE ouvrages (
   modifie_le   DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_slug (domaine_id, slug),
   KEY ix_type (type_id),
+  KEY ix_collection (collection_id),
   FULLTEXT KEY ft_recherche (titre, resume, editeur),
   CONSTRAINT fk_ouvrage_domaine FOREIGN KEY (domaine_id) REFERENCES domaines(id),
-  CONSTRAINT fk_ouvrage_type    FOREIGN KEY (type_id)    REFERENCES types(id) ON DELETE SET NULL
+  CONSTRAINT fk_ouvrage_type    FOREIGN KEY (type_id)    REFERENCES types(id) ON DELETE SET NULL,
+  CONSTRAINT fk_ouvrage_collection FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE ouvrage_auteur (
@@ -178,13 +262,16 @@ CREATE TABLE exemplaires (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   ouvrage_id  INT UNSIGNED NOT NULL,
   code        VARCHAR(50) NOT NULL,           -- code-barres / numéro d'inventaire
-  etat        ENUM('neuf','bon','use','abime') NOT NULL DEFAULT 'bon',
+  etat        ENUM('neuf','bon','use','abime','perdu') NOT NULL DEFAULT 'bon',  -- suit le constat fait au retour
   statut      ENUM('disponible','prete','reserve','retire') NOT NULL DEFAULT 'disponible',
   notes       VARCHAR(255) NOT NULL DEFAULT '',
+  remplace_par INT UNSIGNED NULL,          -- exemplaire neuf qui a repris ce code ; cette ligne garde son historique de prêts
   cree_le     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_code (code),
   KEY ix_ouvrage_statut (ouvrage_id, statut),
-  CONSTRAINT fk_ex_ouvrage FOREIGN KEY (ouvrage_id) REFERENCES ouvrages(id) ON DELETE CASCADE
+  KEY ix_remplace (remplace_par),
+  CONSTRAINT fk_ex_ouvrage FOREIGN KEY (ouvrage_id) REFERENCES ouvrages(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ex_remplacant FOREIGN KEY (remplace_par) REFERENCES exemplaires(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE prets (
@@ -375,6 +462,7 @@ INSERT INTO reglages (cle, valeur) VALUES
   ('pret_max_externe', '1'),
   ('pret_max_prolongations', '1'),
   ('reservation_delai_jours', '3'),
+  ('emplacement_defaut', 'Salle de lecture'),
   ('par_page', '12'),
   ('couverture_defaut', ''),
   ('photo_apropos', 'images/biblio/apropos-rayonnages.jpg'),

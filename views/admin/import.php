@@ -4,6 +4,7 @@
 <nav class="onglets">
 <?php if (peut('import.ouvrages')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>" class="<?= $quoi === 'ouvrages' ? 'actif' : '' ?>">Ouvrages</a><?php endif; ?>
 <?php if (peut('import.auteurs')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'auteurs'])) ?>" class="<?= $quoi === 'auteurs' ? 'actif' : '' ?>">Auteurs</a><?php endif; ?>
+<?php if (peut('import.collections')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'collections'])) ?>" class="<?= $quoi === 'collections' ? 'actif' : '' ?>">Collections</a><?php endif; ?>
 <?php if (peut('import.etudiants')): ?>	<a href="<?= e(admin_url('import', ['quoi' => 'etudiants'])) ?>" class="<?= $quoi === 'etudiants' ? 'actif' : '' ?>">Étudiants de l’université</a><?php endif; ?>
 </nav>
 
@@ -11,7 +12,7 @@
 	<form class="carte" method="post" action="<?= e(admin_url('import/analyser')) ?>" enctype="multipart/form-data">
 		<?= csrf_field() ?>
 		<input type="hidden" name="quoi" value="<?= e($quoi) ?>">
-		<h2><i class="fa-solid fa-file-import"></i> <?= ['auteurs' => 'Liste d’auteurs', 'etudiants' => 'Liste des étudiants (n° de suivi)', 'ouvrages' => 'Catalogue d’ouvrages'][$quoi] ?></h2>
+		<h2><i class="fa-solid fa-file-import"></i> <?= ['auteurs' => 'Liste d’auteurs', 'collections' => 'Liste de collections', 'etudiants' => 'Liste des étudiants (n° de suivi)', 'ouvrages' => 'Catalogue d’ouvrages'][$quoi] ?></h2>
 		<div class="champ">
 			<label for="fichier">Fichier CSV ou texte</label>
 			<input type="file" id="fichier" name="fichier" accept=".csv,.txt,text/csv,text/plain" required>
@@ -35,16 +36,21 @@
 <?php elseif ($quoi === 'auteurs'): ?>
 		<p>Un nom d’auteur par ligne, dans la première colonne. Une ligne d’en-tête « nom » est acceptée.</p>
 		<p class="doux">Les auteurs déjà présents dans l’index sont ignorés, les doublons du fichier aussi.</p>
+<?php elseif ($quoi === 'collections'): ?>
+		<p>Une collection par ligne. Trois colonnes, dans cet ordre : <code>nom</code> ; <code>editeur</code> ; <code>description</code>.</p>
+		<p>Seul le <strong>nom</strong> est obligatoire. Une ligne d’en-têtes est acceptée ; sans en-tête, l’ordre ci-dessus est appliqué.</p>
+		<p class="doux">Les collections déjà présentes sont ignorées, les doublons du fichier aussi. Vous pouvez aussi créer une collection
+			en la tapant directement sur la fiche d’un ouvrage.</p>
 <?php else: ?>
 		<p>Une ligne d’en-têtes puis un ouvrage par ligne. Le plus simple : téléchargez le modèle, remplissez-le dans Excel, puis enregistrez-le en « CSV (séparateur : point-virgule) ».</p>
 		<ul>
-			<li><strong>titre</strong> et <strong>domaine</strong> : obligatoires.</li>
+			<li><strong>titre</strong>, <strong>domaine</strong> et <strong>type</strong> : obligatoires.</li>
 			<li><strong>auteurs</strong> : séparés par <code>|</code> (ex. <code>Awa Kpélim | Kossi Mensah</code>) ; les nouveaux noms sont ajoutés à l’index.</li>
-			<li><strong>domaine</strong>, <strong>type</strong> : noms existants ; sinon ils sont créés.</li>
+			<li><strong>domaine</strong>, <strong>type</strong>, <strong>collection</strong> : noms existants ; sinon ils sont créés.</li>
 			<li><strong>exemplaires</strong> : nombre d’exemplaires à créer (1 par défaut), codes « cote-1, cote-2… ».</li>
 			<li><strong>image</strong> : nom d’un fichier déjà copié dans <code>images/ouvrages/</code> (facultatif).</li>
 			<li><strong>sur_place</strong>, <strong>coup_de_coeur</strong>, <strong>publie</strong> : oui / non.</li>
-			<li>Facultatifs : type, editeur, annee, isbn, cote, pages, langue, resume.</li>
+			<li>Facultatifs : sous_titre, collection, numero_collection, edition, tome, volume, editeur, annee, isbn, issn, cote, pages, langue, resume.</li>
 		</ul>
 		<p class="doux">Les ouvrages déjà au catalogue (même titre dans le même domaine, ou même ISBN) sont ignorés.</p>
 <?php endif; ?>

@@ -25,7 +25,11 @@ const LIBELLES_RESERVATION = [
     'expiree'    => 'Expirée',
 ];
 
+/** États proposés à la remise d'un prêt (un exemplaire perdu n'est pas prêtable). */
 const ETATS_EXEMPLAIRE = ['neuf' => 'Neuf', 'bon' => 'Bon état', 'use' => 'Usé', 'abime' => 'Abîmé'];
+
+/** Tous les états qu'un exemplaire peut porter, y compris celui que le constat « perdu » lui donne au retour. */
+const ETATS_EXEMPLAIRE_TOUS = ETATS_EXEMPLAIRE + ['perdu' => 'Perdu / non rendu'];
 
 /** Constat fait au retour d'un prêt. */
 const ETATS_RETOUR = [
@@ -240,8 +244,11 @@ function enregistrer_retour(int $pretId, array $constat = []): string
             [aujourdhui(), $etat, $note, $constat['agent'] ?? null, $pretId]);
         // Une demande de prolongation encore ouverte n'a plus d'objet
         q("UPDATE demandes_prolongation SET statut = 'annulee', traitee_le = NOW() WHERE pret_id = ? AND statut = 'en_attente'", [$pretId]);
-        if (in_array($etat, ['use', 'abime'], true)) {
+        // L'état de l'exemplaire suit le constat : usé, abîmé ou perdu tel quel ; un exemplaire neuf rendu conforme passe en bon état
+        if (in_array($etat, ['use', 'abime', 'perdu'], true)) {
             q('UPDATE exemplaires SET etat = ? WHERE id = ?', [$etat, $pret['exemplaire_id']]);
+        } elseif ($etat === 'conforme') {
+            q("UPDATE exemplaires SET etat = 'bon' WHERE id = ? AND etat = 'neuf'", [$pret['exemplaire_id']]);
         }
         if ($retirer) {
             $motif = ($etat === 'perdu' ? 'Perdu' : 'Retiré pour réparation') . ' le ' . date('d/m/Y') . ' ('
@@ -268,6 +275,43 @@ function pret_par_code(string $code): int
         throw new RuntimeException("Aucun prêt en cours pour l’exemplaire « $code ».");
     }
     return (int) $id;
+}
+
+/** Préfixe des codes d'exemplaires d'un ouvrage : sa cote, sinon un numéro de secours. */
+function prefixe_exemplaire(array $ouvrage): string
+{
+    return $ouvrage['cote'] !== '' ? $ouvrage['cote'] : sprintf('EX%04d', $ouvrage['id']);
+}
+
+/**
+ * « Proposer » remplit la cote sans enregistrer la fiche : les boutons de la liste des exemplaires
+ * emportent donc la cote affichée, qu'on enregistre avant d'en déduire les codes.
+ */
+function enregistrer_cote_saisie(array $ouvrage): array
+{
+    $saisie = mb_substr(trim(post_str('cote', '')), 0, 50);
+    if ($saisie !== '' && $saisie !== $ouvrage['cote'] && peut('ouvrages.modifier')) {
+        q('UPDATE ouvrages SET cote = ? WHERE id = ?', [$saisie, (int) $ouvrage['id']]);
+        $ouvrage['cote'] = $saisie;
+        flash('info', "Cote « $saisie » enregistrée.");
+    }
+    return $ouvrage;
+}
+
+/**
+ * Code sous lequel archiver un exemplaire dont un neuf reprend le code : « LIT-3 (ancien) », « LIT-3 (ancien 2) »…
+ * L'ancienne ligne garde ainsi ses prêts sans bloquer la réutilisation du code.
+ */
+function code_exemplaire_archive(string $code): string
+{
+    $base = mb_substr($code, 0, 36);
+    for ($n = 1; $n < 100; $n++) {
+        $essai = $base . ' (ancien' . ($n > 1 ? " $n" : '') . ')';
+        if (!val('SELECT 1 FROM exemplaires WHERE code = ?', [$essai])) {
+            return $essai;
+        }
+    }
+    return $base . ' (ancien ' . time() . ')';
 }
 
 /**

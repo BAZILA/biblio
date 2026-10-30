@@ -202,4 +202,98 @@ if (!colonne_existe('utilisateurs', 'preferences')) {
     $etapes++;
 }
 
+// Collections éditoriales et notice bibliographique détaillée (sous-titre, tome, volume, édition, ISSN)
+if (!table_existe('collections')) {
+    preg_match('/CREATE TABLE collections \(.*?\) ENGINE=[^;]+;/s', file_get_contents(__DIR__ . '/schema.sql'), $m);
+    db()->exec(rtrim($m[0], ';'));
+    echo "table collections créée\n";
+    $etapes++;
+}
+$notice = [
+    'sous_titre'        => "VARCHAR(255) NOT NULL DEFAULT '' AFTER titre",
+    'collection_id'     => 'INT UNSIGNED NULL AFTER type_id',
+    'numero_collection' => "VARCHAR(30) NOT NULL DEFAULT '' AFTER collection_id",
+    'edition'           => "VARCHAR(100) NOT NULL DEFAULT '' AFTER annee",
+    'tome'              => "VARCHAR(30) NOT NULL DEFAULT '' AFTER edition",
+    'volume'            => "VARCHAR(30) NOT NULL DEFAULT '' AFTER tome",
+    'issn'              => "VARCHAR(20) NOT NULL DEFAULT '' AFTER isbn",
+];
+foreach ($notice as $col => $def) {
+    if (!colonne_existe('ouvrages', $col)) {
+        db()->exec("ALTER TABLE ouvrages ADD COLUMN $col $def");
+        echo "ouvrages.$col ajoutée\n";
+        $etapes++;
+    }
+}
+if (!val("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ouvrages' AND INDEX_NAME = 'ix_collection'")) {
+    db()->exec('ALTER TABLE ouvrages ADD KEY ix_collection (collection_id),
+                ADD CONSTRAINT fk_ouvrage_collection FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE SET NULL');
+    echo "ouvrages.collection_id liée aux collections\n";
+    $etapes++;
+}
+if (!val("SELECT COUNT(*) FROM role_permissions WHERE permission LIKE 'collections.%'")) {
+    foreach (['Bibliothécaire' => ['voir', 'ajouter', 'modifier', 'supprimer'], 'Agent de prêt' => ['voir']] as $role => $actions) {
+        $roleId = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', [$role]);
+        foreach ($roleId ? $actions : [] as $a) {
+            q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$roleId, "collections.$a"]);
+        }
+    }
+    echo "droits Collections ajoutés aux rôles Bibliothécaire et Agent de prêt\n";
+    $etapes++;
+}
+
+// Indexation décimale (Dewey), emplacement dans la bibliothèque, exemplaire « perdu »
+if (!table_existe('dewey')) {
+    $sql = file_get_contents(__DIR__ . '/schema.sql');
+    preg_match('/CREATE TABLE dewey \(.*?\) ENGINE=[^;]+;/s', $sql, $m);
+    db()->exec(rtrim($m[0], ';'));
+    preg_match('/INSERT INTO dewey .*?;/s', $sql, $m);
+    db()->exec(rtrim($m[0], ';'));
+    echo 'table dewey créée (' . val('SELECT COUNT(*) FROM dewey') . " entrées)\n";
+    $etapes++;
+}
+foreach (['indice_dewey' => "VARCHAR(20) NOT NULL DEFAULT '' AFTER issn",
+          'emplacement'  => "VARCHAR(190) NOT NULL DEFAULT '' AFTER cote"] as $col => $def) {
+    if (!colonne_existe('ouvrages', $col)) {
+        db()->exec("ALTER TABLE ouvrages ADD COLUMN $col $def");
+        echo "ouvrages.$col ajoutée\n";
+        $etapes++;
+    }
+}
+if (!val("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'exemplaires' AND COLUMN_NAME = 'etat' AND COLUMN_TYPE LIKE '%perdu%'")) {
+    db()->exec("ALTER TABLE exemplaires MODIFY COLUMN etat ENUM('neuf','bon','use','abime','perdu') NOT NULL DEFAULT 'bon'");
+    echo "exemplaires.etat : état « perdu » ajouté\n";
+    $etapes++;
+}
+// Remplacement d'un exemplaire : la ligne retirée garde son historique et pointe vers l'exemplaire neuf qui a repris son code
+if (!colonne_existe('exemplaires', 'remplace_par')) {
+    db()->exec('ALTER TABLE exemplaires ADD COLUMN remplace_par INT UNSIGNED NULL AFTER notes, ADD KEY ix_remplace (remplace_par)');
+    db()->exec('ALTER TABLE exemplaires ADD CONSTRAINT fk_ex_remplacant FOREIGN KEY (remplace_par) REFERENCES exemplaires(id) ON DELETE SET NULL');
+    echo "exemplaires.remplace_par ajouté\n";
+    $etapes++;
+}
+if (!val('SELECT COUNT(*) FROM reglages WHERE cle = ?', ['emplacement_defaut'])) {
+    q('INSERT INTO reglages (cle, valeur) VALUES (?, ?)', ['emplacement_defaut', 'Salle de lecture']);
+    echo "réglage emplacement_defaut ajouté\n";
+    $etapes++;
+}
+if (!val("SELECT COUNT(*) FROM role_permissions WHERE permission LIKE 'dewey.%'")) {
+    $roleId = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', ['Bibliothécaire']);
+    foreach ($roleId ? ['dewey.voir', 'dewey.ajouter', 'dewey.modifier', 'dewey.supprimer', 'import.collections'] : [] as $p) {
+        q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$roleId, $p]);
+    }
+    $agent = val('SELECT id FROM roles WHERE nom = ? AND tous_droits = 0', ['Agent de prêt']);
+    if ($agent) {
+        q('INSERT IGNORE INTO role_permissions (role_id, permission) VALUES (?, ?)', [$agent, 'dewey.voir']);
+    }
+    echo "droits Indexation Dewey ajoutés\n";
+    $etapes++;
+}
+
 echo $etapes ? "Mise à jour terminée ($etapes étape(s)).\n" : "La base est déjà à jour.\n";
+$sansType = (int) val('SELECT COUNT(*) FROM ouvrages WHERE type_id IS NULL');
+if ($sansType) {
+    echo "\nLe type de document est désormais obligatoire à la saisie : $sansType ouvrage(s) n’en ont pas encore.\n"
+        . "Retrouvez-les dans Ouvrages → filtre « Sans type de document ».\n";
+}

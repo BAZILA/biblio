@@ -89,7 +89,7 @@ function bouton_retour(array $p, string $libelle = '<i class="fa-solid fa-rotate
         'lecteur'    => trim($p['prenom'] . ' ' . $p['nom']),
         'titre'      => $p['titre'],
         'exemplaire' => $p['exemplaire_code'],
-        'sortie'     => ETATS_EXEMPLAIRE[$p['etat_sortie'] ?: $p['exemplaire_etat']] ?? '—',
+        'sortie'     => ETATS_EXEMPLAIRE_TOUS[$p['etat_sortie'] ?: $p['exemplaire_etat']] ?? '—',
         'echeance'   => date_fr($p['date_retour_prevue']) . ($retard > 0 ? ' — en retard de ' . pluriel($retard, 'jour') : ''),
         'notes'      => $p['notes'] !== '' ? 'Remarque à la remise : ' . $p['notes'] : '',
     ]);

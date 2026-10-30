@@ -1,11 +1,11 @@
-<?php /** @var array $liste, $pg, $domaines, $types @var string $q, $etat @var int $domaine, $type */ ?>
+<?php /** @var array $liste, $pg, $domaines, $types @var string $q, $etat @var int $domaine, $type, $sansType */ ?>
 <div class="entete">
 	<h1>Ouvrages</h1>
 	<div class="actions"><?php if (peut('import.ouvrages')): ?><a class="btn secondaire" href="<?= e(admin_url('import', ['quoi' => 'ouvrages'])) ?>"><i class="fa-solid fa-file-import"></i> Importer un fichier</a><?php endif; ?><?php if (peut('ouvrages.ajouter')): ?><a class="btn" href="<?= e(admin_url('ouvrages/nouveau')) ?>"><i class="fa-solid fa-plus"></i> Nouvel ouvrage</a><?php endif; ?></div>
 </div>
 
 <form class="filtres" method="get">
-	<input type="search" name="q" value="<?= e($q) ?>" placeholder="Titre, auteur, cote, ISBN, code…">
+	<input type="search" name="q" value="<?= e($q) ?>" placeholder="Titre, auteur, collection, cote, ISBN, code…">
 	<select name="domaine">
 		<option value="">Tous les domaines</option>
 		<?php foreach ($domaines as $d): ?><option value="<?= $d['id'] ?>"<?= $domaine === (int) $d['id'] ? ' selected' : '' ?>><?= e($d['nom']) ?></option><?php endforeach; ?>
@@ -19,10 +19,17 @@
 		<option value="brouillon"<?= $etat === 'brouillon' ? ' selected' : '' ?>>Non publiés</option>
 		<option value="coeur"<?= $etat === 'coeur' ? ' selected' : '' ?>>Coups de cœur</option>
 		<option value="desactive"<?= $etat === 'desactive' ? ' selected' : '' ?>>Désactivés</option>
+<?php if ($sansType): ?>
+		<option value="sans-type"<?= $etat === 'sans-type' ? ' selected' : '' ?>>Sans type de document (<?= $sansType ?>)</option>
+<?php endif; ?>
 	</select>
 	<button class="btn secondaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
 	<span class="doux"><?= e(pluriel($pg['total'], 'ouvrage')) ?></span>
 </form>
+<?php if ($sansType && $etat !== 'sans-type'): ?>
+<p class="doux"><i class="fa-solid fa-circle-info"></i> Le type de document est maintenant obligatoire.
+	<a href="<?= e(admin_url('ouvrages', ['etat' => 'sans-type'])) ?>"><?= e(pluriel($sansType, 'ouvrage n’a pas encore de type', 'ouvrages n’ont pas encore de type')) ?></a> : complétez-les à l’occasion.</p>
+<?php endif; ?>
 
 <div class="carte" style="padding:0">
 <?php if (!$liste): ?>

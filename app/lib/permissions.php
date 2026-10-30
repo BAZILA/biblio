@@ -46,13 +46,16 @@ const PERMISSIONS = [
         'exemplaires' => ['Exemplaires', [
             'ajouter' => 'Ajouter', 'modifier' => 'Modifier', 'supprimer' => 'Supprimer',
             'retirer' => 'Retirer de la circulation ou y remettre',
-        ], 'Sur la fiche d’un ouvrage (nécessite « Ouvrages : voir ») : « Modifier » = bouton ✓ (état, notes), « Retirer » = boutons Retirer / Remettre, « Supprimer » = corbeille rouge (exemplaire jamais prêté).'],
+        ], 'Sur la fiche d’un ouvrage (nécessite « Ouvrages : voir ») : « Modifier » = bouton ✓ (état, notes) et « Renuméroter d’après la cote », « Ajouter » = « Ajouter des exemplaires » et « Remplacer » (un exemplaire neuf reprend le code d’un exemplaire retiré), « Retirer » = boutons Retirer / Remettre, « Supprimer » = corbeille rouge (exemplaire jamais prêté).'],
         'auteurs' => ['Auteurs', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (auteur lié à aucun ouvrage).'],
         'domaines' => ['Domaines', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (domaine sans ouvrage).'],
         'types' => ['Types de documents', ACTIONS_STANDARD, '« Supprimer » = bouton rouge en bas de la fiche (ses ouvrages passent « sans type »).'],
+        'collections' => ['Collections', ACTIONS_STANDARD, 'Collections éditoriales (« Que sais-je ? ») choisies sur la fiche d’un ouvrage. « Supprimer » = bouton rouge en bas de la fiche (collection sans ouvrage).'],
+        'dewey' => ['Indexation décimale (Dewey)', ACTIONS_STANDARD, 'Index des classes Dewey proposées sur la fiche d’un ouvrage. Les 10 classes et leurs divisions sont fournies ; vous pouvez ajouter vos propres subdivisions.'],
         'import' => ['Importer un fichier', [
             'auteurs' => 'Importer des auteurs',
-            'ouvrages' => 'Importer des ouvrages (crée aussi domaines et types)',
+            'ouvrages' => 'Importer des ouvrages (crée aussi domaines, types et collections)',
+            'collections' => 'Importer des collections éditoriales',
             'etudiants' => 'Charger ou mettre à jour la liste des étudiants',
         ], ''],
     ],
