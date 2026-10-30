@@ -1,15 +1,9 @@
 # Identifiants / config locale (ne pas versionner)
-/configuration.php
-/configuration.bak.php
+/app/config.php
+/install/IDENTIFIANTS.txt
+/install/SYSTEME.txt
+/install/IDENTIFIANTS_TEST.txt
 /php.ini
-
-# Caches et fichiers temporaires
-/cache/
-/administrator/cache/
-/administrator/logs/
-/tmp/
-/logs/
-/media/cache/
 
 # Journaux
 error_log
@@ -19,12 +13,10 @@ php_error.log
 # Sauvegardes
 *.zip
 *.sql
+!/install/schema.sql
+!/install/contenu_site.sql
+!/install/contenu_accueil.sql
 *.tgz
-*.jpa
-*.j01
-/administrator/components/com_akeebabackup/backup/*
-!/administrator/components/com_akeebabackup/backup/index.html
-!/administrator/components/com_akeebabackup/backup/.htaccess
 
 # OS / éditeur
 Thumbs.db
@@ -33,3 +25,10 @@ Desktop.ini
 .idea/
 .vscode/
 .cursor/
+
+# Envois faits depuis l'administration sur le serveur (vidéos du diaporama)
+/images/videos/
+
+# Comptes créés en lot (mots de passe provisoires) et listes de personnes
+/install/COMPTES_*.csv
+*.xlsx

@@ -1,0 +1,10 @@
+# Dossier des images envoyées depuis l'administration : aucun script ne doit jamais s'y exécuter,
+# même si un fichier malveillant y était déposé (indépendant de mod_rewrite).
+<FilesMatch "(?i)\.(php\d?|phtml|phar|pl|py|cgi|sh|shtml)$">
+  Require all denied
+</FilesMatch>
+<IfModule php_module>
+  php_flag engine off
+</IfModule>
+AcceptPathInfo Off
+Options -ExecCGI -Indexes

@@ -1,0 +1,306 @@
+/*
+ * Styles des éléments ajoutés au thème d'origine : messages, panneau de prêt,
+ * espace lecteur. Couleurs reprises des variables du thème (--uk-*, custom.css).
+ */
+
+/* Messages */
+.biblio-alert { margin: 20px 0; padding: 14px 18px; border-left: 4px solid var(--uk-blue); background: var(--uk-soft); color: var(--uk-navy); border-radius: 4px; }
+.biblio-alert-succes { border-color: var(--uk-green); background: #e7f7ec; }
+.biblio-alert-erreur { border-color: #d0342c; background: #fdecea; color: #7a1d17; }
+.biblio-alert-info { border-color: var(--uk-gold); background: #fff7e0; }
+.biblio-vide { color: #5f6b7a; font-style: italic; }
+.biblio-aide { color: #5f6b7a; font-size: 14px; }
+.biblio-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Disponibilité : vert (défaut du thème), orange si emprunté, gris si sur place */
+.fields-container .field-entry.f-disponibilite .biblio-dispo-emprunte,
+.fields-container .field-entry.f-disponibilite .biblio-dispo-indisponible { color: #b85c00; }
+.fields-container .field-entry.f-disponibilite .biblio-dispo-consultation-sur-place { color: var(--uk-blue); }
+.biblio-dispo-disponible { color: var(--uk-green); font-weight: 700; }
+.biblio-dispo-emprunte { color: #b85c00; font-weight: 700; }
+
+/* Panneau « Emprunter cet ouvrage » sur la fiche */
+.biblio-sous-titre { margin: -6px 0 10px; font-size: 18px; font-style: italic; color: #555; }
+.biblio-pret { clear: both; margin: 30px 0; padding: 22px 26px; background: #fff; border-top: 4px solid var(--uk-green); border-radius: 4px; }
+.biblio-pret h3 { margin-top: 0; font-size: 20px; }
+.biblio-pret h3 .fa { color: var(--uk-green); margin-right: 6px; }
+.biblio-pret form { display: inline-block; margin: 0 0 10px; }
+
+/* Espace lecteur */
+.biblio-compte { padding: 20px 0 40px; }
+.biblio-compte-etroit { max-width: 620px; margin: 0 auto; }
+.biblio-compte-boite { padding: 25px 30px; background: #fff; margin-top: 20px; }
+.biblio-compte-boite .control-group { margin-bottom: 15px; }
+.biblio-compte-boite .help-inline, .contact-form .help-inline { display: block; color: #d0342c; font-size: 13px; margin-top: 4px; }
+.biblio-compte-entete { display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; border-bottom: 1px solid #e3e7ef; padding-bottom: 15px; margin-bottom: 10px; }
+.biblio-compte-entete h1 { margin: 0 0 5px; }
+.biblio-compte-section { margin-top: 35px; }
+.biblio-compte-section h2 { font-size: 22px; margin-bottom: 15px; }
+.biblio-compte-section h2 .fa { color: var(--uk-blue); margin-right: 6px; }
+.biblio-form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+.biblio-form-ligne { display: flex; flex-wrap: wrap; gap: 10px; max-width: 760px; }
+.biblio-form-ligne .form-control { flex: 1 1 200px; width: auto; }
+@media (max-width: 600px) { .biblio-form-2col { grid-template-columns: 1fr; } }
+
+.biblio-table-wrap { overflow-x: auto; }
+.biblio-table { width: 100%; border-collapse: collapse; background: #fff; }
+.biblio-table th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #5f6b7a; border-bottom: 2px solid #e3e7ef; padding: 10px 12px; }
+.biblio-table td { border-bottom: 1px solid #eceff2; padding: 12px; vertical-align: top; }
+.biblio-table tr.biblio-retard td { background: #fff5f4; }
+.biblio-actions { text-align: right; white-space: nowrap; }
+.biblio-actions form { display: inline; margin: 0; }
+
+.biblio-badge { display: inline-block; margin-top: 4px; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: var(--uk-soft); color: var(--uk-blue); }
+.biblio-badge-vert { background: #e7f7ec; color: var(--uk-green); }
+.biblio-badge-orange { background: #fff3dc; color: #b85c00; }
+.biblio-badge-rouge { background: #fdecea; color: #b3261e; }
+
+/* Lien « Mon compte » dans le menu */
+@media (min-width: 992px) {
+  /* Resserre légèrement le menu pour loger l'icône de l'espace lecteur sur la même ligne */
+  #t3-mainnav.navbar-default .navbar-nav > li > a { padding-left: 7px; padding-right: 7px; }
+}
+#t3-mainnav .biblio-nav-compte > a .fa { font-size: 22px; vertical-align: -2px; }
+#t3-mainnav .biblio-nav-compte .biblio-nav-libelle { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 991px) {
+  /* Menu replié (mobile) : on affiche le libellé à côté de l'icône */
+  #t3-mainnav .biblio-nav-compte .biblio-nav-libelle { position: static; width: auto; height: auto; clip: auto; margin-left: 8px; }
+}
+
+/* Page d'erreur */
+.biblio-erreur { text-align: center; padding: 60px 0; }
+.biblio-erreur .biblio-search { max-width: 520px; margin: 25px auto; }
+
+/* Mobile : rien ne doit élargir la page (flèche du carrousel « Coups de cœur », ligne des auteurs sur la fiche) */
+.wrap.bottomspot-3 { overflow-x: clip; }
+@media (max-width: 767px) {
+  .article-info dd { white-space: normal; }
+}
+
+/* Carrousels : couvertures recadrées comme les vignettes 400×600 d'origine */
+.jt-cs .jt-imagecover img.jtcs-image { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; }
+
+/* Bouton « Rechercher » : icône visible (le thème colorait le glyphe comme le fond) et centrée */
+.biblio-search .btn, .biblio-search-row .btn, .biblio-finder .btn {
+	display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+}
+.biblio-search .btn .fa, .biblio-search-row .btn .fa, .biblio-finder .btn .fa {
+	margin: 0 !important; padding: 0 !important; width: auto !important; height: auto !important; font-size: 15px !important; background: none !important; border: 0 !important;
+}
+.biblio-search .btn .fa::before, .biblio-search-row .btn .fa::before, .biblio-finder .btn .fa::before {
+	color: #fff !important; position: static !important; display: inline !important; width: auto !important; line-height: 1 !important;
+}
+
+/* Cartes d'ouvrages (types, auteurs, catalogue, domaines) : hauteur identique, contenus alignés.
+   Chaque zone a une hauteur fixe en lignes ; le texte trop long est coupé proprement. */
+.biblio-cards { align-items: stretch; }
+.biblio-card { height: 100%; }
+.biblio-card-body { gap: 0; }
+.biblio-card-domain { display: block; font-size: 13px; line-height: 20px; height: 20px; color: var(--uk-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+.biblio-card-domain:hover { text-decoration: underline; }
+.biblio-card-body h3 { font-size: 17px; line-height: 23px; height: 46px; margin: 8px 0 6px; overflow: hidden;
+	display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.biblio-card-authors { font-size: 13px; line-height: 20px; height: 20px; margin: 0 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.biblio-card-badges { display: flex; flex-wrap: nowrap; gap: 6px; height: 22px; margin: 0 0 12px; overflow: hidden; }
+.biblio-badge { display: inline-block; padding: 0 9px; line-height: 22px; border-radius: 11px; font-size: 11.5px; font-weight: 600; background: #eef1f9; color: var(--uk-blue); white-space: nowrap; }
+.biblio-badge.biblio-dispo-disponible { background: #e5f5ea; color: var(--uk-green); }
+.biblio-badge.biblio-dispo-emprunte, .biblio-badge.biblio-dispo-indisponible { background: #fdf0e1; color: #b85c00; }
+.biblio-card-text { font-size: 14px; line-height: 21px; height: 63px; margin: 0 0 16px; overflow: hidden;
+	display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.biblio-card-body .btn { margin-top: auto; align-self: flex-start; }
+.com-content-category-blog .biblio-cards { margin-top: 10px; }
+
+/* Carrousels « Nouveautés » et « Coups de cœur » : cartes de même hauteur, zones alignées d'une carte à l'autre */
+.jtcs-nouveautes .jt-category, .jtcs-coeur .jt-category { height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 {
+	height: 52px; padding: 0 0 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.jtcs-nouveautes .jt-introtext, .jtcs-coeur .jt-introtext {
+	height: 67px; margin: 10px 0 12px; text-align: left; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.jtcs-nouveautes .jt-author-date, .jtcs-coeur .jt-author-date { height: 20px; margin: 10px 0; overflow: hidden; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.jtcs-nouveautes .owl-stage, .jtcs-coeur .owl-stage { display: flex; }
+.jtcs-nouveautes .owl-item, .jtcs-coeur .owl-item { display: flex; }
+.jtcs-nouveautes .owl-item > *, .jtcs-coeur .owl-item > * { width: 100%; }
+
+/* Citations : toutes les cartes à la même hauteur, l'auteur calé en bas */
+.jt_testimonial-biblio .owl2-stage { display: flex; }
+.jt_testimonial-biblio .owl2-item { display: flex; height: auto; }
+.jt_testimonial-biblio .jt_testimonial-outer { display: flex; width: 100%; }
+.jt_testimonial-biblio .jt_testimonial-block-slide { display: flex; flex-direction: column; width: 100%; }
+.jt_testimonial-biblio .testimonial_block-text { flex: 1 0 auto; }
+.jt_testimonial-biblio .testimonial_block { margin-top: auto; align-items: center; }
+
+/* Tuiles « Explorez le catalogue par domaine » : bouton aligné en bas */
+.biblio-domaines { display: flex; flex-wrap: wrap; }
+.biblio-domaines .col-md-3 { display: flex; }
+.biblio-domaines .xl-services-box-wrapper, .biblio-domaines .services-count-2 { display: flex; flex-direction: column; width: 100%; }
+.biblio-domaines .services-count-2 { flex: 1; }
+.biblio-domaines .services-content { display: flex; flex-direction: column; flex: 1; }
+.biblio-domaines .services-content .btn { margin-top: auto; align-self: center; }
+
+/* ---------- Espace lecteur ---------- */
+.cpt { padding: 30px 0 50px; }
+.cpt-profil { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 22px 26px; color: #fff;
+	background: linear-gradient(120deg, var(--uk-blue) 0%, #1a2d75 60%, var(--uk-navy, #0b1f4a) 100%); }
+.cpt-avatar { width: 64px; height: 64px; flex: 0 0 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+	background: rgba(255, 255, 255, .16); border: 2px solid rgba(255, 255, 255, .5); font: 700 24px/1 'Poppins', sans-serif; letter-spacing: .02em; }
+.cpt-identite { flex: 1 1 260px; }
+.cpt-identite h1 { color: #fff; margin: 0 0 4px; font-size: 30px; }
+.cpt-identite p { margin: 0; color: rgba(255, 255, 255, .82); }
+.cpt-profil .btn-default { background: rgba(255, 255, 255, .12) !important; border: 1px solid rgba(255, 255, 255, .45) !important; color: #fff !important; }
+.cpt-profil .btn-default:hover { background: rgba(255, 255, 255, .22) !important; }
+
+/* Cartes à angles droits, sans liseré de couleur */
+.cpt-chiffre, .cpt-pret, .cpt-carte, .cpt-vide, .cpt-table { border-radius: 0; background: #fff; border: 1px solid #e3e7ef; box-shadow: 0 4px 16px rgba(11, 31, 74, .05); }
+
+.cpt-chiffres { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 20px 0 28px; }
+.cpt-chiffre { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; padding: 16px 18px; }
+.cpt-chiffre .fa { grid-row: 1 / 3; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #eef1f9; color: var(--uk-blue); font-size: 18px; }
+.cpt-chiffre strong { font: 700 24px/1.1 'Poppins', sans-serif; color: #1c2433; }
+.cpt-chiffre strong small { font-size: 15px; color: #7a8594; font-weight: 600; }
+.cpt-chiffre span { font-size: 13px; color: #5f6b7a; }
+.cpt-chiffre.alerte .fa { background: #fde8e6; color: #c0362c; }
+.cpt-chiffre.attention .fa { background: #fff3dc; color: #b85c00; }
+.cpt-chiffre.ok .fa { background: #e5f5ea; color: var(--uk-green); }
+
+.cpt-section { margin-bottom: 34px; }
+.cpt-section h2, .cpt-carte h2 { font-size: 20px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+.cpt-section h2 .fa, .cpt-carte h2 .fa { color: var(--uk-blue); }
+
+/* Prêts et réservations : 3 cartes par ligne */
+.cpt-cartes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
+.cpt-pret { display: flex; flex-direction: column; padding: 18px; }
+.cpt-pret.retard { background: #fffafa; }
+.cpt-pret-tete { display: flex; gap: 14px; margin-bottom: 14px; }
+.cpt-couv { flex: 0 0 70px; }
+.cpt-couv img { display: block; width: 70px; aspect-ratio: 2 / 3; object-fit: cover; box-shadow: 0 3px 10px rgba(0, 0, 0, .15); }
+.cpt-pret-tete h3 { font-size: 17px; margin: 0 0 6px; line-height: 1.3; }
+.cpt-pret-tete h3 a { color: #1c2433; }
+.cpt-meta { font-size: 13px; line-height: 1.5; color: #7a8594; margin: 0; }
+.cpt-echeance { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; font-size: 14px; padding-top: 12px; border-top: 1px solid #eef0f5; }
+.cpt-etat { font-weight: 700; color: var(--uk-green); }
+.cpt-pret.bientot .cpt-etat { color: #b85c00; }
+.cpt-pret.retard .cpt-etat { color: #c0362c; }
+.cpt-barre { height: 6px; margin: 8px 0 14px; background: #eceff5; overflow: hidden; }
+.cpt-barre span { display: block; height: 100%; background: var(--uk-green); }
+.cpt-pret.bientot .cpt-barre span { background: #e08a00; }
+.cpt-pret.retard .cpt-barre span { background: #c0362c; }
+.cpt-prolongation { margin-top: auto; }
+.cpt-pied { margin: auto 0 0; }
+
+.cpt-info { font-size: 13.5px; line-height: 1.45; margin: 0 0 10px; padding: 8px 12px; background: #eef1f9; color: var(--uk-blue); }
+.cpt-info .fa { margin-right: 6px; }
+.cpt-info.attente { background: #fff6dc; color: #8a5a00; }
+.cpt-info.ok { background: #e5f5ea; color: #0b6b31; }
+.cpt-info.refus { background: #fde8e6; color: #9c2a22; }
+.cpt-mot { font-size: 13.5px; line-height: 1.45; margin: 0 0 10px; padding: 8px 12px; border: 1px solid #e3e7ef; color: #3d4757; overflow-wrap: anywhere; }
+.cpt-mot span { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #7a8594; margin-bottom: 3px; }
+.cpt-aide { font-size: 13px; color: #7a8594; margin: 0 0 8px; }
+.cpt-demande summary { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--uk-blue); padding: 4px 0; list-style: none; }
+.cpt-demande summary::-webkit-details-marker { display: none; }
+.cpt-demande summary:hover { text-decoration: underline; }
+.cpt-demande form { margin-top: 8px; padding: 12px; background: #f6f8fc; }
+.cpt-demande label, .cpt-form label { display: block; font-weight: 600; font-size: 14px; margin: 0 0 6px; }
+.cpt-demande textarea { width: 100%; margin-bottom: 8px; height: auto !important; border-radius: 0; }
+
+.cpt-vide { text-align: center; padding: 30px 20px; border-style: dashed; box-shadow: none; }
+.cpt-vide .fa { font-size: 34px; color: #c3cbe0; }
+.cpt-vide p { color: #7a8594; margin: 8px 0 14px; }
+.cpt-pastille { display: inline-block; margin-left: 6px; padding: 0 8px; font-size: 11.5px; font-weight: 700; background: #fff3dc; color: #b85c00; }
+
+/* Profil, règles, mot de passe : sous l’en-tête, 3 colonnes */
+.cpt-bas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: stretch; margin-bottom: 34px; }
+.cpt-carte { padding: 20px; }
+.cpt-carte h2 { font-size: 17px; }
+.cpt-fiche { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0 0 10px; font-size: 14px; }
+.cpt-fiche dt { color: #7a8594; font-weight: 400; }
+.cpt-fiche dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.cpt-regles { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.cpt-regles li { padding: 7px 0 7px 22px; position: relative; border-bottom: 1px solid #f0f2f6; }
+.cpt-regles li:last-child { border-bottom: 0; }
+.cpt-regles li::before { content: ""; position: absolute; left: 4px; top: 14px; width: 7px; height: 7px; background: var(--uk-blue); }
+.cpt-form .form-control { width: 100%; margin-bottom: 12px; border-radius: 0; }
+.cpt-form .btn { width: 100%; }
+
+@media (max-width: 991px) {
+	.cpt-cartes, .cpt-bas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.cpt-chiffres { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+	.cpt-cartes, .cpt-bas { grid-template-columns: 1fr; }
+	.cpt-profil { padding: 18px; }
+	.cpt-identite h1 { font-size: 24px; }
+	.cpt-chiffres { gap: 10px; }
+	.cpt-chiffre { padding: 12px; column-gap: 8px; }
+	.cpt-chiffre .fa { width: 34px; height: 34px; font-size: 15px; }
+}
+
+/* Cartes des carrousels : titre sur 3 lignes maximum et auteur entier, sans rien masquer
+   (le thème impose display:flow-root, une hauteur fixe et un séparateur à droite de l'auteur) */
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 {
+	display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+	height: 72px !important; line-height: 24px !important; padding: 0 !important; margin: 0 0 4px !important; overflow: hidden !important; }
+.jtcs-nouveautes .jt-introtitle-container h3 a, .jtcs-coeur .jt-introtitle-container h3 a { display: inline !important; line-height: 24px !important; }
+.jtcs-nouveautes .jt-introtext, .jtcs-coeur .jt-introtext {
+	display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+	height: 67px !important; text-align: left !important; overflow: hidden !important; }
+.jtcs-nouveautes .jt-author-date, .jtcs-coeur .jt-author-date { display: block !important; height: auto !important; min-height: 22px; overflow: visible !important; margin: 10px 0 !important; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author {
+	display: block !important; width: 100%; height: auto !important; line-height: 22px !important; margin: 0 !important; padding: 0 !important;
+	border: 0 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jtcs-nouveautes .jt-author .fas, .jtcs-coeur .jt-author .fas { margin-right: 6px; }
+/* Titres longs : 4 lignes ; auteurs longs : 2 lignes (hauteurs fixes pour garder l'alignement) */
+.jtcs-nouveautes .jt-introtitle-container h3, .jtcs-coeur .jt-introtitle-container h3 { -webkit-line-clamp: 4; height: 88px !important; line-height: 22px !important; font-size: 18px !important; }
+.jtcs-nouveautes .jt-introtitle-container h3 a, .jtcs-coeur .jt-introtitle-container h3 a { line-height: 22px !important; font-size: 18px !important; }
+.jtcs-nouveautes .jt-author, .jtcs-coeur .jt-author { white-space: normal; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; height: 44px !important; }
+
+/* Création de compte : choix du profil (étudiant de la liste de l'université ou autre lecteur) */
+.biblio-profils { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 15px 0 20px; border: 1px solid #e3e7ef; background: #fff; }
+.biblio-profils a { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 12px; font-weight: 600; text-align: center; color: #3b4656; text-decoration: none; border-bottom: 3px solid transparent; }
+.biblio-profils a + a { border-left: 1px solid #e3e7ef; }
+.biblio-profils a:hover, .biblio-profils a:focus { color: var(--uk-blue); background: #f6f8fc; }
+.biblio-profils a.actif { color: var(--uk-blue); border-bottom-color: var(--uk-blue); background: #f6f8fc; }
+.biblio-compte-boite .biblio-aide { display: block; margin-top: 4px; }
+@media (max-width: 480px) { .biblio-profils { grid-template-columns: 1fr; } .biblio-profils a + a { border-left: 0; border-top: 1px solid #e3e7ef; } }
+.biblio-compte-boite .form-control { width: 100%; max-width: 100%; box-sizing: border-box; }
+
+/* ---------------------------------------------------------------------------
+   Fiche d'un ouvrage : couverture et localisation à gauche, caractéristiques à
+   droite, présentation en pleine largeur dessous (le texte ne se glisse plus
+   dans la colonne étroite à côté de la couverture).
+   --------------------------------------------------------------------------- */
+.item-page .biblio-fiche::after { content: ''; display: table; clear: none; }
+.item-page .biblio-fiche-visuel { float: left; width: 280px; margin: 0 35px 25px 0; }
+.item-page .biblio-fiche .item-image { float: none !important; max-width: none; margin: 0; }
+.item-page .biblio-fiche .fields-container { float: none !important; width: auto; margin: 0 0 22px; }
+/* overflow:hidden = le bloc des caractéristiques se place à côté de la couverture sans passer dessous */
+.item-page .biblio-fiche-infos { overflow: hidden; min-width: 0; }
+
+/* Caractéristiques : libellé et valeur alignés en deux colonnes, valeurs longues coupées proprement */
+.item-page .fields-container .field-entry { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 2px 14px; align-items: baseline; }
+.item-page .fields-container .field-label { min-width: 0; }
+.item-page .fields-container .field-value { overflow-wrap: anywhere; }
+
+/* Où le trouver : l'information que le lecteur cherche avant de se déplacer */
+.biblio-ou { margin-top: 20px; padding: 16px 18px; background: #fff7e0; border-left: 4px solid var(--uk-gold); border-radius: 4px; }
+.biblio-ou h3 { margin: 0 0 10px; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--uk-navy); }
+.biblio-ou h3 .fa { color: #b85c00; margin-right: 6px; }
+.biblio-ou p { margin: 0 0 7px; line-height: 1.45; }
+.biblio-ou p:last-child { margin-bottom: 0; }
+.biblio-ou-centre { font-weight: 700; color: var(--uk-navy); font-size: 16px; }
+.biblio-ou-campus { display: inline-block; margin-left: 4px; padding: 1px 9px; border-radius: 20px; background: var(--uk-blue); color: #fff; font-size: 12px; font-weight: 700; vertical-align: middle; }
+.biblio-ou-ligne { color: #4a5362; font-size: 14px; }
+.biblio-ou-ligne .fa { width: 16px; margin-right: 4px; color: #b85c00; }
+.biblio-ou-cote { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e4cf9a; }
+.biblio-ou-cote span { font-size: 13px; color: #7a6a3f; margin-right: 6px; }
+.biblio-ou-cote strong { display: inline-block; padding: 3px 12px; border-radius: 4px; background: var(--uk-navy); color: #fff; font-family: Consolas, "Courier New", monospace; letter-spacing: .04em; }
+
+/* Présentation : elle remplit la place laissée à droite, puis reprend toute la largeur sous la couverture */
+.item-page .article-content { overflow-wrap: anywhere; }
+.item-page .article-content p { margin-bottom: 1.1em; }
+.item-page .article-content img { max-width: 100%; height: auto; }
+
+@media (max-width: 767px) {
+  .item-page .biblio-fiche-visuel { float: none; width: auto; max-width: 240px; margin: 0 auto 22px; }
+  .item-page .fields-container .field-entry { grid-template-columns: 1fr; }
+}

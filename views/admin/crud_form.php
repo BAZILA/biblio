@@ -1,0 +1,71 @@
+<?php /** Formulaire générique. @var array $res, $ligne, $erreurs @var string $section @var bool $lectureSeule */ ?>
+<?php if (in_array('icone', array_column($res['champs'], 1), true)): ?>
+<link rel="stylesheet" href="<?= asset('theme/fonts/font-awesome/css/font-awesome.min.css') ?>"><?php /* icônes FA4 utilisées par le site public, pour l'aperçu */ ?>
+<?php endif; ?>
+<div class="fil"><a href="<?= e(admin_url($section)) ?>"><?= e($res['titre']) ?></a> ›</div>
+<div class="entete"><h1><?= e($ligne['id'] ? $res['modifier'] : $res['nouveau']) ?></h1><?= $lectureSeule ? '<span class="badge">Lecture seule</span>' : '' ?></div>
+
+<form method="post" enctype="multipart/form-data" class="carte" style="max-width:760px">
+	<?= csrf_field() ?>
+	<fieldset class="sans-cadre"<?= $lectureSeule ? ' disabled' : '' ?>>
+<?php foreach ($res['champs'] as $nom => [$libelle, $type, $opts]):
+    $valeur = $ligne[$nom] ?? '';
+    if ($type === 'image'): ?>
+	<div class="champ<?= isset($erreurs[$nom]) ? ' en-erreur' : '' ?>">
+		<label><?= e($libelle) ?></label>
+		<img id="apercu-<?= $nom ?>" class="apercu-image" src="<?= $valeur ? e(media($valeur)) : '' ?>" alt="" style="<?= $valeur ? '' : 'display:none' ?>">
+		<input type="file" name="<?= $nom ?>" accept="image/jpeg,image/png,image/webp,image/gif" data-apercu="apercu-<?= $nom ?>">
+		<?php if (!empty($opts['aide'])): ?><div class="aide"><?= e($opts['aide']) ?></div><?php endif; ?>
+		<?php if (isset($erreurs[$nom])): ?><div class="erreur"><?= e($erreurs[$nom]) ?></div><?php endif; ?>
+	</div>
+<?php elseif ($type === 'video'): ?>
+	<div class="champ<?= isset($erreurs[$nom]) ? ' en-erreur' : '' ?>">
+		<label><?= e($libelle) ?></label>
+<?php if ($valeur): ?>
+		<video src="<?= e(media($valeur)) ?>" class="apercu-image" muted loop playsinline controls preload="metadata"></video>
+		<label class="case"><input type="checkbox" name="retirer_<?= $nom ?>" value="1"> Retirer la vidéo</label>
+<?php endif; ?>
+		<input type="file" name="<?= $nom ?>" accept="video/mp4,video/webm">
+		<div class="aide"><?= e($opts['aide'] ?? '') ?> <?= round(video_taille_max() / 1048576) ?> Mo au maximum sur ce serveur.</div>
+		<?php if (isset($erreurs[$nom])): ?><div class="erreur"><?= e($erreurs[$nom]) ?></div><?php endif; ?>
+	</div>
+<?php elseif ($type === 'slug'): ?>
+	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['attrs' => 'data-slug-de="nom"' . (isset($opts['prefixe']) ? ' data-prefixe="' . e($opts['prefixe']) . '"' : '')]) ?>
+<?php elseif ($type === 'icone'): ?>
+	<div class="champ champ-icone">
+		<label><?= e($libelle) ?></label>
+		<div class="icone-apercu">
+			<span class="tuile"><i class="fa <?= e($valeur ?: 'fa-book') ?>" aria-hidden="true"></i></span>
+			<div style="flex:1">
+				<input type="search" placeholder="Filtrer : droit, santé, informatique…" aria-label="Filtrer les icônes">
+				<div class="aide">Cliquez sur une icône. Elle apparaît sur la carte du domaine, page d’accueil du site.</div>
+			</div>
+		</div>
+		<div class="choix-icones">
+<?php foreach (ICONES_DOMAINES as $icone => $mots): ?>
+			<button type="button" data-icone="<?= e($icone) ?>" data-mots="<?= e(mb_strtolower($icone . ' ' . $mots)) ?>" class="<?= $icone === $valeur ? 'choisi' : '' ?>" title="<?= e($mots) ?>"><i class="fa <?= e($icone) ?>" aria-hidden="true"></i><?= e(explode(' ', $mots)[0]) ?></button>
+<?php endforeach; ?>
+		</div>
+		<details style="margin-top:8px"><summary class="doux">Autre icône (nom Font Awesome 4)</summary>
+			<input type="text" id="f_<?= $nom ?>" name="<?= $nom ?>" value="<?= e($valeur) ?>" placeholder="fa-book" style="margin-top:6px;max-width:260px">
+		</details>
+	</div>
+<?php else: ?>
+	<?= champ($nom, $libelle, $valeur, $erreurs, $opts + ['type' => $type]) ?>
+<?php endif; ?>
+<?php endforeach; ?>
+	</fieldset>
+	<div class="form-actions">
+<?php if (!$lectureSeule): ?>
+		<button class="btn" type="submit"><i class="fa-solid fa-circle-check"></i> Enregistrer</button>
+<?php endif; ?>
+		<a class="btn secondaire" href="<?= e(admin_url($section)) ?>"><?= $lectureSeule ? 'Retour à la liste' : 'Annuler' ?></a>
+	</div>
+</form>
+
+<?php if ($ligne['id'] && peut($section . '.supprimer')): ?>
+<form method="post" action="<?= e(admin_url($section . '/supprimer/' . $ligne['id'])) ?>" data-confirmer="Supprimer définitivement cet élément ?" style="max-width:760px">
+	<?= csrf_field() ?>
+	<button class="btn danger" type="submit"><i class="fa-solid fa-trash"></i> Supprimer</button>
+</form>
+<?php endif; ?>
